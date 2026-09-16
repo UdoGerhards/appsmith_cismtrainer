@@ -1,0 +1,116 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_195d34f4-0e64-44ac-9998-9c4a536f1cbd",
+  "id": "Test_GetQuestions",
+  "pluginId": "mongo-plugin",
+  "pluginType": "DB",
+  "unpublishedAction": {
+    "actionConfiguration": {
+      "encodeParamsToggle": true,
+      "formData": {
+        "aggregate": {
+          "arrayPipelines": {
+            "data": "[\n  {\n    \"$match\": {\n      \"domain\": { \n        \"$in\": {{ appsmith.store.domains }} \n      }\n    }\n  },\n  {\n    \"$lookup\": {\n      \"from\": \"answer\",\n      \"localField\": \"_id\",\n      \"foreignField\": \"question_id\",\n      \"as\": \"answers\"\n    }\n  }\n]"
+          },
+          "limit": {
+            "data": "20000"
+          }
+        },
+        "body": {
+          "data": "{\n  \"aggregate\": \"question\",\n  \"pipeline\": {{\n  (() => {\n    const targetDomain = this.params.domain || \"\";\n    const limitCount = Number(this.params.questionLimit) || 10;\n    const isWeighted = Switch2.isSwitchedOn;\n    const priorityLimit = Number(this.params.minOccure) || 0;\n    let pipeline = [\n      {\n        \"$match\": {\n          \"domain\": targetDomain\n        }\n      }\n    ];\n\n    if (!isWeighted) {\n      // MODUS 1: Gewichtung AUS -> Reine Zufallsauswahl\n      pipeline.push(\n        { \"$sample\": { \"size\": limitCount } }\n      );\n    } else {\n      // MODUS 2: Gewichtung EIN -> Usage Count ermitteln und priorisieren\n      pipeline.push(\n        {\n          \"$lookup\": {\n            \"from\": \"appsmith_test\",\n            \"let\": { \"qIdStr\": { \"$toString\": \"$_id\" } },\n            \"pipeline\": [\n              { \"$unwind\": \"$questions\" },\n              {\n                \"$match\": {\n                  \"$expr\": { \"$eq\": [\"$questions._id\", \"$$qIdStr\"] }\n                }\n              },\n              { \"$count\": \"occurrenceCount\" }\n            ],\n            \"as\": \"testCountData\"\n          }\n        },\n        {\n          \"$addFields\": {\n            \"usageCount\": {\n              \"$ifNull\": [{ \"$arrayElemAt\": [\"$testCountData.occurrenceCount\", 0] }, 0]\n            },\n            \"randomOrder\": { \"$rand\": {} }\n          }\n        },\n        {\n          \"$project\": {\n            \"testCountData\": 0\n          }\n        },\n        {\n          \"$match\": {\n            \"usageCount\": { \"$lte\": priorityLimit }\n          }\n        },\n        {\n          \"$sort\": {\n            \"usageCount\": 1,\n            \"randomOrder\": 1\n          }\n        },\n        {\n          \"$limit\": limitCount\n        }\n      );\n    }\n\n    // Antworten anhängen\n    pipeline.push(\n      {\n        \"$lookup\": {\n          \"from\": \"answer\",\n          \"localField\": \"_id\",\n          \"foreignField\": \"question_id\",\n          \"as\": \"answers\"\n        }\n      }\n    );\n\n    return pipeline;\n  })()\n}},\n  \"cursor\": {\n  \"batchSize\": {{ Number(this.params.questionLimit) || 10 }}\n}\n}"
+        },
+        "collection": {
+          "componentData": "question",
+          "data": "question",
+          "viewType": "json"
+        },
+        "command": {
+          "data": "RAW"
+        },
+        "count": {
+          "query": {
+            "data": ""
+          }
+        },
+        "delete": {
+          "limit": {
+            "data": "SINGLE"
+          },
+          "query": {
+            "data": ""
+          }
+        },
+        "distinct": {
+          "key": {
+            "data": ""
+          },
+          "query": {
+            "data": ""
+          }
+        },
+        "find": {
+          "limit": {
+            "data": ""
+          },
+          "projection": {
+            "data": ""
+          },
+          "query": {
+            "data": ""
+          },
+          "skip": {
+            "data": ""
+          },
+          "sort": {
+            "data": ""
+          }
+        },
+        "insert": {
+          "documents": {
+            "data": ""
+          }
+        },
+        "misc": {
+          "formToNativeQuery": {
+            "data": "{\n  \"aggregate\": \"question\",\n  \"pipeline\": [\n  {\n    \"$match\": {\n      \"domain\": { \n        \"$in\": {{ appsmith.store.domains }} \n      }\n    }\n  },\n  {\n    \"$lookup\": {\n      \"from\": \"answer\",\n      \"localField\": \"_id\",\n      \"foreignField\": \"question_id\",\n      \"as\": \"answers\"\n    }\n  }\n],\n  \"cursor\": {}\n}\n",
+            "status": "SUCCESS"
+          }
+        },
+        "smartSubstitution": {
+          "data": true
+        },
+        "updateMany": {
+          "limit": {
+            "data": "SINGLE"
+          },
+          "query": {
+            "data": ""
+          },
+          "update": {
+            "data": ""
+          }
+        }
+      },
+      "paginationType": "NONE",
+      "timeoutInMillisecond": 10000
+    },
+    "confirmBeforeExecute": false,
+    "datasource": {
+      "id": "CISM",
+      "isAutoGenerated": false,
+      "name": "CISM",
+      "pluginId": "mongo-plugin"
+    },
+    "dynamicBindingPathList": [
+      {
+        "key": "formData.aggregate.arrayPipelines.data"
+      },
+      {
+        "key": "formData.body.data"
+      }
+    ],
+    "name": "GetQuestions",
+    "pageId": "Test",
+    "runBehaviour": "MANUAL",
+    "userSetOnLoad": false
+  }
+}

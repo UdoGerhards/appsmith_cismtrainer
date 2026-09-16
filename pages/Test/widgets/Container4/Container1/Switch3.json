@@ -1,0 +1,53 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "bottomRow": 18,
+  "boxShadow": "none",
+  "defaultSwitchState": "false",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "onChange"
+    },
+    {
+      "key": "defaultSwitchState"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "qsh0im5eis",
+  "label": "Gemini-Erklärung",
+  "labelPosition": "Left",
+  "leftColumn": 10,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 18,
+  "mobileLeftColumn": 10,
+  "mobileRightColumn": 22,
+  "mobileTopRow": 14,
+  "needsErrorInfo": false,
+  "onChange": "{{storeValue(\"geminiExplain\", Switch3.isSwitchedOn, false)}}",
+  "parentColumnSpace": 32.25,
+  "parentId": "y70j0qw9nt",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 15,
+  "topRow": 14,
+  "type": "SWITCH_WIDGET",
+  "version": 1,
+  "widgetId": "n8q13nel88",
+  "widgetName": "Switch3"
+}

@@ -1,0 +1,65 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "borderColor": "#E0DEDE",
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "borderWidth": "1",
+  "bottomRow": 43,
+  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "defaultModel": "{\n  \"tags\": [\n    { \"text\": \"Appsmith\", \"value\": 45 },\n    { \"text\": \"JavaScript\", \"value\": 35 },\n    { \"text\": \"MongoDB\", \"value\": 30 },\n    { \"text\": \"LowCode\", \"value\": 25 },\n    { \"text\": \"API\", \"value\": 20 },\n    { \"text\": \"SQL\", \"value\": 15 },\n    { \"text\": \"Widget\", \"value\": 10 }\n  ]\n}\n",
+  "dynamicBindingPathList": [
+    {
+      "key": "theme"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "boxShadow"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicTriggerPathList": [
+    {
+      "key": "onResetClick"
+    }
+  ],
+  "events": [
+    "onResetClick",
+    "onTaglClick"
+  ],
+  "isCanvas": false,
+  "isLoading": false,
+  "isSearchWildcard": true,
+  "isVisible": true,
+  "key": "muyqkl8ak3",
+  "leftColumn": 1,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 32,
+  "mobileLeftColumn": 1,
+  "mobileRightColumn": 24,
+  "mobileTopRow": 2,
+  "needsErrorInfo": false,
+  "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+  "parentColumnSpace": 31.64111328125,
+  "parentId": "lvtl4l73lh",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 63,
+  "srcDoc": {
+    "css": "* {\n  box-sizing: border-box;\n  font-family: \"Inter\", sans-serif, system-ui;\n}\n\nbody {\n  margin: 0;\n  padding: 10px;\n  background: transparent;\n}\n\n.tag-cloud {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 100%;\n}\n\n.cloud-tag {\n  display: inline-block;\n  text-decoration: none;\n  padding: 4px 8px;\n  border-radius: 6px;\n  transition: all 0.2s ease-in-out;\n  cursor: pointer;\n}\n\n.cloud-tag:hover {\n  transform: scale(1.1);\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);\n}",
+    "html": "<div id=\"tagCloudContainer\" class=\"tag-cloud\"></div>\n",
+    "js": "const container = document.getElementById('tagCloudContainer');\n\n/*\n{\n  \"tags\": {{ GetTagCloudData.data }}\n}\n*/\n\n// Eine vordefinierte Farbpalette für ein harmonisches Design\nconst colors = ['#1E40AF', '#3B82F6', '#10B981', '#6366F1', '#8B5CF6', '#EC4899', '#F59E0B'];\nfunction renderTagCloud() {\n  container.innerHTML = '';\n  const tags = appsmith.model.tags || [];\n  if (tags.length === 0) {\n    container.innerHTML = '<p style=\"color: #9ca3af; font-size: 14px;\">Keine Tags vorhanden</p>';\n    return;\n  }\n\n  // Finde Min- und Max-Werte für die Berechnung der dynamischen Schriftgröße\n  const values = tags.map(t => t.value);\n  const minVal = Math.min(...values);\n  const maxVal = Math.max(...values);\n  const valRange = maxVal - minVal || 1;\n\n  // Schriftgrößen-Grenzen definieren (in Pixeln)\n  const minFontSize = 14;\n  const maxFontSize = 38;\n  tags.forEach((tag, index) => {\n    const tagEl = document.createElement('span');\n    tagEl.classList.add('cloud-tag');\n    tagEl.innerText = tag.text;\n\n    // Berechnung der proportionalen Schriftgröße\n    const normalizedSize = (tag.value - minVal) / valRange;\n    const fontSize = minFontSize + normalizedSize * (maxFontSize - minFontSize);\n    tagEl.style.fontSize = `${fontSize}px`;\n\n    // Weise dem Tag eine Farbe aus der Palette zu\n    tagEl.style.color = colors[index % colors.length];\n\n    // Optionaler Hintergrund-Effekt basierend auf der Wichtigkeit\n    tagEl.style.backgroundColor = `rgba(0, 0, 0, 0.02)`;\n\n    // Event-Trigger zurück an Appsmith senden, wenn ein Tag angeklickt wird\n    tagEl.addEventListener('click', () => {\n      appsmith.triggerEvent(\"onTagClick\", {\n        selectedTag: tag.text\n      });\n    });\n    container.appendChild(tagEl);\n  });\n}\n\n// Initialisierung bei Appsmith-Start und -Änderung\nappsmith.onReady(() => {\n  renderTagCloud();\n  appsmith.onModelChange(() => {\n    renderTagCloud();\n  });\n});"
+  },
+  "theme": "{{appsmith.theme}}",
+  "topRow": 2,
+  "type": "CUSTOM_WIDGET",
+  "uncompiledSrcDoc": {
+    "css": "* {\n  box-sizing: border-box;\n  font-family: 'Inter', sans-serif, system-ui;\n}\nbody {\n  margin: 0;\n  padding: 10px;\n  background: transparent;\n}\n.tag-cloud {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 100%;\n}\n.cloud-tag {\n  display: inline-block;\n  text-decoration: none;\n  padding: 4px 8px;\n  border-radius: 6px;\n  transition: all 0.2s ease-in-out;\n  cursor: pointer;\n}\n.cloud-tag:hover {\n  transform: scale(1.1);\n  box-shadow: 0 4px 6px rgba(0,0,0,0.05);\n}\n",
+    "html": "<div id=\"tagCloudContainer\" class=\"tag-cloud\"></div>\n",
+    "js": "const container = document.getElementById('tagCloudContainer');\n\n/*\n{\n  \"tags\": {{ GetTagCloudData.data }}\n}\n*/\n\n// Eine vordefinierte Farbpalette für ein harmonisches Design\nconst colors = ['#1E40AF', '#3B82F6', '#10B981', '#6366F1', '#8B5CF6', '#EC4899', '#F59E0B'];\n\nfunction renderTagCloud() {\n  container.innerHTML = '';\n  const tags = appsmith.model.tags || [];\n  \n  if (tags.length === 0) {\n    container.innerHTML = '<p style=\"color: #9ca3af; font-size: 14px;\">Keine Tags vorhanden</p>';\n    return;\n  }\n\n  // Finde Min- und Max-Werte für die Berechnung der dynamischen Schriftgröße\n  const values = tags.map(t => t.value);\n  const minVal = Math.min(...values);\n  const maxVal = Math.max(...values);\n  const valRange = maxVal - minVal || 1;\n\n  // Schriftgrößen-Grenzen definieren (in Pixeln)\n  const minFontSize = 14;\n  const maxFontSize = 38;\n\n  tags.forEach((tag, index) => {\n    const tagEl = document.createElement('span');\n    tagEl.classList.add('cloud-tag');\n    tagEl.innerText = tag.text;\n\n    // Berechnung der proportionalen Schriftgröße\n    const normalizedSize = (tag.value - minVal) / valRange;\n    const fontSize = minFontSize + normalizedSize * (maxFontSize - minFontSize);\n    tagEl.style.fontSize = `${fontSize}px`;\n\n    // Weise dem Tag eine Farbe aus der Palette zu\n    tagEl.style.color = colors[index % colors.length];\n    \n    // Optionaler Hintergrund-Effekt basierend auf der Wichtigkeit\n    tagEl.style.backgroundColor = `rgba(0, 0, 0, 0.02)`;\n\n    // Event-Trigger zurück an Appsmith senden, wenn ein Tag angeklickt wird\n    tagEl.addEventListener('click', () => {\n      appsmith.triggerEvent(\"onTagClick\", { selectedTag: tag.text });\n    });\n\n    container.appendChild(tagEl);\n  });\n}\n\n// Initialisierung bei Appsmith-Start und -Änderung\nappsmith.onReady(() => {\n  renderTagCloud();\n  appsmith.onModelChange(() => {\n    renderTagCloud();\n  });\n});\n"
+  },
+  "version": 1,
+  "widgetId": "2wwipilfxo",
+  "widgetName": "Custom1"
+}

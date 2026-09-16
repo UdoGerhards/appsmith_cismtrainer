@@ -1,0 +1,66 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 36,
+  "bottomRowBeforeCollapse": 36,
+  "boxShadow": "none",
+  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "buttonVariant": "SECONDARY",
+  "dynamicBindingPathList": [
+    {
+      "key": "buttonColor"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "iconName"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "onClick"
+    },
+    {
+      "key": "iconName"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconName": "{{ appsmith.store.moveToPage ? \"small-tick\" : \"flash\" }}",
+  "isDisabled": "{{ !CheckboxGroup1.selectedValues || CheckboxGroup1.selectedValues.length === 0 }}",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "1u8y8knt1g",
+  "leftColumn": 62,
+  "minWidth": 50,
+  "mobileBottomRow": 36,
+  "mobileLeftColumn": 60,
+  "mobileRightColumn": 64,
+  "mobileTopRow": 32,
+  "needsErrorInfo": false,
+  "onClick": "{{\nTestSource.proceedWithGeminExplanation();\n}}",
+  "originalBottomRow": 36,
+  "originalTopRow": 32,
+  "parentColumnSpace": 32.5625,
+  "parentId": "v64cbpzxby",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "hug",
+  "rightColumn": 64,
+  "topRow": 32,
+  "topRowBeforeCollapse": 32,
+  "type": "ICON_BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "d4lhvh5u6j",
+  "widgetName": "Weiter"
+}

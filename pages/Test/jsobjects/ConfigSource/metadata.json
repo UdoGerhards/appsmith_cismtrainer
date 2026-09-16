@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_cfcb5d0a-f9ff-49cd-b562-761f1f89c7f6",
+  "id": "Test_ConfigSource",
+  "unpublishedCollection": {
+    "name": "ConfigSource",
+    "pageId": "Test",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

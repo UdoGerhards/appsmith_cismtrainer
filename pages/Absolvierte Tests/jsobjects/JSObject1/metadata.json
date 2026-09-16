@@ -1,0 +1,20 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_be6d05d6-5ebe-49e1-a490-0ad99a9158b3",
+  "id": "Absolvierte Tests_JSObject1",
+  "unpublishedCollection": {
+    "name": "JSObject1",
+    "pageId": "Absolvierte Tests",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "clickCount",
+        "value": "0"
+      },
+      {
+        "name": "timer",
+        "value": "null"
+      }
+    ]
+  }
+}

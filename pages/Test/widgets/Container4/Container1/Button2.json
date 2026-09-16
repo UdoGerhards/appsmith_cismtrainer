@@ -1,0 +1,68 @@
+{
+  "animateLoading": true,
+  "borderRadius": "0px",
+  "bottomRow": 67,
+  "boxShadow": "none",
+  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "buttonVariant": "PRIMARY",
+  "disabledWhenInvalid": false,
+  "dynamicBindingPathList": [
+    {
+      "key": "buttonColor"
+    },
+    {
+      "key": "text"
+    },
+    {
+      "key": "iconName"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "iconName"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconAlign": "left",
+  "iconName": "{{ (appsmith.store.countPerMinUsage !== undefined && appsmith.store.countPerMinUsage !== null) ? \"tick\" : \"ban-circle\" }}",
+  "isDefaultClickDisabled": true,
+  "isDisabled": "{{(!Switch2.isSwitchedOn)}}",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "nc4g687904",
+  "leftColumn": 2,
+  "minWidth": 120,
+  "mobileBottomRow": 67,
+  "mobileLeftColumn": 0,
+  "mobileRightColumn": 7,
+  "mobileTopRow": 63,
+  "needsErrorInfo": false,
+  "onClick": "{{ConfigSource.handlePerDomainClick();}}",
+  "originalBottomRow": 108,
+  "originalTopRow": 104,
+  "parentColumnSpace": 31.875,
+  "parentId": "y70j0qw9nt",
+  "parentRowSpace": 10,
+  "placement": "CENTER",
+  "recaptchaType": "V3",
+  "renderMode": "CANVAS",
+  "resetFormOnClick": false,
+  "responsiveBehavior": "hug",
+  "rightColumn": 6,
+  "text": "{{appsmith.store.perDomainSwitch}}",
+  "topRow": 63,
+  "type": "BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "xw9ht8wpur",
+  "widgetName": "Button2"
+}

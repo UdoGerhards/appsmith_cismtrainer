@@ -1,0 +1,65 @@
+{
+  "animateLoading": true,
+  "backgroundColor": "",
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 67,
+  "disableLink": "",
+  "dynamicBindingPathList": [
+    {
+      "key": "truncateButtonColor"
+    },
+    {
+      "key": "fontFamily"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "textColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "disableLink"
+    },
+    {
+      "key": "textColor"
+    }
+  ],
+  "dynamicTriggerPathList": [],
+  "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+  "fontSize": "0.875rem",
+  "fontStyle": "",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "vdf95iuu5u",
+  "leftColumn": 7,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "minWidth": 450,
+  "mobileBottomRow": 68,
+  "mobileLeftColumn": 7,
+  "mobileRightColumn": 23,
+  "mobileTopRow": 64,
+  "needsErrorInfo": false,
+  "originalBottomRow": 178,
+  "originalTopRow": 104,
+  "overflow": "NONE",
+  "parentColumnSpace": 32.671875,
+  "parentId": "y70j0qw9nt",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 21,
+  "shouldTruncate": false,
+  "text": "Wie oft können Fragen in bereits absolvierten Tests vorkommen:",
+  "textAlign": "LEFT",
+  "textColor": "{{Switch2.isSwitchedOn  &&!(appsmith.store.countPerMinUsage !== undefined && appsmith.store.countPerMinUsage !== null)?\"#231F20\":\"#71717a\"}}",
+  "topRow": 63,
+  "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "type": "TEXT_WIDGET",
+  "version": 1,
+  "widgetId": "u9y7nt8ywv",
+  "widgetName": "Text6"
+}

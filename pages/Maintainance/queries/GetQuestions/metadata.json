@@ -1,0 +1,116 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_e42985ef-0b3f-41d6-95ce-b143c857870f",
+  "id": "Maintainance_GetQuestions",
+  "pluginId": "mongo-plugin",
+  "pluginType": "DB",
+  "unpublishedAction": {
+    "actionConfiguration": {
+      "encodeParamsToggle": true,
+      "formData": {
+        "aggregate": {
+          "arrayPipelines": {
+            "data": "[\n  {\n    \"$match\": {\n      \"domain\": { \n        \"$in\": {{ appsmith.store.domains }} \n      }\n    }\n  },\n  {\n    \"$lookup\": {\n      \"from\": \"answer\",\n      \"localField\": \"_id\",\n      \"foreignField\": \"question_id\",\n      \"as\": \"answers\"\n    }\n  }\n]"
+          },
+          "limit": {
+            "data": "20000"
+          }
+        },
+        "body": {
+          "data": "{\n  \"aggregate\": \"question\",\n  \"pipeline\": [\n    {\n      \"$match\": {}\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"answer\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"answers\"\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"bookmark\",\n        \"let\": { \"questionIdStr\": { \"$toString\": \"$_id\" } },\n        \"pipeline\": [\n          {\n            \"$match\": {\n              \"$expr\": { \"$eq\": [\"$questionId\", \"$$questionIdStr\"] }\n            }\n          }\n        ],\n        \"as\": \"bookmarkMatch\"\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"appsmith_test\",\n        \"let\": { \"qIdStr\": { \"$toString\": \"$_id\" } },\n        \"pipeline\": [\n          { \"$unwind\": \"$questions\" },\n          { \n            \"$match\": { \n              \"$expr\": { \"$eq\": [\"$questions._id\", \"$$qIdStr\"] } \n            } \n          },\n          { \"$count\": \"occurrenceCount\" }\n        ],\n        \"as\": \"testCountData\"\n      }\n    },\n    {\n      \"$addFields\": {\n        \"isBookmarked\": {\n          \"$gt\": [{ \"$size\": \"$bookmarkMatch\" }, 0]\n        },\n        \"usageCount\": {\n          \"$ifNull\": [{ \"$arrayElemAt\": [\"$testCountData.occurrenceCount\", 0] }, 0]\n        }\n      }\n    },\n    {\n      \"$project\": {\n        \"bookmarkMatch\": 0,\n        \"testCountData\": 0\n      }\n    },\n    {\n      \"$match\": {{ \n        Select1.selectedOptionValue === \"ONLY_ZERO\" ? { \"usageCount\": 0 } : {} \n      }}\n    },\n    {\n      \"$sort\": {{ \n        (() => {\n          let val = Select1.selectedOptionValue;\n          if (val === \"COUNT_ASC\") return { \"usageCount\": 1 };\n          if (val === \"COUNT_DESC\") return { \"usageCount\": -1 };\n          \n          let wrongVal = Number(appsmith.store.sortByWrong);\n          let bookmarkVal = Number(appsmith.store.sortByBookmark);\n          \n          if (!isNaN(wrongVal) && wrongVal !== 0) return { \"countWrong\": wrongVal };\n          if (!isNaN(bookmarkVal) && bookmarkVal !== 0) return { \"isBookmarked\": bookmarkVal };\n          \n          return { \"_id\": 1 };\n        })()\n      }}\n    }\n  ],\n  \"cursor\": {\n    \"batchSize\": 5000\n  }\n}"
+        },
+        "collection": {
+          "componentData": "question",
+          "data": "question",
+          "viewType": "json"
+        },
+        "command": {
+          "data": "RAW"
+        },
+        "count": {
+          "query": {
+            "data": ""
+          }
+        },
+        "delete": {
+          "limit": {
+            "data": "SINGLE"
+          },
+          "query": {
+            "data": ""
+          }
+        },
+        "distinct": {
+          "key": {
+            "data": ""
+          },
+          "query": {
+            "data": ""
+          }
+        },
+        "find": {
+          "limit": {
+            "data": ""
+          },
+          "projection": {
+            "data": ""
+          },
+          "query": {
+            "data": ""
+          },
+          "skip": {
+            "data": ""
+          },
+          "sort": {
+            "data": ""
+          }
+        },
+        "insert": {
+          "documents": {
+            "data": ""
+          }
+        },
+        "misc": {
+          "formToNativeQuery": {
+            "data": "{\n  \"aggregate\": \"question\",\n  \"pipeline\": [\n  {\n    \"$match\": {\n      \"domain\": { \n        \"$in\": {{ appsmith.store.domains }} \n      }\n    }\n  },\n  {\n    \"$lookup\": {\n      \"from\": \"answer\",\n      \"localField\": \"_id\",\n      \"foreignField\": \"question_id\",\n      \"as\": \"answers\"\n    }\n  }\n],\n  \"cursor\": {}\n}\n",
+            "status": "SUCCESS"
+          }
+        },
+        "smartSubstitution": {
+          "data": true
+        },
+        "updateMany": {
+          "limit": {
+            "data": "SINGLE"
+          },
+          "query": {
+            "data": ""
+          },
+          "update": {
+            "data": ""
+          }
+        }
+      },
+      "paginationType": "NONE",
+      "timeoutInMillisecond": 30000
+    },
+    "confirmBeforeExecute": false,
+    "datasource": {
+      "id": "CISM",
+      "isAutoGenerated": false,
+      "name": "CISM",
+      "pluginId": "mongo-plugin"
+    },
+    "dynamicBindingPathList": [
+      {
+        "key": "formData.aggregate.arrayPipelines.data"
+      },
+      {
+        "key": "formData.body.data"
+      }
+    ],
+    "name": "GetQuestions",
+    "pageId": "Maintainance",
+    "runBehaviour": "ON_PAGE_LOAD",
+    "userSetOnLoad": true
+  }
+}

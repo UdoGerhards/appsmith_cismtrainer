@@ -1,0 +1,52 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "bottomRow": 6,
+  "boxShadow": "none",
+  "defaultSwitchState": false,
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "sp8u3j765m",
+  "label": "Bookmark gesetzt:",
+  "labelPosition": "Left",
+  "leftColumn": 50,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 6,
+  "mobileLeftColumn": 20,
+  "mobileRightColumn": 32,
+  "mobileTopRow": 2,
+  "needsErrorInfo": false,
+  "onChange": "{{MaintainanceSource.handleSortChange()}}",
+  "originalBottomRow": 6,
+  "originalTopRow": 2,
+  "parentColumnSpace": 30.339828491210938,
+  "parentId": "o24dgpcycl",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 56,
+  "topRow": 2,
+  "type": "SWITCH_WIDGET",
+  "version": 1,
+  "widgetId": "r4jv7iqoi7",
+  "widgetName": "bookmarkSort"
+}

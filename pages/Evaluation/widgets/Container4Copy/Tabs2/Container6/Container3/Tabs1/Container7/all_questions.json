@@ -1,0 +1,55 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "bottomRow": 5,
+  "boxShadow": "none",
+  "defaultSwitchState": "false",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "defaultSwitchState"
+    },
+    {
+      "key": "onChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "y53o3m11xc",
+  "label": "Alle Fragen:",
+  "labelPosition": "Left",
+  "leftColumn": 59,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 15,
+  "mobileLeftColumn": 51,
+  "mobileRightColumn": 63,
+  "mobileTopRow": 11,
+  "needsErrorInfo": false,
+  "onChange": "{{EvaluationSource.onAllQuestionsChange()}}",
+  "originalBottomRow": 5,
+  "originalTopRow": 1,
+  "parentColumnSpace": 41.08203125,
+  "parentId": "fb09uq8l60",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 63,
+  "topRow": 1,
+  "type": "SWITCH_WIDGET",
+  "version": 1,
+  "widgetId": "sz8vmss2cm",
+  "widgetName": "all_questions"
+}

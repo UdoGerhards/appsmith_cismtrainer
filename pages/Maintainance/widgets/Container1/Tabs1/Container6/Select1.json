@@ -1,0 +1,67 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 7,
+  "boxShadow": "none",
+  "defaultOptionValue": "DEFAULT",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [
+    {
+      "key": "sourceData"
+    },
+    {
+      "key": "onOptionChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onOptionChange"
+    }
+  ],
+  "isDisabled": false,
+  "isFilterable": true,
+  "isLoading": false,
+  "isRequired": false,
+  "isVisible": true,
+  "key": "7sawksqhq0",
+  "labelAlignment": "left",
+  "labelPosition": "Left",
+  "labelText": "Anzahl in Tests:",
+  "labelTextSize": "0.875rem",
+  "labelWidth": 5,
+  "leftColumn": 38,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "minWidth": 450,
+  "mobileBottomRow": 9,
+  "mobileLeftColumn": 16,
+  "mobileRightColumn": 36,
+  "mobileTopRow": 2,
+  "needsErrorInfo": false,
+  "onOptionChange": "{{MaintainanceSource.handleSortChange()}}",
+  "optionLabel": "name",
+  "optionValue": "code",
+  "parentColumnSpace": 30.339828491210938,
+  "parentId": "o24dgpcycl",
+  "parentRowSpace": 10,
+  "placeholderText": "Select option",
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 49,
+  "serverSideFiltering": false,
+  "sourceData": "[\n  {\n    \"name\": \"Standard\",\n    \"code\": \"DEFAULT\"\n  },\n  {\n    \"name\": \"Noch nicht abgefragt\",\n    \"code\": \"ONLY_ZERO\"\n  },\n  {\n    \"name\": \"Aufsteigend\",\n    \"code\": \"COUNT_ASC\"\n  },\n  {\n    \"name\": \"Absteigend\",\n    \"code\": \"COUNT_DESC\"\n  }\n]",
+  "topRow": 2,
+  "type": "SELECT_WIDGET",
+  "version": 1,
+  "widgetId": "ib6ci408im",
+  "widgetName": "Select1"
+}

@@ -1,0 +1,65 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 5,
+  "defaultCheckedState": "{{ Boolean(Bookmarks.data && Bookmarks.data.find(b => b.questionId === appsmith.store.currentQuestions[appsmith.store.currentIndex]._id)) }}",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "defaultCheckedState"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "onCheckChange"
+    },
+    {
+      "key": "defaultCheckedState"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onCheckChange"
+    }
+  ],
+  "isDisabled": false,
+  "isLoading": false,
+  "isRequired": false,
+  "isVisible": true,
+  "key": "tbdemggo3g",
+  "label": "🚩",
+  "labelPosition": "Right",
+  "labelStyle": "BOLD",
+  "labelTextSize": "1.25rem",
+  "leftColumn": 61,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "minWidth": 450,
+  "mobileBottomRow": 47,
+  "mobileLeftColumn": 52,
+  "mobileRightColumn": 64,
+  "mobileTopRow": 43,
+  "needsErrorInfo": false,
+  "onCheckChange": "{{ \nTestSource.toggleQuestionBookmark(true)\n}}",
+  "originalBottomRow": 5,
+  "originalTopRow": 1,
+  "parentColumnSpace": 16.1875,
+  "parentId": "wl2u4o54zu",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 63,
+  "topRow": 1,
+  "type": "CHECKBOX_WIDGET",
+  "version": 1,
+  "widgetId": "zvv40efatv",
+  "widgetName": "Checkbox1"
+}

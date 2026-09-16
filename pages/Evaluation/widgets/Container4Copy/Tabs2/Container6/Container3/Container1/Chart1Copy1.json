@@ -1,0 +1,69 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "allowScroll": false,
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 97,
+  "boxShadow": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+  "chartData": {
+    "k1ziq2n2fa": {
+      "data": "{{ appsmith.store.chartData || [] }}",
+      "seriesName": "2023"
+    }
+  },
+  "chartName": "Testergebnis",
+  "chartType": "CUSTOM_ECHART",
+  "customEChartConfig": "{{ ((chartType) => ( EvaluationSource.getDomain3()))(Chart1Copy1.chartType) }}",
+  "customFusionChartConfig": "{{ EvaluationSource.prepareTestChart() }}",
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "fontFamily"
+    },
+    {
+      "key": "chartData.k1ziq2n2fa.data"
+    },
+    {
+      "key": "customFusionChartConfig"
+    },
+    {
+      "key": "customEChartConfig"
+    }
+  ],
+  "dynamicPropertyPathList": [],
+  "dynamicTriggerPathList": [],
+  "flexVerticalAlignment": "start",
+  "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "9zmiqy61ga",
+  "labelOrientation": "auto",
+  "leftColumn": 35,
+  "minWidth": 450,
+  "mobileBottomRow": 34,
+  "mobileLeftColumn": 3,
+  "mobileRightColumn": 27,
+  "mobileTopRow": 2,
+  "needsErrorInfo": true,
+  "originalBottomRow": 73,
+  "originalTopRow": 41,
+  "parentColumnSpace": 16.1875,
+  "parentId": "z3q7dspuc8",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 48,
+  "showDataPointLabel": true,
+  "topRow": 65,
+  "type": "CHART_WIDGET",
+  "version": 1,
+  "widgetId": "h9pyvtjdv5",
+  "widgetName": "Chart1Copy1",
+  "xAxisName": "Product Line",
+  "yAxisName": "Revenue($)"
+}

@@ -1,0 +1,57 @@
+{
+  "animateLoading": true,
+  "borderRadius": "0px",
+  "bottomRow": 36,
+  "bottomRowBeforeCollapse": 36,
+  "boxShadow": "none",
+  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "buttonVariant": "TERTIARY",
+  "dynamicBindingPathList": [
+    {
+      "key": "buttonColor"
+    },
+    {
+      "key": "isVisible"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "onClick"
+    },
+    {
+      "key": "isVisible"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconName": "small-tick",
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": "{{ interactive.isSwitchedOn }}",
+  "key": "z2zcewawlj",
+  "leftColumn": 61,
+  "minWidth": 50,
+  "mobileBottomRow": 35,
+  "mobileLeftColumn": 60,
+  "mobileRightColumn": 64,
+  "mobileTopRow": 31,
+  "needsErrorInfo": false,
+  "onClick": "{{ storeValue('evaluate', true) }}",
+  "originalBottomRow": 36,
+  "originalTopRow": 32,
+  "parentColumnSpace": 29.351043701171875,
+  "parentId": "4bg2n5bews",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "hug",
+  "rightColumn": 63,
+  "topRow": 32,
+  "topRowBeforeCollapse": 32,
+  "type": "ICON_BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "9mupio012c",
+  "widgetName": "IconButton1"
+}

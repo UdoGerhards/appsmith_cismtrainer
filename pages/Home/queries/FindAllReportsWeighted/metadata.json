@@ -1,0 +1,101 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_bb6147b3-6401-41a8-ac61-2fefbef31298",
+  "id": "Home_FindAllReportsWeighted",
+  "pluginId": "mongo-plugin",
+  "pluginType": "DB",
+  "unpublishedAction": {
+    "actionConfiguration": {
+      "encodeParamsToggle": true,
+      "formData": {
+        "aggregate": {
+          "arrayPipelines": {
+            "data": ""
+          },
+          "limit": {
+            "data": "10"
+          }
+        },
+        "body": {
+          "data": "{\n  \"aggregate\": \"appsmith_test\",\n  \"pipeline\": [\n    {\n      \"$match\": {\n        \"nature\": \"user\"\n      }\n    },\n    {\n      \"$sort\": {\n        \"savedAt\": -1\n      }\n    },\n    {\n      \"$limit\": 10000\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"question\",\n        \"let\": { \"q_id_strings\": \"$questions._id\" },\n        \"pipeline\": [\n          {\n            \"$match\": {\n              \"$expr\": {\n                \"$in\": [\n                  { \"$toString\": \"$_id\" },\n                  \"$$q_id_strings\"\n                ]\n              }\n            }\n          }\n        ],\n        \"as\": \"_full_questions\"\n      }\n    },\n    {\n      \"$set\": {\n        \"questions\": {\n          \"$map\": {\n            \"input\": \"$questions\",\n            \"as\": \"orig_q\",\n            \"in\": {\n              \"$mergeObjects\": [\n                \"$$orig_q\",\n                {\n                  \"$arrayElemAt\": [\n                    {\n                      \"$filter\": {\n                        \"input\": \"$_full_questions\",\n                        \"as\": \"fq\",\n                        \"cond\": {\n                          \"$eq\": [\n                            { \"$toString\": \"$$fq._id\" },\n                            \"$$orig_q._id\"\n                          ]\n                        }\n                      }\n                    },\n                    0\n                  ]\n                }\n              ]\n            }\n          }\n        }\n      }\n    },\n    {\n      \"$set\": {\n        \"domain_stats\": {\n          \"$map\": {\n            \"input\": { \"$setUnion\": \"$questions.domain\" },\n            \"as\": \"d\",\n            \"in\": {\n              \"domain\": \"$$d\",\n              \"correct\": {\n                \"$size\": {\n                  \"$filter\": {\n                    \"input\": \"$questions\",\n                    \"as\": \"q\",\n                    \"cond\": {\n                      \"$and\": [\n                        { \"$eq\": [\"$$q.domain\", \"$$d\"] },\n                        { \"$eq\": [\"$$q.isCorrect\", true] }\n                      ]\n                    }\n                  }\n                }\n              },\n              \"incorrect\": {\n                \"$size\": {\n                  \"$filter\": {\n                    \"input\": \"$questions\",\n                    \"as\": \"q\",\n                    \"cond\": {\n                      \"$and\": [\n                        { \"$eq\": [\"$$q.domain\", \"$$d\"] },\n                        { \"$ne\": [\"$$q.isCorrect\", true] }\n                      ]\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    },\n    {\n      \"$set\": {\n        \"domain_stats\": {\n          \"$map\": {\n            \"input\": \"$domain_stats\",\n            \"as\": \"ds\",\n            \"in\": {\n              \"domain\": \"$$ds.domain\",\n              \"correct\": \"$$ds.correct\",\n              \"incorrect\": \"$$ds.incorrect\",\n              \"gewichtung\": {\n                \"$cond\": [\n                  { \"$eq\": [\"$$ds.correct\", 0] },\n                  \"$$ds.incorrect\",\n                  { \"$divide\": [\"$$ds.incorrect\", \"$$ds.correct\"] }\n                ]\n              }\n            }\n          }\n        }\n      }\n    },\n    {\n      \"$unset\": \"_full_questions\"\n    }\n  ],\n  \"cursor\": {}\n}"
+        },
+        "collection": {
+          "data": ""
+        },
+        "command": {
+          "data": "RAW"
+        },
+        "count": {
+          "query": {
+            "data": ""
+          }
+        },
+        "delete": {
+          "limit": {
+            "data": "SINGLE"
+          },
+          "query": {
+            "data": ""
+          }
+        },
+        "distinct": {
+          "key": {
+            "data": ""
+          },
+          "query": {
+            "data": ""
+          }
+        },
+        "find": {
+          "limit": {
+            "data": ""
+          },
+          "projection": {
+            "data": ""
+          },
+          "query": {
+            "data": ""
+          },
+          "skip": {
+            "data": ""
+          },
+          "sort": {
+            "data": ""
+          }
+        },
+        "insert": {
+          "documents": {
+            "data": ""
+          }
+        },
+        "smartSubstitution": {
+          "data": true
+        },
+        "updateMany": {
+          "limit": {
+            "data": "SINGLE"
+          },
+          "query": {
+            "data": ""
+          },
+          "update": {
+            "data": ""
+          }
+        }
+      },
+      "paginationType": "NONE",
+      "timeoutInMillisecond": 10000
+    },
+    "confirmBeforeExecute": false,
+    "datasource": {
+      "id": "CISM",
+      "isAutoGenerated": false,
+      "name": "CISM",
+      "pluginId": "mongo-plugin"
+    },
+    "dynamicBindingPathList": [],
+    "name": "FindAllReportsWeighted",
+    "pageId": "Home",
+    "runBehaviour": "AUTOMATIC",
+    "userSetOnLoad": false
+  }
+}

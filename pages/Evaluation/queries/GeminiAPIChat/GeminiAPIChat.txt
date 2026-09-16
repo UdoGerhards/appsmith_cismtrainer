@@ -1,0 +1,8 @@
+{
+  "system_instruction": {
+    "parts": {
+      "text": "{{ this.params.systemContext || 'Du bist ein hilfreicher Assistent.' }}"
+    }
+  },
+  "contents": "{{ this.params.chatHistory }}"
+}

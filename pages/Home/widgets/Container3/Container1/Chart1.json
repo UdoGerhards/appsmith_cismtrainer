@@ -1,0 +1,114 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "allowScroll": false,
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 55,
+  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "chartData": {
+    "h9j5oncama": {
+      "data": "// 1. Daten aus der Query holen\n// Wir gehen davon aus, dass DeinQuery so konfiguriert ist, dass er \n// die 5 aktuellsten Dokumente sortiert nach savedAt liefert.\nconst rawData = {{ FindReports.data }} || [];\n\n// 2. Umkehren, damit das älteste Dokument der 5 links steht\nconst recentDocs = [...rawData].reverse();\n\n// 3. Achsen-Daten vorbereiten\nconst categories = recentDocs.map(doc => doc.finsihed || 'Test');\n\n// 4. Serien-Daten vorbereiten\nconst correctData = recentDocs.map(doc => doc.correct);\nconst incorrectData = recentDocs.map(doc => doc.incorrect);\n\n// 5. ECharts Konfiguration\nreturn {\n  tooltip: {\n    trigger: 'axis',\n    axisPointer: {\n      type: 'shadow'\n    }\n  },\n  legend: {\n    data: ['Korrekt', 'Inkorrekt'],\n    bottom: 0\n  },\n  grid: {\n    top: 30,\n    bottom: 50,\n    left: 40,\n    right: 20,\n    containLabel: true\n  },\n  xAxis: {\n    type: 'category',\n    data: categories,\n    axisLabel: {\n      interval: 0,\n      rotate: 15,\n      fontSize: 10\n    }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Anzahl Fragen'\n  },\n  series: [\n    {\n      name: 'Korrekt',\n      type: 'bar',\n      stack: 'total',\n      data: correctData,\n      itemStyle: {\n        color: '#22c55e' // Grün\n      },\n      label: {\n        show: true,\n        position: 'inside'\n      }\n    },\n    {\n      name: 'Inkorrekt',\n      type: 'bar',\n      stack: 'total',\n      data: incorrectData,\n      itemStyle: {\n        color: '#ef4444' // Rot\n      },\n      label: {\n        show: true,\n        position: 'inside'\n      }\n    }\n  ]\n};",
+      "seriesName": "2023"
+    }
+  },
+  "chartName": "Sales Report",
+  "chartType": "CUSTOM_ECHART",
+  "customEChartConfig": "{{ ((chartType) => (  HomeSource.getTestChartOptions() ))(Chart1.chartType) }}",
+  "customFusionChartConfig": {
+    "dataSource": {
+      "chart": {
+        "alignCaptionWithCanvas": 1,
+        "canvasPadding": "0",
+        "caption": "Sales Report",
+        "captionAlignment": "center",
+        "captionFontColor": "#231F20",
+        "captionFontSize": "24",
+        "captionPadding": "20",
+        "chartBottomMargin": "10",
+        "chartLeftMargin": "20",
+        "chartRightMargin": "40",
+        "chartTopMargin": "10",
+        "labelFontColor": "#716e6e",
+        "labelFontSize": "12",
+        "legendIconAlpha": "100",
+        "legendIconBgAlpha": "100",
+        "legendIconSides": "4",
+        "legendPosition": "top",
+        "theme": "fusion",
+        "xAxisName": "Product Line",
+        "xAxisNameFontColor": "#716e6e",
+        "xAxisNameFontSize": "14",
+        "yAxisName": "Revenue($)",
+        "yAxisNameFontColor": "#716e6e",
+        "yAxisNameFontSize": "14",
+        "yAxisValueFontColor": "#716e6e",
+        "yAxisValueFontSize": "12"
+      },
+      "data": [
+        {
+          "label": "Product1",
+          "value": 20000
+        },
+        {
+          "label": "Product2",
+          "value": 22000
+        },
+        {
+          "label": "Product3",
+          "value": 32000
+        }
+      ]
+    },
+    "type": "column2d"
+  },
+  "dynamicBindingPathList": [
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "boxShadow"
+    },
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "fontFamily"
+    },
+    {
+      "key": "chartData.h9j5oncama.data"
+    },
+    {
+      "key": "customEChartConfig"
+    }
+  ],
+  "dynamicTriggerPathList": [],
+  "flexVerticalAlignment": "start",
+  "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "yrignoq80w",
+  "labelOrientation": "auto",
+  "leftColumn": 1,
+  "minWidth": 450,
+  "mobileBottomRow": 40,
+  "mobileLeftColumn": 1,
+  "mobileRightColumn": 25,
+  "mobileTopRow": 8,
+  "needsErrorInfo": true,
+  "originalBottomRow": 55,
+  "originalTopRow": 8,
+  "parentColumnSpace": 15.494384765625,
+  "parentId": "zhqni90fhf",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 63,
+  "showDataPointLabel": false,
+  "topRow": 8,
+  "type": "CHART_WIDGET",
+  "version": 1,
+  "widgetId": "porjirmq7r",
+  "widgetName": "Chart1",
+  "xAxisName": "Product Line",
+  "yAxisName": "Revenue($)"
+}
