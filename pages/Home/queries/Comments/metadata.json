@@ -105,7 +105,7 @@
     ],
     "name": "Comments",
     "pageId": "Home",
-    "runBehaviour": "AUTOMATIC",
+    "runBehaviour": "MANUAL",
     "userSetOnLoad": false
   }
 }

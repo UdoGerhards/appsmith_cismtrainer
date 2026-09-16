@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_2eca3510-e30f-4eed-a3d9-1f3aeccc132b",
-  "id": "Maintainance_MaintainanceSource.explainQuestion",
+  "gitSyncId": "6a784e96054143865d8dd557_47b4c1aa-d158-4627-b182-0845c340825c",
+  "id": "Maintainance_MaintainanceSource.runApiCall",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -8,16 +8,7 @@
       "encodeParamsToggle": true,
       "jsArguments": [
         {
-          "name": "id"
-        },
-        {
-          "name": "questionText"
-        },
-        {
-          "name": "correctAnswer"
-        },
-        {
-          "name": "wrongAnswers"
+          "name": "history"
         }
       ],
       "paginationType": "NONE",
@@ -35,8 +26,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "MaintainanceSource.explainQuestion",
-    "name": "explainQuestion",
+    "fullyQualifiedName": "MaintainanceSource.runApiCall",
+    "name": "runApiCall",
     "pageId": "Maintainance",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

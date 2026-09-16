@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_afc2493a-ddc0-446a-9667-9ab47c1a7024",
-  "id": "Maintainance_MaintainanceSource.getExplanation",
+  "gitSyncId": "6a784e96054143865d8dd557_07fdf214-be01-4fc0-8224-dc6b4fcda90a",
+  "id": "Maintainance_MaintainanceSource.clearChat",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "MaintainanceSource.getExplanation",
-    "name": "getExplanation",
+    "fullyQualifiedName": "MaintainanceSource.clearChat",
+    "name": "clearChat",
     "pageId": "Maintainance",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

@@ -1,0 +1,64 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "borderColor": "#ffffff",
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "borderWidth": "1",
+  "bottomRow": 52,
+  "boxShadow": "none",
+  "defaultModel": "{{\n  {\n    chatData: JSON.stringify((appsmith.store.geminiChatHistory || []).slice(2)),\n    msgCount: Math.max(0, (appsmith.store.geminiChatHistory || []).length - 2),\n    lastUpdate: Date.now()\n  }\n}}",
+  "dynamicBindingPathList": [
+    {
+      "key": "theme"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "defaultModel"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicTriggerPathList": [
+    {
+      "key": "onResetClick"
+    }
+  ],
+  "events": [
+    "onResetClick"
+  ],
+  "isCanvas": false,
+  "isLoading": false,
+  "isSearchWildcard": true,
+  "isVisible": true,
+  "key": "okqc5uqban",
+  "leftColumn": 1,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 31,
+  "mobileLeftColumn": 1,
+  "mobileRightColumn": 24,
+  "mobileTopRow": 1,
+  "needsErrorInfo": false,
+  "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+  "parentColumnSpace": 10.041015625,
+  "parentId": "x8ccnj9s4h",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 63,
+  "srcDoc": {
+    "css": "body, html {\n  margin: 0;\n  padding: 0;\n  height: 100%;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n  background-color: #ffffff;\n}\n\n#chat-container {\n  height: 100%;\n  overflow-y: auto;\n  padding: 15px;\n  box-sizing: border-box;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n}\n\n.message-box {\n  max-width: 80%;\n  padding: 12px 16px;\n  border-radius: 8px;\n  line-height: 1.5;\n  font-size: 14px;\n}\n\n.message-box.user {\n  align-self: flex-end;\n  background-color: #f7fafc;\n  border: 1px solid #e2e8f0;\n  color: #2d3748;\n}\n\n.message-box.model {\n  align-self: flex-start;\n  background-color: #ebf8ff;\n  border-left: 4px solid #3182ce;\n  color: #2b6cb0;\n}\n\n.sender-title {\n  font-weight: bold;\n  font-size: 11px;\n  margin-bottom: 4px;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n\n.empty-state {\n  text-align: center;\n  color: #a0aec0;\n  margin-top: 40px;\n  font-style: italic;\n}",
+    "html": "<!-- Externe Markdown-Bibliothek (Marked.js) per CDN laden -->\n<script src=\"https://cdn.jsdelivr.net/npm/marked/marked.min.js\"></script>\n\n<div id=\"chat-container\"></div>",
+    "js": "// Globale Funktion zum sicheren Rendern\nfunction renderChatFromModel(model) {\n  let messages = [];\n  try {\n    const rawData = model && model.chatData ? model.chatData : window.appsmith && window.appsmith.model && window.appsmith.model.chatData;\n    if (typeof rawData === 'string') {\n      messages = JSON.parse(rawData);\n    } else if (Array.isArray(rawData)) {\n      messages = rawData;\n    } else if (model && Array.isArray(model.messages)) {\n      messages = model.messages;\n    }\n  } catch (e) {\n    console.error(\"Fehler beim Parsen:\", e);\n  }\n  const container = document.getElementById('chat-container');\n  if (!container) {\n    return false;\n  }\n  if (!messages || messages.length === 0) {\n    container.innerHTML = '<div class=\"empty-state\">Noch keine Nachrichten...</div>';\n    return true;\n  }\n  container.innerHTML = messages.map(msg => {\n    const textContent = msg.parts?.[0]?.text || msg.text || '';\n    const isUser = msg.role === 'user';\n    const sender = isUser ? 'Du' : 'Gemini';\n    const cssClass = isUser ? 'user' : 'model';\n    const renderedContent = isUser ? escapeHtml(textContent) : typeof marked !== 'undefined' ? marked.parse(textContent) : escapeHtml(textContent);\n    return `\n      <div class=\"message-box ${cssClass}\">\n        <div class=\"sender-title\">${sender}</div>\n        <div class=\"message-text\">${renderedContent}</div>\n      </div>\n    `;\n  }).join('');\n\n  // Auto-Scroll ans Ende\n  container.scrollTop = container.scrollHeight;\n  return true;\n}\nfunction escapeHtml(text) {\n  return (text || '').replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\\n/g, '<br>');\n}\n\n// Appsmith Event\nwindow.appsmith.onModelChange = model => {\n  const success = renderChatFromModel(model);\n  if (!success) {\n    setTimeout(() => renderChatFromModel(model), 150);\n  }\n};\n\n// Hintergrund-Check, damit asynchrone Antworten von Gemini sofort greifen\nsetInterval(() => {\n  if (window.appsmith && window.appsmith.model) {\n    renderChatFromModel(window.appsmith.model);\n  }\n}, 400);\n\n// Initialer Render beim Laden\nwindow.addEventListener('DOMContentLoaded', () => {\n  if (window.appsmith && window.appsmith.model) {\n    renderChatFromModel(window.appsmith.model);\n  }\n});"
+  },
+  "theme": "{{appsmith.theme}}",
+  "topRow": 1,
+  "type": "CUSTOM_WIDGET",
+  "uncompiledSrcDoc": {
+    "css": "body, html {\n  margin: 0;\n  padding: 0;\n  height: 100%;\n  font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;\n  background-color: #ffffff;\n}\n\n#chat-container {\n  height: 100%;\n  overflow-y: auto;\n  padding: 15px;\n  box-sizing: border-box;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n}\n\n.message-box {\n  max-width: 80%;\n  padding: 12px 16px;\n  border-radius: 8px;\n  line-height: 1.5;\n  font-size: 14px;\n}\n\n.message-box.user {\n  align-self: flex-end;\n  background-color: #f7fafc;\n  border: 1px solid #e2e8f0;\n  color: #2d3748;\n}\n\n.message-box.model {\n  align-self: flex-start;\n  background-color: #ebf8ff;\n  border-left: 4px solid #3182ce;\n  color: #2b6cb0;\n}\n\n.sender-title {\n  font-weight: bold;\n  font-size: 11px;\n  margin-bottom: 4px;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n\n.empty-state {\n  text-align: center;\n  color: #a0aec0;\n  margin-top: 40px;\n  font-style: italic;\n}",
+    "html": "<!-- Externe Markdown-Bibliothek (Marked.js) per CDN laden -->\n<script src=\"https://cdn.jsdelivr.net/npm/marked/marked.min.js\"></script>\n\n<div id=\"chat-container\"></div>",
+    "js": "// Globale Funktion zum sicheren Rendern\nfunction renderChatFromModel(model) {\n  let messages = [];\n  try {\n    const rawData = model && model.chatData ? model.chatData : (window.appsmith && window.appsmith.model && window.appsmith.model.chatData);\n\n    if (typeof rawData === 'string') {\n      messages = JSON.parse(rawData);\n    } else if (Array.isArray(rawData)) {\n      messages = rawData;\n    } else if (model && Array.isArray(model.messages)) {\n      messages = model.messages;\n    }\n  } catch (e) {\n    console.error(\"Fehler beim Parsen:\", e);\n  }\n\n  const container = document.getElementById('chat-container');\n  if (!container) {\n    return false;\n  }\n\n  if (!messages || messages.length === 0) {\n    container.innerHTML = '<div class=\"empty-state\">Noch keine Nachrichten...</div>';\n    return true;\n  }\n\n  container.innerHTML = messages.map(msg => {\n    const textContent = msg.parts?.[0]?.text || msg.text || '';\n    const isUser = msg.role === 'user';\n    const sender = isUser ? 'Du' : 'Gemini';\n    const cssClass = isUser ? 'user' : 'model';\n\n    const renderedContent = isUser \n      ? escapeHtml(textContent) \n      : (typeof marked !== 'undefined' ? marked.parse(textContent) : escapeHtml(textContent));\n\n    return `\n      <div class=\"message-box ${cssClass}\">\n        <div class=\"sender-title\">${sender}</div>\n        <div class=\"message-text\">${renderedContent}</div>\n      </div>\n    `;\n  }).join('');\n\n  // Auto-Scroll ans Ende\n  container.scrollTop = container.scrollHeight;\n  return true;\n}\n\nfunction escapeHtml(text) {\n  return (text || '')\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace(/\\n/g, '<br>');\n}\n\n// Appsmith Event\nwindow.appsmith.onModelChange = (model) => {\n  const success = renderChatFromModel(model);\n  if (!success) {\n    setTimeout(() => renderChatFromModel(model), 150);\n  }\n};\n\n// Hintergrund-Check, damit asynchrone Antworten von Gemini sofort greifen\nsetInterval(() => {\n  if (window.appsmith && window.appsmith.model) {\n    renderChatFromModel(window.appsmith.model);\n  }\n}, 400);\n\n// Initialer Render beim Laden\nwindow.addEventListener('DOMContentLoaded', () => {\n  if (window.appsmith && window.appsmith.model) {\n    renderChatFromModel(window.appsmith.model);\n  }\n});"
+  },
+  "version": 1,
+  "widgetId": "9b52r9jwdn",
+  "widgetName": "Custom1Copy"
+}

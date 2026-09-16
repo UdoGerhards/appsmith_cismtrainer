@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_10049df4-7341-49e2-a973-2e0b87057b50",
-  "id": "Home_Bookmarks",
+  "gitSyncId": "6a784e96054143865d8dd557_711ed781-8397-4110-8acd-84e9d657d16e",
+  "id": "Maintainance_loadConfiguration",
   "pluginId": "mongo-plugin",
   "pluginType": "DB",
   "unpublishedAction": {
@@ -15,14 +15,11 @@
             "data": "10"
           }
         },
-        "body": {
-          "data": "{\n  \"find\": \"bookmark\",\n  \"filter\": {\n    \"userId\": \"{{appsmith.store.user}}\"\n  }\n}"
-        },
         "collection": {
-          "data": "bookmark"
+          "data": "configuration"
         },
         "command": {
-          "data": "RAW"
+          "data": "FIND"
         },
         "count": {
           "query": {
@@ -47,13 +44,13 @@
         },
         "find": {
           "limit": {
-            "data": ""
+            "data": "50"
           },
           "projection": {
             "data": ""
           },
           "query": {
-            "data": "{\n  \"find\": \"Bookmark\",\n  \"filter\": { \"userId\": \"{{ appsmith.user.email }}\" }\n}"
+            "data": ""
           },
           "skip": {
             "data": ""
@@ -69,7 +66,7 @@
         },
         "misc": {
           "formToNativeQuery": {
-            "data": "{\n  \"find\": \"bookmark\",\n  \"filter\": {\n  \"find\": \"Bookmark\",\n  \"filter\": { \"userId\": \"{{ appsmith.user.email }}\" }\n},\n  \"limit\": 10,\n  \"batchSize\": 10\n}\n",
+            "data": "{\n  \"find\": \"configuration\",\n  \"limit\": 50,\n  \"batchSize\": 50\n}\n",
             "status": "SUCCESS"
           }
         },
@@ -98,16 +95,9 @@
       "name": "CISM",
       "pluginId": "mongo-plugin"
     },
-    "dynamicBindingPathList": [
-      {
-        "key": "formData.find.query.data"
-      },
-      {
-        "key": "formData.body.data"
-      }
-    ],
-    "name": "Bookmarks",
-    "pageId": "Home",
+    "dynamicBindingPathList": [],
+    "name": "loadConfiguration",
+    "pageId": "Maintainance",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false
   }

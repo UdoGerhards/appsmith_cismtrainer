@@ -454,50 +454,36 @@ getChartOptions: (selectedReport) => {
   },
 	
 	getFormattedWrongQuestions: () => {
-        const rawData = GetWrongAnswersSorted.data || [];
-		    const rawBookmarks = Bookmarks.data || [];
-		    const rawComments = Comments.data  || [];
-		
-        return rawData.map(item => {
-            const answersList = item.answers || [];
+    // 1. Daten aus der Query holen
+    const rawData = GetWrongAnswersSorted.data || [];
 
-            // Hilfsfunktion, um den Text einer bestimmten Antwort (A, B, C oder D) zu finden
-            const getAnswerText = (type) => {
-                const found = answersList.find(ans => ans.type === type);
-                return found ? found.text : '';
-            };
-			
-					  const correctAnswer = getAnswerText(item.correctAnswer);
-					
-						const hasBookmark = rawBookmarks.some(bookmark => bookmark.questionId === item._id);
-					  let bookmark = null;
-						if (hasBookmark) {
-							bookmark = '!!!';
-						}
-					
-						// 1. Das passende Objekt finden
-						const foundComment = rawComments.find(item => item.questionId === item._id);
-						// 2. Den "comment"-Parameter auslesen (liefert den Text oder undefined)
-					  let comment = '';
-						if (foundComment){
-							comment = foundComment?.comment;
-						}
-            return {
-                "Anzahl falsch": item.failureCount,
-                "Domain": item.domain,
-                "Frage": item.question,
-                // Jede Antwort bekommt nun ihr eigenes Feld für eine eigene Spalte
-                "Antwort A": getAnswerText('A'),
-                "Antwort B": getAnswerText('B'),
-                "Antwort C": getAnswerText('C'),
-                "Antwort D": getAnswerText('D'),
-								"id": item._id,
-							  "Korrekte Antwort": correctAnswer,
-							  "Bbookmark": bookmark,
-								"Comments": comment
-            };
-        });
-    },
+    // 2. Jedes Dokument transformieren und die Antworten aufteilen
+    return rawData.map(doc => {
+      // Das answers-Array absichern (falls mal keines da ist)
+      const answers = doc.answers || [];
+
+      // Hilfsfunktion, um den Text für einen bestimmten Typ (z.B. "A") zu finden
+      const getAnswerTextByType = (typeKey) => {
+        const found = answers.find(a => a.type === typeKey);
+        return found ? found.text : ""; // Gibt den Text zurück oder einen leeren String
+      };
+
+      return {
+        ID: doc._id,
+        Frage: doc.question,
+        Domain: doc.domain,
+        "Anzahl Fehler": doc.failureCount,
+        Tags: doc.tags,
+        Bookmark: doc.isBookmarked,
+        
+        // Die neuen flachen Antwortfelder basierend auf dem 'type'-Feld:
+        "Antwort A": getAnswerTextByType("A"),
+        "Antwort B": getAnswerTextByType("B"),
+        "Antwort C": getAnswerTextByType("C"),
+        "Antwort D": getAnswerTextByType("D")
+      };
+    });
+  },
 	
 explainQuestion: async (id, questionText, userAnswer, correctAnswer) => {
 	

@@ -1,6 +1,8 @@
 export default {
   setup: async() => {
 		
+		this.loadAndSaveConfiguration();
+		
 		console.log("Setup running ... ");
 		
     await removeValue('trackMap');
@@ -8,6 +10,34 @@ export default {
     //await this.loadExplanationFromDB();
 		console.log("Setup finished ... ");
   },
+	
+	loadAndSaveConfiguration: async () => {
+    try {
+      // 1. MongoDB-Query ausführen (ersetze 'findConfiguration' mit dem tatsächlichen Namen deiner Query)
+      const data = await loadConfiguration.run();
+      
+      // Prüfen, ob Daten vorhanden sind
+      if (!data || !Array.isArray(data)) {
+        showAlert("Keine Konfigurationsdaten gefunden.", "warning");
+        return;
+      }
+
+      // 2. Durch das Array iterieren und jeden Wert in den Store schreiben
+      // Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
+      for (const item of data) {
+        if (item.name) {
+					showAlert("Configuration - saving '"+item.name+"'", "success");
+          await storeValue(item.name, item.value);
+        }
+      }
+
+      showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
+      
+    } catch (error) {
+      showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
+    }
+  },
+	
   getFormattedQuestions: () => {
     // 1. Hole das Array aus der Query (fallback auf ein leeres Array)
     const rawData = GetQuestions.data || [];
@@ -304,71 +334,18 @@ export default {
 
     console.log(qId);
 
-    const explanationResult = await FindAICache.run({ id: qId });
+    const explanationResult = await FindExplanation.run({ qId: String(qId) });
 
     console.log("Explanation ", explanationResult);
 
     // Prüfen, ob das Array existiert und mindestens ein Dokument enthält
     if (explanationResult && explanationResult.length > 0) {
       // Greift auf das erste gefundene Dokument zu und gibt das Feld 'explanation' zurück
-      await storeValue('book_ai_explanation', explanationResult[0].explanation, false);
+      await storeValue('questionGeminiExplanation', explanationResult[0].text, false);
     } else {
-      removeValue('book_ai_explanation');
+      removeValue('questionGeminiExplanation');
     }
 		console.log("Loading explanation done ...");
-  },
-
-  getExplanation: async () => {
-    const currIndex = appsmith.store.book_index;
-    const allQuestions = appsmith.store.book_questions;
-
-    // 1. Sicherheitsprüfung: Existiert das Fragen-Array und die aktuelle Frage?
-    if (!allQuestions || !allQuestions[currIndex]) {
-      console.error("Fehler: Keine Frage am aktuellen Index gefunden.");
-      return;
-    }
-
-    const currQuestion = allQuestions[currIndex];
-    console.log("Aktuelle Frage:", currQuestion);
-
-    // 2. Sicherheitsprüfung für den Such-Typ (Nutzt 'correct' der Frage)
-    // Wenn 'correct' fehlt, nutzen wir einen leeren String "" als Fallback
-    const searchType = (currQuestion.correct || "").trim().toUpperCase();
-
-    if (!searchType) {
-      console.warn("Warnung: Die aktuelle Frage hat keinen 'correct'-Typ hinterlegt.");
-      return;
-    }
-
-    const answers = currQuestion.answers;
-
-    // 3. Sicherheitsprüfung: Existiert das Antworten-Array?
-    if (!answers || !Array.isArray(answers)) {
-      console.error("Fehler: Das Antworten-Array fehlt oder ist ungültig.");
-      return;
-    }
-
-    // 4. Absichern der .find()-Methode gegen undefined bei 'antwort.type'
-    const correctAnswer = answers.find(antwort => {
-      const antwortType = (antwort.type || "").trim().toUpperCase();
-      return antwortType === searchType;
-    });
-
-    const wrongAnswers = answers.filter(antwort => {
-      const antwortType = (antwort.type || "").trim().toUpperCase();
-      // Gibt true zurück für alle Antworten, die NICHT dem searchType entsprechen
-      return antwortType !== searchType;
-    });
-
-    // 5. Sicherheitsprüfung: Wurde überhaupt eine passende Antwort gefunden?
-    const correctAnswerText = correctAnswer ? correctAnswer.text : "Kein Antworttext verfügbar";
-    const questionText = currQuestion.question || "Kein Fragentext verfügbar";
-
-    // ID absichern (Appsmith wandelt Mongo-IDs oft in Strings um, falls nicht vorhanden nutzen wir "")
-    const questionId = currQuestion._id || "";
-
-    // 6. Aufruf der Erklärung mit allen abgesicherten Werten
-    await this.explainQuestion(questionId, questionText, correctAnswerText,wrongAnswers);
   },
 	
 	saveExplanation: async () => {
@@ -411,7 +388,128 @@ export default {
       showAlert("Datenbank-Update fehlgeschlagen.", "error");
     }
   },
+	
+	processGeminiExplain: async() => {
 
+		showAlert("Evaluierung mit Gemini!!");
+
+		const index =  appsmith.store.book_index;
+		const questions = appsmith.store.book_questions;
+		const question = questions[index];
+
+		console.log("Question to explain: ", question);
+
+		if (!question) return;
+
+		console.log(question);
+
+		const existingResult = await FindExplanation.run({
+			qId: String(question._id)
+		});
+		
+		console.log("Evaluation db ", existingResult);
+
+		let evaluationText = null;
+		// 2. Auswerten
+		if (existingResult && existingResult.length > 0) {
+
+			showAlert("Bereits gespeicherte Evaluierung in Datenbank gefunden ... ");
+
+			// Es gibt bereits einen Eintrag -> Text direkt aus der DB nehmen
+			evaluationText = existingResult[0].text;
+
+			console.log("Bereits gespeicherte Erklärung geladen.");
+		} else {
+
+			showAlert("Evaluaiere mit Gemini ...");
+
+			// 1. Extrahiere und sortiere die Antworten alphabetisch nach 'type' (A, B, C, D)
+			const sortedAnswers = [...question.answers].sort((a, b) => a.type.localeCompare(b.type));
+
+			// 2. Erstelle ein dynamisches Options-Objekt aus dem sortierten Array
+			const optionsObj = {};
+			sortedAnswers.forEach(ans => {
+				optionsObj[ans.type] = ans.text.trim();
+			});
+
+			// 3. Baue das questionData-Objekt mit den dynamischen Daten zusammen
+			const questionData = {
+				domain: question.domain,
+				question: question.question,
+				options: optionsObj,
+				correct: question.correct.trim(),
+				user: question.userAnswer // Falls vorhanden, ansonsten entsprechendes Feld nutzen
+			};
+
+			console.log(questionData);
+
+			// 4. Übergabe an die API/KI als mehrzeiliger String (JavaScript Template Literal)
+			const promptMessage = `
+					Bitte evaluiere die folgende Frage aus unserer JSON-Anwendung für mein CISM-Training.
+
+					Hier sind die Daten im JSON-Format:
+					${JSON.stringify(questionData, null, 2)}
+
+					Bitte liefere mir die Auswertung als sauberen HTML-Code (auf Deutsch). Verwende exakt folgende Struktur und Inline-Styles für die Schriftart (Arial, serifenlos), ohne Markdown-Code-Blöcke (kein \`\`\`html) um den Output:
+
+					<div style="font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #333;">
+							<h3 style="margin-bottom: 10px;">${questionData.question} (${questionData.domain})</h3>
+							<ul style="list-style-type: none; padding-left: 0; margin-bottom: 15px;">
+								<li><strong>Status:</strong> [Korrekt / Inkorrekt]</li>
+								<li><strong>Deine Antwort:</strong> ${questionData.user} | <strong>Korrekte Antwort:</strong> ${questionData.correct}</li>
+							</ul>
+						<p>[Ausführliche Begründung auf Deutsch im Stil einer echten CISM-Prüfung, warum die richtige Antwort korrekt ist und warum die anderen Optionen (die subtilen Distraktoren) fehlerhaft sind...]</p>
+					</div>
+					`;
+	
+			console.log(promptMessage);
+			
+			showAlert(promptMessage);
+			const response = await GeminiAPI.run({
+				bodyPayload: promptMessage
+			});
+
+			showAlert("Evaluierung mit Gemini abgeschlossen ...");
+
+			const parts = response.candidates?.[0]?.content?.parts;
+			evaluationText = parts
+				? parts.map(p => p.text).join('')
+			: response.output;
+
+			showAlert("Speicher Evaluierung in Datenbank ...");
+			await InsertExplanation.run({
+				qId: String(question._id),
+				explText: evaluationText
+			});
+		}
+
+		await storeValue("questionGeminiExplanation", evaluationText, false);
+		//question.geminiExplanation = evaluationText;
+		
+		showAlert(evaluationText, "info");
+		
+		
+		console.log("question id:", String(question._id));
+		
+		// 2. Führe die MongoDB-Query aus und übergebe die ID als Parameter
+    const tagResult = await FindTags.run({ 
+      questionId: String(question._id) 
+    });
+		
+		console.log("tags: ", tagResult);
+		
+		await storeValue("tagsId", question._id, false);
+		if (tagResult && tagResult.lenght > 0) {
+			await storeValue("tagsList",tagResult[0].tags, false);
+			console.log("appsmith.store.tagsList", appsmith.store.tagsList);
+		} else {
+			removeValue("tagsList");
+		}
+		
+		return question;
+	},
+	
+/*
 	
   explainQuestion: async (id, questionText, correctAnswer, wrongAnswers) => {
 		showAlert("Lade Erklärung");
@@ -575,6 +673,8 @@ export default {
       await storeValue('book_ai_explanation', cachedEntry[0].explanation);
     }
   },
+	
+	*/
 
   deleteCurrentExplanation: async () => {
     // Hier ist 'const' erlaubt!
@@ -596,4 +696,186 @@ export default {
       showAlert('Fehler beim Löschen: ' + error.message, 'error');
     }
   },
+	
+	// Initialisiert den Chat mit der ersten Auswertung/Kontext
+  initChat: async () => {
+    // Initialisiere die Historie mit der ersten Auswertung als System-Kontext 
+    // und einer ersten Begrüßung oder Instruktion
+		const geminiOpinion = appsmith.store.questionGeminiExplanation;
+		
+		if (geminiOpinion === undefined || geminiOpinion === null || geminiOpinion.trim() === "")  
+			{
+				return null;
+			}
+		
+		const initialAnalysisText = geminiOpinion.replace(/<[^>]*>?/gm, ''); // Entfernt alle HTML-Tags
+		
+    const initialHistory = [
+      {
+        role: "user",
+        parts: [{ text: "Hier ist die initiale Auswertung, auf deren Basis wir arbeiten werden:\n\n" + initialAnalysisText }]
+      },
+      {
+        role: "model",
+        parts: [{ text: "Verstanden. Ich habe die Auswertung analysiert. Welche Fragen hast du dazu?" }]
+      }
+    ];
+
+    await storeValue("geminiChatHistory", initialHistory);
+    await storeValue("geminiSystemContext", "Du bist ein präziser Analyse-Assistent. Antworte basierend auf der initial übergebenen Auswertung.");
+  },
+
+  // Gibt den aktuellen Verlauf für das List-Widget zurück
+  getHistory: () => {
+    return appsmith.store.geminiChatHistory || [];
+  },
+
+  sendMessage: async (userMessage) => {
+    if (!userMessage || userMessage.trim() === "") return;
+    
+    // Prüfen, ob der aktive Chat-Key im Store existiert.
+    if (!appsmith.store.gemini_chat_key) {
+      await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
+      await this.initChat();
+    }
+
+    let history = appsmith.store.geminiChatHistory || [];
+
+    // 1. Nutzer-Nachricht anhängen
+    history.push({
+      role: "user",
+      parts: [{ text: userMessage }]
+    });
+
+    await storeValue("geminiChatHistory", history);
+
+    try {
+      // 2. API-Aufruf mit automatischer Key-Wechsel-Logik ausführen
+      await this.executeWithKeyFallback(history);
+
+      // 3. Gestaffeltes Scrollen nach unten, sobald Gemini geantwortet hat
+      [200, 500, 800].forEach(delay => {
+        setTimeout(() => {
+          try {
+            const editorBody = document.querySelector(".t--widget-richtexteditorwidget .ql-editor") || 
+                               document.querySelector(".rich-text-editor .ql-editor") ||
+                               document.querySelector(".ql-editor");
+            if (editorBody) {
+              editorBody.scrollTop = editorBody.scrollHeight;
+            }
+          } catch (e) {}
+        }, delay);
+      });
+
+    } catch (error) {
+      showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
+    }
+  },
+
+  // Hilfsfunktion: Versucht den API-Call und schaltet bei Quota-Fehler auf den kostenpflichtigen Key um
+  executeWithKeyFallback: async (history) => {
+    try {
+      // Erster Versuch mit dem aktuellen gemini_chat_key
+      await this.runApiCall(history);
+    } catch (error) {
+      const errorMsg = error.message || JSON.stringify(error);
+      const isQuotaError = errorMsg.includes("429") || errorMsg.includes("RESOURCE_EXHAUSTED") || errorMsg.includes("quota");
+
+      // Prüfen, ob der Fehler vom kostenlosen Key stammt (wir also gerade den free-Key genutzt haben)
+      const isUsingFreeKey = (appsmith.store.gemini_chat_key === appsmith.store.gemini_key_free);
+
+      if (isQuotaError && isUsingFreeKey) {
+        showAlert("Kostenloses Kontingent erschöpft. Schalte auf den kostenpflichtigen Key um...", "warning");
+        
+        // Den funktionierenden Key im Store auf den kostenpflichtigen Key umschalten
+        await storeValue("gemini_chat_key", appsmith.store.gemini_key);
+
+        try {
+          // Zweiter Versuch mit dem neuen (kostenpflichtigen) Key
+          await this.runApiCall(history);
+          showAlert("Erfolgreich auf den kostenpflichtigen Key gewechselt.", "success");
+        } catch (paidError) {
+          throw new Error("Auch der kostenpflichtige Key ist fehlgeschlagen: " + paidError.message);
+        }
+      } else {
+        throw error; // Anderen Fehler direkt weiterwerfen
+      }
+    }
+  },
+
+// Kleinere Hilfsfunktion für den eigentlichen Run und das Speichern der Antwort
+  runApiCall: async (history) => {
+    const apiResult = await GeminiAPIChat.run({ 
+      systemContext: appsmith.store.geminiSystemContext,
+      chatHistory: history 
+    });
+
+    // In Appsmith steckt die eigentliche API-Antwort oft in .data oder direkt im Objekt
+    const responseObj = apiResult?.data || apiResult;
+
+    // Extrahiere den Text sicher aus der Kandidaten-Struktur
+    const botReply = responseObj?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!botReply) {
+      // Falls Google einen Fehler im JSON zurückgibt
+      const apiErrorMsg = responseObj?.error?.message || JSON.stringify(responseObj) || "Keine Antwort erhalten.";
+      throw new Error(apiErrorMsg);
+    }
+
+    // Bot-Antwort an die Historie anhängen
+    history.push({
+      role: "model",
+      parts: [{ text: botReply }]
+    });
+
+    await storeValue("geminiChatHistory", history);
+  },
+	
+	getFormattedHistoryForRTE: () => {
+    const history = appsmith.store.geminiChatHistory || [];
+    const visibleHistory = history.slice(2);
+
+    if (visibleHistory.length === 0) {
+      return "<p style='color: #666; font-style: italic;'>Noch keine Nachrichten vorhanden. Starte den Chat...</p>";
+    }
+
+    // KEIN .reverse() -> Chronologische Reihenfolge (Neueste Nachricht landet automatisch unten)
+    return visibleHistory.map(msg => {
+      const isUser = msg.role === 'user';
+      const sender = isUser ? '<b>Du:</b>' : '<b style="color: #2b6cb0;">Gemini:</b>';
+      const bgColor = isUser ? '#f7fafc' : '#ebf8ff';
+      
+      const text = msg.parts?.[0]?.text || '';
+      const formattedText = text.replace(/\n/g, '<br>');
+
+      return `
+        <div style="background-color: ${bgColor}; border-left: 4px solid ${isUser ? '#cbd5e0' : '#3182ce'}; padding: 10px 15px; margin-bottom: 12px; border-radius: 4px;">
+          <p style="margin: 0 0 5px 0; font-family: Arial, sans-serif; font-size: 11px; color: #333;">${sender}</p>
+          <div style="margin: 0; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4;">${formattedText}</div>
+        </div>
+      `;
+    }).join('');
+  },
+	
+	// Gibt den sichtbaren Verlauf (ohne System-Kontext) chronologisch zurück
+	getVisibleHistory: () => {
+		const history = appsmith.store.geminiChatHistory || [];
+		return history.slice(2);
+	},
+	
+	// Bereitet die Chat-Historie für das Custom Widget flach auf
+	getChatForCustomWidget: () => {
+		const history = appsmith.store.geminiChatHistory || [];
+		// Überspringt die ersten 2 System-Nachrichten und mappt es in ein simples Format
+		return history.slice(2).map(msg => ({
+			role: msg.role,
+			text: msg.parts?.[0]?.text || ''
+		}));
+	},
+
+  // Chat aufräumen beim Schließen
+  clearChat: async () => {
+    await storeValue("geminiChatHistory", []);
+    await storeValue("geminiSystemContext", "");
+  }
 }

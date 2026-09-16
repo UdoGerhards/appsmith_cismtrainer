@@ -5,7 +5,7 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "borderWidth": 1,
-  "bottomRow": 145,
+  "bottomRow": 130,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "children": [
     {
@@ -55,7 +55,7 @@
     },
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 1260,
+      "bottomRow": 1110,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -100,7 +100,7 @@
     },
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 1260,
+      "bottomRow": 1110,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": false,
       "containerStyle": "none",
@@ -182,7 +182,7 @@
   "mobileTopRow": 2,
   "needsErrorInfo": false,
   "onTabSelected": "{{MaintainanceSource.loadBookOfQuestions()}}",
-  "originalBottomRow": 154,
+  "originalBottomRow": 130,
   "originalTopRow": 15,
   "parentColumnSpace": 43.6875,
   "parentId": "o6vleq82ai",
