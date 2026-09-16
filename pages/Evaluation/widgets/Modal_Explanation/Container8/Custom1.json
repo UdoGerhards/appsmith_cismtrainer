@@ -1,0 +1,61 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "borderColor": "transparent",
+  "borderRadius": "0px",
+  "borderWidth": "1",
+  "bottomRow": 72,
+  "boxShadow": "none",
+  "defaultModel": "{{\n  ({\n    messages: EvaluationSource.getChatForCustomWidget()\n  })\n}}",
+  "dynamicBindingPathList": [
+    {
+      "key": "theme"
+    },
+    {
+      "key": "defaultModel"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicTriggerPathList": [
+    {
+      "key": "onResetClick"
+    }
+  ],
+  "events": [
+    "onResetClick"
+  ],
+  "isCanvas": false,
+  "isLoading": false,
+  "isSearchWildcard": true,
+  "isVisible": true,
+  "key": "zfw59ci29b",
+  "leftColumn": 1,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 32,
+  "mobileLeftColumn": 2,
+  "mobileRightColumn": 25,
+  "mobileTopRow": 2,
+  "needsErrorInfo": false,
+  "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+  "parentColumnSpace": 10.041015625,
+  "parentId": "0km6mj33oe",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 63,
+  "srcDoc": {
+    "css": "html, body {\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  font-family: Arial, sans-serif;\n  background-color: #ffffff;\n  overflow: hidden;\n}\n\nbody {\n  display: flex;\n  flex-direction: column;\n  box-sizing: border-box;\n  padding: 10px;\n}\n\n#chat-container {\n  flex: 1;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding-right: 5px;\n}\n\n.message-box {\n  padding: 10px 14px;\n  border-radius: 6px;\n  max-width: 85%;\n  line-height: 1.4;\n  font-size: 13px;\n  box-sizing: border-box;\n  word-break: break-word;\n}\n\n.user {\n  background-color: #f7fafc;\n  border-left: 4px solid #cbd5e0;\n  align-self: flex-end;\n}\n\n.model {\n  background-color: #ebf8ff;\n  border-left: 4px solid #3182ce;\n  align-self: flex-start;\n}\n\n.sender-title {\n  font-size: 11px;\n  margin: 0 0 4px 0;\n  font-weight: bold;\n}\n\n.message-text {\n  margin: 0;\n}\n\n.empty-state {\n  text-align: center;\n  color: #888;\n  font-style: italic;\n  margin-top: 30px;\n  font-size: 13px;\n}",
+    "html": "<div id=\"chat-container\"></div>",
+    "js": "window.appsmith.onModelChange = model => {\n  const container = document.getElementById('chat-container');\n  if (!container) return;\n  const messages = model.messages || [];\n  if (messages.length === 0) {\n    container.innerHTML = '<div class=\"empty-state\">Noch keine Nachrichten vorhanden. Starte den Chat...</div>';\n    return;\n  }\n  container.innerHTML = messages.map(msg => {\n    const isUser = msg.role === 'user';\n    const sender = isUser ? 'Du:' : 'Gemini:';\n    const senderColor = isUser ? '#333' : '#2b6cb0';\n    const cssClass = isUser ? 'user' : 'model';\n    const safeText = (msg.text || '').replace(/&/g, \"&amp;\").replace(/</g, \"&lt;\").replace(/>/g, \"&gt;\").replace(/\\n/g, '<br>');\n    return `\n      <div class=\"message-box ${cssClass}\">\n        <div class=\"sender-title\" style=\"color: ${senderColor};\">${sender}</div>\n        <div class=\"message-text\">${safeText}</div>\n      </div>\n    `;\n  }).join('');\n\n  // Automatisch ganz nach unten scrollen\n  container.scrollTop = container.scrollHeight;\n};"
+  },
+  "theme": "{{appsmith.theme}}",
+  "topRow": 1,
+  "type": "CUSTOM_WIDGET",
+  "uncompiledSrcDoc": {
+    "css": "html, body {\n  height: 100%;\n  margin: 0;\n  padding: 0;\n  font-family: Arial, sans-serif;\n  background-color: #ffffff;\n  overflow: hidden;\n}\n\nbody {\n  display: flex;\n  flex-direction: column;\n  box-sizing: border-box;\n  padding: 10px;\n}\n\n#chat-container {\n  flex: 1;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding-right: 5px;\n}\n\n.message-box {\n  padding: 10px 14px;\n  border-radius: 6px;\n  max-width: 85%;\n  line-height: 1.4;\n  font-size: 13px;\n  box-sizing: border-box;\n  word-break: break-word;\n}\n\n.user {\n  background-color: #f7fafc;\n  border-left: 4px solid #cbd5e0;\n  align-self: flex-end;\n}\n\n.model {\n  background-color: #ebf8ff;\n  border-left: 4px solid #3182ce;\n  align-self: flex-start;\n}\n\n.sender-title {\n  font-size: 11px;\n  margin: 0 0 4px 0;\n  font-weight: bold;\n}\n\n.message-text {\n  margin: 0;\n}\n\n.empty-state {\n  text-align: center;\n  color: #888;\n  font-style: italic;\n  margin-top: 30px;\n  font-size: 13px;\n}",
+    "html": "<div id=\"chat-container\"></div>",
+    "js": "window.appsmith.onModelChange = (model) => {\n  const container = document.getElementById('chat-container');\n  if (!container) return;\n\n  const messages = model.messages || [];\n\n  if (messages.length === 0) {\n    container.innerHTML = '<div class=\"empty-state\">Noch keine Nachrichten vorhanden. Starte den Chat...</div>';\n    return;\n  }\n\n  container.innerHTML = messages.map(msg => {\n    const isUser = msg.role === 'user';\n    const sender = isUser ? 'Du:' : 'Gemini:';\n    const senderColor = isUser ? '#333' : '#2b6cb0';\n    const cssClass = isUser ? 'user' : 'model';\n    \n    const safeText = (msg.text || '')\n      .replace(/&/g, \"&amp;\")\n      .replace(/</g, \"&lt;\")\n      .replace(/>/g, \"&gt;\")\n      .replace(/\\n/g, '<br>');\n\n    return `\n      <div class=\"message-box ${cssClass}\">\n        <div class=\"sender-title\" style=\"color: ${senderColor};\">${sender}</div>\n        <div class=\"message-text\">${safeText}</div>\n      </div>\n    `;\n  }).join('');\n\n  // Automatisch ganz nach unten scrollen\n  container.scrollTop = container.scrollHeight;\n};"
+  },
+  "version": 1,
+  "widgetId": "zx8nm9dmpc",
+  "widgetName": "Custom1"
+}

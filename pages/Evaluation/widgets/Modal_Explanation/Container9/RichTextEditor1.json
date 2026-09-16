@@ -1,16 +1,10 @@
 {
   "animateLoading": true,
-  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 84,
-  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "borderRadius": "0px",
+  "bottomRow": 72,
+  "boxShadow": "none",
   "defaultText": "{{ appsmith.store.questionGeminiExplanation || \"Lade Erklärung...\" }}",
   "dynamicBindingPathList": [
-    {
-      "key": "borderRadius"
-    },
-    {
-      "key": "boxShadow"
-    },
     {
       "key": "defaultText"
     }
@@ -40,13 +34,13 @@
   "mobileTopRow": 7,
   "needsErrorInfo": false,
   "parentColumnSpace": 23.46875,
-  "parentId": "xfufjvky8p",
+  "parentId": "qf7gjzagts",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 29,
+  "rightColumn": 63,
   "shouldScrollContents": true,
-  "topRow": 6,
+  "topRow": 2,
   "type": "RICH_TEXT_EDITOR_WIDGET",
   "version": 1,
   "widgetId": "9gja6h8gx6",

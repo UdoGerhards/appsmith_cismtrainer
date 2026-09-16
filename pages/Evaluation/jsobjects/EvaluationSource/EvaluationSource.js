@@ -887,6 +887,22 @@ export default {
       `;
     }).join('');
   },
+	
+	// Gibt den sichtbaren Verlauf (ohne System-Kontext) chronologisch zurück
+	getVisibleHistory: () => {
+		const history = appsmith.store.geminiChatHistory || [];
+		return history.slice(2);
+	},
+	
+	// Bereitet die Chat-Historie für das Custom Widget flach auf
+	getChatForCustomWidget: () => {
+		const history = appsmith.store.geminiChatHistory || [];
+		// Überspringt die ersten 2 System-Nachrichten und mappt es in ein simples Format
+		return history.slice(2).map(msg => ({
+			role: msg.role,
+			text: msg.parts?.[0]?.text || ''
+		}));
+	},
 
   // Chat aufräumen beim Schließen
   clearChat: async () => {
