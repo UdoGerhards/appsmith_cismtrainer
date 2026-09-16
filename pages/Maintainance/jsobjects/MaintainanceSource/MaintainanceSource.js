@@ -331,6 +331,8 @@ export default {
     const allQuestions = appsmith.store.book_questions;
 
     const qId = allQuestions[currIndex]._id;
+		
+		await storeValue("tagsId", String(qId), false);
 
     console.log(qId);
 
@@ -347,48 +349,7 @@ export default {
     }
 		console.log("Loading explanation done ...");
   },
-	
-	saveExplanation: async () => {
-		const currIndex = appsmith.store.book_index;
-    const allQuestions = appsmith.store.book_questions;
-		const currQuestion = allQuestions[currIndex];
-		
-		showAlert("Saving explanation!!!");
-		
-    // 1. Hole das bearbeitete HTML direkt aus dem Modell deines Custom Widgets
-    // Ersetze 'CustomWidget1' mit dem echten Namen deines Widgets
-    const updatedHtml = q_explanation.model.aiErklaerung;
-		
-		console.log(updatedHtml);
 
-    // Sicherheits-Check: Falls der Text leer ist, brechen wir ab
-    if (!updatedHtml || updatedHtml.trim() === "") {
-      showAlert("Speichern abgebrochen: Der Inhalt darf nicht leer sein.", "warning");
-      return;
-    }
-		
-		console.log(currQuestion._id);
-		console.log(typeof currQuestion._id);
-
-    try {
-      // Führt die MongoDB-Query aus und übergibt die Werte direkt als Aufrufparameter
-      await UpdateCISMExplanation.run({
-        idParam: currQuestion._id,
-        htmlParam: updatedHtml
-      });
-
-      // Erfolgsmeldung anzeigen
-      showAlert("Erklärung erfolgreich in MongoDB gespeichert!", "success");
-
-      // Optional: Hier kannst du deine Cache-Lade-Query neu triggern, damit das UI updated
-      // await FindAICache.run({ id: frageId });
-
-    } catch (error) {
-      console.error("Fehler beim Speichern der Query:", error);
-      showAlert("Datenbank-Update fehlgeschlagen.", "error");
-    }
-  },
-	
 	processGeminiExplain: async() => {
 
 		showAlert("Evaluierung mit Gemini!!");
@@ -508,173 +469,6 @@ export default {
 		
 		return question;
 	},
-	
-/*
-	
-  explainQuestion: async (id, questionText, correctAnswer, wrongAnswers) => {
-		showAlert("Lade Erklärung");
-    console.log("Explanation process running for ID:", id);
-    // 1. Zuerst im Cache suchen
-    // console.log("Mongo lookup ...");
-
-    const cachedEntry = await FindAICache.run({ id: id });
-
-    if (!cachedEntry || cachedEntry.length === 0) {
-
-      // console.log("Gemini lookup ...");
-
-      // Umwandlung des falschen Antworten-Arrays in einen strukturierten Text für den Prompt
-      const wrongAnswersFormatted = (wrongAnswers || [])
-        .map(a => `Type ${a.type || 'Unknown'}: "${a.text || 'No text'}"`)
-        .join('\n');
-
-
-      const prompt = `
-								You are a senior CISM Examiner and an expert Information Security Chief Officer (CISO).
-								Analyze the following question details with maximum professional depth, focusing heavily on ISACA's core management philosophy (Business Alignment, Risk-Differentiated Decisions, and Governance over Operations).
-
-								Question: ${questionText}
-								Correct Answer: ${correctAnswer}
-
-								Incorrect Answers to analyze:
-								${wrongAnswersFormatted}
-
-								Provide a deep, precise, and highly educational explanation in English. You must cover five aspects:
-								1. Detailed analysis of the question (Core intent, hidden traps, and key terms like 'BEST', 'MOST' or 'FIRST').
-								2. Professional explanation why the Correct Answer is strategically correct based on CISM standards.
-								3. Professional analysis explaining why EACH incorrect answer is factually, operationally, or strategically wrong from a managerial perspective.
-								4. A Deep Dive section explaining the underlying core concept (e.g., Risk Appetite vs. Tolerance, Governance vs. Management, Metrics vs. Indicators).
-								5. A list of 1-3 official CISM domains, review manual chapters, or official ISACA source links relevant to this specific question.
-
-								HTML OUTPUT TEMPLATE (You must strictly follow this structure and use these exact IDs):
-								<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding:10px;">
-										<article style="padding:10px;" id="block-question">
-												<h2><b>Question:</b> ${questionText}</h2>
-												<span id="text-question">[Insert your detailed strategic analysis of the question here]</span>
-										</article>
-										<article style="padding:10px;" id="block-answer">
-												<p><b>Correct Answer </b>(${correctAnswer}):</p>
-												<span id="text-correct">[Insert your explanation why this answer is correct based on CISM standards here]</span>
-										</article>
-										<article style="padding:10px;" id="block-incorrect">
-												<p><b>Incorrect Answers Analysis:</b></p>
-												<span id="text-incorrect">[Analyze each incorrect answer here. Contrast operational fixes with strategic/managerial solutions]</span>
-										</article>
-										<article style="padding:10px;" id="block-deep-dive">
-												<p><b>CISM Executive Deep Dive:</b></p>
-												<span id="text-deep-dive">[Provide a masterclass-level explanation of the underlying security governance or risk concept here, explaining the 'CISO Mindset' needed for this scenario]</span>
-										</article>
-										<article style="padding:10px;" id="block-sources">
-												<p><b>Sources:</b></p>
-												<span id="text-source">
-														<ul style="margin-top: 5px; padding-left: 20px;">
-																<!-- Dynamically generate 1-3 real list items here based on the question topic. -->
-														</ul>
-												</span>
-										</article>
-								</div>
-
-								CRITICAL RULES:
-								1. Write the entire response in English.
-								2. Do NOT include any introductory, conversational, or filler phrases. Start immediately with the HTML structure.
-								3. Inside <span id="text-source">, you MUST dynamically generate 1 to 3 real <li> items containing clickable HTML <a> links to official ISACA domains.
-								4. Do NOT use any Markdown formatting like asterisks (**) or hashtags (#).
-								5. Ensure every <a> link has target="_blank" and style="color: #2563eb; text-decoration: underline;"
-								`;
-
-
-      await storeValue('geminiPrompt', prompt);
-
-      try {
-        const response = await Gemini_Explain_API.run();
-        const parts = response.candidates[0].content.parts;
-
-        let fullExplanation = "";
-        if (Array.isArray(parts)) {
-          fullExplanation = parts.map(p => p.text).join('');
-        }
-				
-				console.log("Gemini has finished!");
-				showAlert("Gemini ist fertig!!!");
-
-        // console.log("Full Explanation", fullExplanation);
-
-        // RegEx-Suche inklusive der neuen ID "text-incorrect"
-        const questionMatch = fullExplanation.match(/<span[^>]*id="text-question"[^>]*>([\s\S]*?)<\/span>/i);
-        const correctMatch = fullExplanation.match(/<span[^>]*id="text-correct"[^>]*>([\s\S]*?)<\/span>/i);
-        const incorrectMatch = fullExplanation.match(/<span[^>]*id="text-incorrect"[^>]*>([\s\S]*?)<\/span>/i);
-        const deepDiveMatch = fullExplanation.match(/<span[^>]*id="text-deep-dive"[^>]*>([\s\S]*?)<\/span>/i);
-        const sourcesMatch = fullExplanation.match(/<span[^>]*id="text-source"[^>]*>([\s\S]*?)<\/span>/i);
-
-        const extractedQuestion = questionMatch ? questionMatch[1].trim() : "";
-        const extractedCorrect = correctMatch ? correctMatch[1].trim() : "";
-        const extractedIncorrect = incorrectMatch ? incorrectMatch[1].trim() : "";
-        const extractedDeepDive = deepDiveMatch ? deepDiveMatch[1].trim() : "";
-        const extractedSources = sourcesMatch ? sourcesMatch[1].trim() : "";
-
-        // --- NEU: RAG-Prüfung über AnythingLLM starten ---
-        const anythingLlmPrompt = `Verify the core facts of this CISM question and answer against the uploaded official ISACA Review Manual. Correct or supplement specific book-facts, rules, or standards if necessary.
-
-						Question: ${questionText}
-						Answer to verify: ${extractedCorrect}`;
-
-        // Prompt im Appsmith Store ablegen (wird von AnythingLLM_Chat_API ausgelesen)
-        await storeValue('anythingLlmPrompt', anythingLlmPrompt);
-
-				console.log("Now running anythingllm ... ");
-				showAlert("Validier mit anythingllm");
-        // AnythingLLM API ausführen
-        const anythingLlmResponse = await AnythingLLM_Chat_API.run();
-        const verifiedFacts = anythingLlmResponse.textResponse || "Verified against local ISACA Reference Manual.";
-
-        // 3. Finale Strukturierung mit Gemini-Inhalten UND dem AnythingLLM-Verifizierungsblock
-        const customFormattedExplanation = `
-								<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding:10px;">
-									<article style="padding:10px;" id="block-question">
-										<h2><b>Question:</b> ${questionText}</h2>
-										<span style="font-size:14px;">${extractedQuestion}</span>
-									</article>
-									<article style="padding:10px;" id="block-answer">
-										<h3>Correct Answer (${correctAnswer}):</h3>
-										<p style="font-size:14px;">${extractedCorrect}</p>
-									</article>
-									<article style="padding:10px;" id="block-incorrect">
-										<h3>Incorrect Answers:</h3>
-										<p style="font-size:14px;">${extractedIncorrect}</p>
-									</article>
-									<article style="padding:10px;" id="block-deep-dive">
-										<h3>CISM Executive Deep Dive:</h3>
-										<p style="font-size:14px;">${extractedDeepDive}</p>
-									</article>
-								</div>
-							`.trim();
-
-        // 4. Speicher-Objekt für MongoDB
-        const docToInsert = {
-          questionID: { "$oid": id },
-          explanation: customFormattedExplanation
-        };
-
-				console.log("Now saving to MongoDB ... ");
-        await InsertAICache.run({ doc: docToInsert });
-        //console.log("Store restricted result in Mongo ...", docToInsert);
-
-        // Im Store speichern, damit das Custom Widget es sofort anzeigt
-        await storeValue('book_ai_explanation', customFormattedExplanation);
-        //console.log("Neue Erklärung gespeichert.");
-				showAlert("Neue Erklärung gespeichert");
-      } catch (error) {
-        //console.error("Fehler bei Gemini:", error);
-        removeValue('book_ai_explanation');
-      }
-    } else {
-      // Falls im Cache gefunden: Direkt in den Store laden
-      console.log("Erklärung im Cache gefunden.");
-      await storeValue('book_ai_explanation', cachedEntry[0].explanation);
-    }
-  },
-	
-	*/
 
   deleteCurrentExplanation: async () => {
     // Hier ist 'const' erlaubt!
@@ -877,5 +671,45 @@ export default {
   clearChat: async () => {
     await storeValue("geminiChatHistory", []);
     await storeValue("geminiSystemContext", "");
-  }
+  },
+	
+	updateTags: async () => {
+
+		//showAlert("Udpate tags triggert!");
+	
+    // 1. Hole die questionId (als String)
+    const idString = String(appsmith.store.tagsId || "");
+
+    // 2. Validierung vorab
+    if (!idString || idString === "undefined" || idString === "null") {
+      //showAlert("Keine gültige questionId gefunden!", "error");
+      return;
+    }
+
+    // 3. Hole die Tags primär aus dem Model des Custom Widgets (Name deines Widgets anpassen: tagsInput oder Custom1?)
+    // Achtung im Code oben hast du 'tagsInput.model', weiter unten im Projekt hieß es oft 'Custom1.model'. 
+    // Nutze hier den exakten Namen deines Custom Widgets!
+    let tagsToSave = tagsInput.model ? tagsInput.model.tags : (appsmith.store.tagsList || []);
+	  //await storeValue("tagsList", tagsToSave,false);
+
+    try {
+      // Fall A: Keine Tags mehr übrig -> Sollen wir den Eintrag komplett löschen?
+      if (!tagsToSave || (Array.isArray(tagsToSave) && tagsToSave.length === 0)) {
+        // Falls du den Datensatz bei 0 Tags komplett löschen willst:
+        await DeleteTags.run({ questionId: idString });
+        //await storeValue('tagsList', []);
+        return;
+      }
+
+      // Fall B: Tags vorhanden -> Normales Update / Upsert ausführen
+      const result = await UpdateTags.run({ 
+        questionId: idString,
+        tags: tagsToSave 
+      });
+
+      return result;
+    } catch (error) {
+      showAlert("Fehler beim Speichern: " + error.message, "error");
+    }
+  },
 }

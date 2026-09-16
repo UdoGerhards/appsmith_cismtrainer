@@ -55,7 +55,7 @@
   "mobileRightColumn": 7,
   "mobileTopRow": 71,
   "needsErrorInfo": false,
-  "onEnter": "{{EvaluationSource.updateTags()}}",
+  "onEnter": "{{MaintainanceSource.updateTags()}}",
   "onModelChange": "{{ storeValue('tagsList', tagsInput.model.tags) }}",
   "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
   "originalBottomRow": 85,
