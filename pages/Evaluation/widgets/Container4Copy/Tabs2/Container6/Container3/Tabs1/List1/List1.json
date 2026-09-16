@@ -9,7 +9,7 @@
   "animateLoading": true,
   "backgroundColor": "transparent",
   "borderRadius": "1.5rem",
-  "bottomRow": 278,
+  "bottomRow": 269,
   "boxShadow": "none",
   "children": [
     {
@@ -123,7 +123,7 @@
   "rightColumn": 64,
   "selectedItemView": "{{{}}}",
   "templateHeight": 160,
-  "topRow": 19,
+  "topRow": 10,
   "triggeredItemView": "{{{}}}",
   "type": "LIST_WIDGET_V2",
   "widgetId": "c5xm431bev",

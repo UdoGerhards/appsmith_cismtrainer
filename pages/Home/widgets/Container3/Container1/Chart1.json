@@ -81,7 +81,16 @@
       "key": "customEChartConfig"
     }
   ],
-  "dynamicTriggerPathList": [],
+  "dynamicPropertyPathList": [
+    {
+      "key": "onDataPointClick"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onDataPointClick"
+    }
+  ],
   "flexVerticalAlignment": "start",
   "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
   "isLoading": false,
@@ -95,6 +104,7 @@
   "mobileRightColumn": 25,
   "mobileTopRow": 8,
   "needsErrorInfo": true,
+  "onDataPointClick": "{{\n /* showAlert(JSON.stringify(Chart1.selectedDataPoint), 'info')*/\nHomeSource.handleChartClick(Chart1.selectedDataPoint)\n}}",
   "originalBottomRow": 55,
   "originalTopRow": 8,
   "parentColumnSpace": 15.494384765625,

@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "0px",
-  "bottomRow": 72,
+  "bottomRow": 70,
   "boxShadow": "none",
   "defaultText": "{{ appsmith.store.questionGeminiExplanation || \"Lade Erklärung...\" }}",
   "dynamicBindingPathList": [
@@ -40,7 +40,7 @@
   "responsiveBehavior": "fill",
   "rightColumn": 63,
   "shouldScrollContents": true,
-  "topRow": 2,
+  "topRow": 1,
   "type": "RICH_TEXT_EDITOR_WIDGET",
   "version": 1,
   "widgetId": "9gja6h8gx6",

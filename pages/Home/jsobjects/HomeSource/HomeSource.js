@@ -28,11 +28,23 @@ getTestChartOptions: () => {
 
     // 3. Achsen- und Seriendaten vorbereiten
     const categories = recentDocs.map(doc => doc.finsihed || 'Test');
-    const correctData = recentDocs.map(doc => doc.correct);
-    const incorrectData = recentDocs.map(doc => doc.incorrect);
     
-    // Trenddaten (hier die korrekten Antworten als Verlauf)
-    const trendData = recentDocs.map(doc => doc.correct);
+    // HIER DIE ANPASSUNG: Statt nur doc.correct ein Objekt mit value und id zurückgeben
+    const correctData = recentDocs.map(doc => ({
+      value: doc.correct,
+      id: doc._id // <--- Wichtig für das onDataPointClick-Event
+    }));
+
+    const incorrectData = recentDocs.map(doc => ({
+      value: doc.incorrect,
+      id: doc._id // <--- Wichtig für das onDataPointClick-Event
+    }));
+    
+    // Trenddaten ebenfalls mit ID versehen
+    const trendData = recentDocs.map(doc => ({
+      value: doc.correct,
+      id: doc._id // <--- Wichtig für das onDataPointClick-Event
+    }));
 
     // 4. Vollständige ECharts Konfiguration zurückgeben
     return {
@@ -66,20 +78,19 @@ getTestChartOptions: () => {
         type: 'value',
         name: 'Anzahl Fragen'
       },
-      // VisualMap wirkt jetzt NUR noch auf die Trend-Serie (Index 2)
       visualMap: {
         show: false,
         dimension: 1,
-        seriesIndex: [2], // <--- Hier wird festgelegt, dass nur die 3. Serie (Trend) eingefärbt wird
+        seriesIndex: [2],
         pieces: [
           {
-            lte: 3.5, // 70% bei 5 Fragen
-            color: 'rgba(239, 68, 68, 0.4)' // Rot für unter 70%
+            lte: 3.5,
+            color: 'rgba(239, 68, 68, 0.4)'
           },
           {
             gt: 3.5,
             lte: 5,
-            color: 'rgba(34, 197, 94, 0.4)' // Grün für ab 70%
+            color: 'rgba(34, 197, 94, 0.4)'
           }
         ]
       },
@@ -88,9 +99,9 @@ getTestChartOptions: () => {
           name: 'Korrekt',
           type: 'bar',
           stack: 'total',
-          data: correctData,
+          data: correctData, // Nutzt jetzt das neue Objekt-Array
           itemStyle: {
-            color: '#22c55e' // Volle Farbstärke für Grün
+            color: '#22c55e'
           },
           label: {
             show: true,
@@ -101,9 +112,9 @@ getTestChartOptions: () => {
           name: 'Inkorrekt',
           type: 'bar',
           stack: 'total',
-          data: incorrectData,
+          data: incorrectData, // Nutzt jetzt das neue Objekt-Array
           itemStyle: {
-            color: '#ef4444' // Volle Farbstärke für Rot
+            color: '#ef4444'
           },
           label: {
             show: true,
@@ -113,7 +124,7 @@ getTestChartOptions: () => {
         {
           name: 'Trend (Korrekt)',
           type: 'line',
-          data: trendData,
+          data: trendData, // Nutzt jetzt das neue Objekt-Array
           smooth: true,
           areaStyle: {
             opacity: 0.6
@@ -130,6 +141,72 @@ getTestChartOptions: () => {
       ]
     };
   },
+	
+	// In deinem JSObject:
+handleChartClick: async(clickedItem) => {
+	
+  // Die ID aus dem angeklickten Element auslesen
+  const reportId = clickedItem?.rawEventData.data.id;
+	
+	showAlert(reportId);
+	
+		// 1. Führe den Query GetTest aus und warte auf das Ergebnis
+		const result = await GetTest.run({
+			"reportId": reportId
+		});
+
+		// 2. Überprüfe, ob ein Dokument gefunden wurde (result ist bei Find meist ein Array)
+		if (result && result.length > 0) {
+			const document = result[0];
+			
+			const selectedIds = document.questions.map(question => question._id);
+			
+			//console.log("IDS Array: ", selectedIds);
+			
+			await GetQuestions.run({ids: selectedIds});
+			
+			const questions = GetQuestions.data?.cursor?.firstBatch 
+												|| GetQuestions.data 
+												|| [];
+			
+			if (questions.length > 0 ){
+				
+				const questionsMap = new Map();
+				questions.forEach(item => {
+					questionsMap.set(item._id.toString(), item);
+				});
+				
+				const updatedQuestions = document.questions.map(q => {
+					const detail = questionsMap.get(q._id.toString()) || {};
+
+					return {
+						...q, // Behält userAnswer und isCorrect bei
+						question: detail.question || "", // Text der Frage aus der DB
+						correct: detail.correct || "",   // Die korrekte Antwort aus der DB
+						domain: detail.domain || "",     // Domain der Frage
+						answers: detail.answers || []    // Die Antwortmöglichkeiten aus der 'answer'-Collection (vom Lookup)
+					};
+				});
+				
+				document.questions = updatedQuestions;
+				//console.log("Aktualsierte Fragen: ", updatedQuestions);
+			}
+
+			console.log('Report: ', document);
+			
+			// 3. Speichere das Dokument plus das neue Feld im Store
+			await storeValue("report", {
+				...document,
+				synthetic: true
+			});
+			
+			console.log(appsmith.store.report);
+			
+			await navigateTo('Evaluation', {}, 'SAME_WINDOW');
+		} else {
+			showAlert("Dokument konnte nicht gefunden werden", "error");
+		}
+},
 
 getDomainsWeighted: () => {
   const rawData = FindAllReportsWeighted.data;

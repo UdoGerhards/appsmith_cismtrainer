@@ -11,6 +11,8 @@ export default {
 		await GetDomain.run();
 
 		const report = appsmith.store.report;
+		
+		//console.log("Report ", report);
 
 		const questions = appsmith.store.report.questions;
 		//console.log("Initial questions: ", questions);
@@ -179,22 +181,16 @@ export default {
 		} else {
 			filteredQuestions = sortedQuestions;
 		}
+		
+				// if selected get bookmarked only
+		const onlybookmarked = bookmarksonly.isSwitchedOn;
+		if (onlybookmarked) {
+			filteredQuestions = filteredQuestions.filter(q => {
+				return Boolean(q.isBookmarked);
+			});
+		} 
 
-		/*
-    // --- FILTER FÜR DAS INPUT-FELD ---
-    const searchForm = (search.text || "").toLowerCase().trim();
-		const domainSelect = (Select1.selectedOptionValue || "").toLowerCase().trim();
-
-		console.log(domainSelect);
-
-    if (searchForm !== "") {
-      filteredQuestions = filteredQuestions.filter(q => {
-        const questionText = (q.question || "").toLowerCase();
-        const domainText = (q.domain || "").toLowerCase();
-        return questionText.includes(searchForm) || domainText.includes(domainSelect);
-      });
-    }*/
-
+		
 		// --- FILTER FÜR DAS INPUT-FELD & SELECT ---
 		const searchForm = (search.text || "").toLowerCase().trim();
 		const domainSelect = (Select1.selectedOptionValue || "").toLowerCase().trim();
@@ -236,7 +232,7 @@ export default {
 				"Richtige Antwort": correctAnswer,
 				"User Antwort": userAnswer,
 				"Kommentar": q?.commentText || "",
-				"Bookmark": q.hasBookmark,
+				"Bookmark": q.isBookmarked,
 				"id": q._id,
 				"isCorrect": q.isCorrect
 			};
@@ -545,12 +541,69 @@ export default {
 
 		await storeValue("questionGeminiExplanation", evaluationText, false);
 		question.geminiExplanation = evaluationText;
-
+		
+		console.log("question id:", String(question._id));
+		
+		// 2. Führe die MongoDB-Query aus und übergebe die ID als Parameter
+    const tagResult = await FindTags.run({ 
+      questionId: String(question._id) 
+    });
+		
+		console.log("tags: ", tagResult);
+		
+		await storeValue("tagsId", question._id, false);
+		if (tagResult && tagResult.lenght > 0) {
+			await storeValue("tagsList",tagResult[0].tags, false);
+			console.log("appsmith.store.tagsList", appsmith.store.tagsList);
+		} else {
+			removeValue("tagsList");
+		}
+		
 		resetWidget("InputUserMsg");
 		showModal(Modal_Explanation.name);
 
 		return question;
 	},
+	
+updateTags: async () => {
+
+		//showAlert("Udpate tags triggert!");
+	
+    // 1. Hole die questionId (als String)
+    const idString = String(appsmith.store.tagsId || "");
+
+    // 2. Validierung vorab
+    if (!idString || idString === "undefined" || idString === "null") {
+      //showAlert("Keine gültige questionId gefunden!", "error");
+      return;
+    }
+
+    // 3. Hole die Tags primär aus dem Model des Custom Widgets (Name deines Widgets anpassen: tagsInput oder Custom1?)
+    // Achtung im Code oben hast du 'tagsInput.model', weiter unten im Projekt hieß es oft 'Custom1.model'. 
+    // Nutze hier den exakten Namen deines Custom Widgets!
+    let tagsToSave = tagsInput.model ? tagsInput.model.tags : (appsmith.store.tagsList || []);
+	  //await storeValue("tagsList", tagsToSave,false);
+
+    try {
+      // Fall A: Keine Tags mehr übrig -> Sollen wir den Eintrag komplett löschen?
+      if (!tagsToSave || (Array.isArray(tagsToSave) && tagsToSave.length === 0)) {
+        // Falls du den Datensatz bei 0 Tags komplett löschen willst:
+        await DeleteTags.run({ questionId: idString });
+        //await storeValue('tagsList', []);
+        return;
+      }
+
+      // Fall B: Tags vorhanden -> Normales Update / Upsert ausführen
+      const result = await UpdateTags.run({ 
+        questionId: idString,
+        tags: tagsToSave 
+      });
+
+      return result;
+    } catch (error) {
+      showAlert("Fehler beim Speichern: " + error.message, "error");
+    }
+  },
 
 	handleSaveAndNavigate: async() => {
 		try {
@@ -740,16 +793,11 @@ export default {
     return appsmith.store.geminiChatHistory || [];
   },
 
-// Nachricht senden und Antwort erhalten
   sendMessage: async (userMessage) => {
     if (!userMessage || userMessage.trim() === "") return;
     
-    // Prüfen, ob der aktive Chat-Key im Store existiert. Wenn nicht, mit dem kostenlosen Key initialisieren.
+    // Prüfen, ob der aktive Chat-Key im Store existiert.
     if (!appsmith.store.gemini_chat_key) {
-      //await storeValue("gemini_key_free", "DEIN_KOSTENLOSER_API_KEY"); // Falls noch nicht geschehen
-      //await storeValue("gemini_key", "DEIN_KOSTENPFLICHTIGER_API_KEY"); // Falls noch nicht geschehen
-      
-      // Starte standardmäßig mit dem kostenlosen Key
       await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
       await this.initChat();
     }
@@ -767,6 +815,20 @@ export default {
     try {
       // 2. API-Aufruf mit automatischer Key-Wechsel-Logik ausführen
       await this.executeWithKeyFallback(history);
+
+      // 3. Gestaffeltes Scrollen nach unten, sobald Gemini geantwortet hat
+      [200, 500, 800].forEach(delay => {
+        setTimeout(() => {
+          try {
+            const editorBody = document.querySelector(".t--widget-richtexteditorwidget .ql-editor") || 
+                               document.querySelector(".rich-text-editor .ql-editor") ||
+                               document.querySelector(".ql-editor");
+            if (editorBody) {
+              editorBody.scrollTop = editorBody.scrollHeight;
+            }
+          } catch (e) {}
+        }, delay);
+      });
 
     } catch (error) {
       showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
@@ -832,46 +894,16 @@ export default {
     await storeValue("geminiChatHistory", history);
   },
 	
-// Formatiert die Historie als schönes HTML für den Rich Text Editor (überspringt die ersten 2 Elemente)
-	/*
-  getFormattedHistoryForRTE: () => {
-    const history = appsmith.store.geminiChatHistory || [];
-    
-    // Die ersten beiden Elemente (System-Prompt / Initialisierung) überspringen
-    const visibleHistory = history.slice(2);
-
-    if (visibleHistory.length === 0) {
-      return "<p><i>Noch keine Nachrichten vorhanden. Starte den Chat...</i></p>";
-    }
-
-    // Generiert für jede sichtbare Nachricht einen sauberen HTML-Block
-    return visibleHistory.map(msg => {
-      const isUser = msg.role === 'user';
-      const sender = isUser ? '<b>Du:</b>' : '<b style="color: #2b6cb0;">Gemini:</b>';
-      const bgColor = isUser ? '#f7fafc' : '#ebf8ff'; // Leichtes Grau für User, helles Blau für Gemini
-      
-      const text = msg.parts?.[0]?.text || '';
-      // Zeilenumbrüche für HTML erhalten
-      const formattedText = text.replace(/\n/g, '<br>');
-
-      return `
-        <div style="background-color: ${bgColor}; border-left: 4px solid ${isUser ? '#cbd5e0' : '#3182ce'}; padding: 10px 15px; margin-bottom: 12px; border-radius: 4px;">
-          <p style="margin: 0 0 5px 0;">${sender}</p>
-          <div style="margin: 0; font-family: Arial, sans-serif; font-size: 13px; line-height: 1.4;">${formattedText}</div>
-        </div>
-      `;
-    }).join('');
-  },*/
 	getFormattedHistoryForRTE: () => {
     const history = appsmith.store.geminiChatHistory || [];
     const visibleHistory = history.slice(2);
 
     if (visibleHistory.length === 0) {
-      return "<p><i>Noch keine Nachrichten vorhanden. Starte den Chat...</i></p>";
+      return "<p style='color: #666; font-style: italic;'>Noch keine Nachrichten vorhanden. Starte den Chat...</p>";
     }
 
-    // .reverse() sorgt dafür, dass die neuesten Nachrichten ganz oben stehen!
-    return [...visibleHistory].reverse().map(msg => {
+    // KEIN .reverse() -> Chronologische Reihenfolge (Neueste Nachricht landet automatisch unten)
+    return visibleHistory.map(msg => {
       const isUser = msg.role === 'user';
       const sender = isUser ? '<b>Du:</b>' : '<b style="color: #2b6cb0;">Gemini:</b>';
       const bgColor = isUser ? '#f7fafc' : '#ebf8ff';
@@ -881,7 +913,7 @@ export default {
 
       return `
         <div style="background-color: ${bgColor}; border-left: 4px solid ${isUser ? '#cbd5e0' : '#3182ce'}; padding: 10px 15px; margin-bottom: 12px; border-radius: 4px;">
-          <p style="margin: 0 0 5px 0; font-family: Arial, sans-serif; font-size: 11px;color: #333;">${sender}</p>
+          <p style="margin: 0 0 5px 0; font-family: Arial, sans-serif; font-size: 11px; color: #333;">${sender}</p>
           <div style="margin: 0; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4;">${formattedText}</div>
         </div>
       `;

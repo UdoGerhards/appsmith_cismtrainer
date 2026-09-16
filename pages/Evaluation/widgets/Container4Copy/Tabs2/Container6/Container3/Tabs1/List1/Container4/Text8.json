@@ -36,7 +36,7 @@
   "fontSize": "0.875rem",
   "fontStyle": "",
   "isLoading": false,
-  "isVisible": "{{useranswers.isChecked}}",
+  "isVisible": "{{useranswers.isSwitchedOn}}",
   "key": "h4g6r120lw",
   "leftColumn": 3,
   "maxDynamicHeight": 9000,
