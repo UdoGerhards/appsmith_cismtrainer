@@ -39,6 +39,8 @@
   "mobileTopRow": 14,
   "needsErrorInfo": false,
   "onChange": "{{storeValue(\"geminiExplain\", Switch3.isSwitchedOn, false)}}",
+  "originalBottomRow": 18,
+  "originalTopRow": 14,
   "parentColumnSpace": 32.25,
   "parentId": "y70j0qw9nt",
   "parentRowSpace": 10,

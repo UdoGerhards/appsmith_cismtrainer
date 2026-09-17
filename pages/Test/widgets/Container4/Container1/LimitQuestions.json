@@ -2,7 +2,7 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 62,
+  "bottomRow": 76,
   "boxShadow": "none",
   "defaultSwitchState": false,
   "dynamicBindingPathList": [
@@ -11,11 +11,7 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
-  "dynamicPropertyPathList": [
-    {
-      "key": "onChange"
-    }
-  ],
+  "dynamicPropertyPathList": [],
   "dynamicTriggerPathList": [
     {
       "key": "onChange"
@@ -24,29 +20,29 @@
   "isDisabled": false,
   "isLoading": false,
   "isVisible": true,
-  "key": "f0ovrdpcad",
-  "label": "Fragen gewichten:",
+  "key": "mr9rwju0u1",
+  "label": "Testfragen begrenzen",
   "labelPosition": "Right",
   "leftColumn": 1,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
-  "mobileBottomRow": 56,
+  "mobileBottomRow": 31,
   "mobileLeftColumn": 1,
   "mobileRightColumn": 13,
-  "mobileTopRow": 52,
+  "mobileTopRow": 27,
   "needsErrorInfo": false,
-  "onChange": "{{ ConfigSource.handleSwitchChange() }}\n\n",
-  "originalBottomRow": 62,
-  "originalTopRow": 58,
-  "parentColumnSpace": 32.671875,
+  "onChange": "",
+  "originalBottomRow": 76,
+  "originalTopRow": 72,
+  "parentColumnSpace": 43.375,
   "parentId": "y70j0qw9nt",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 13,
-  "topRow": 58,
+  "rightColumn": 7,
+  "topRow": 72,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "97z19moqlz",
-  "widgetName": "Switch2"
+  "widgetId": "sgw2szqmbj",
+  "widgetName": "LimitQuestions"
 }

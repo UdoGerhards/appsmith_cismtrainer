@@ -188,9 +188,10 @@ export default {
     const questions = [...appsmith.store.currentQuestions];
 		
 		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
-		answerFields.forEach(label => {
-				removeValue(label);
-				removeValue(label+"_value");
+		answerFields.forEach(field => {
+				removeValue(field);
+				removeValue(field+"_value");
+				resetWidget(field, false);
 		});
 			
     // 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind

@@ -2,51 +2,47 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 76,
+  "bottomRow": 80,
   "boxShadow": "none",
-  "defaultSwitchState": false,
+  "defaultSwitchState": true,
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
-      "key": "onChange"
+      "key": "isDisabled"
     }
   ],
-  "dynamicTriggerPathList": [
-    {
-      "key": "onChange"
-    }
-  ],
-  "isDisabled": false,
+  "dynamicTriggerPathList": [],
+  "isDisabled": "{{!LimitQuestions.isSwitchedOn}}",
   "isLoading": false,
   "isVisible": true,
-  "key": "mr9rwju0u1",
-  "label": "Testfragen begrenzen",
-  "labelPosition": "Right",
-  "leftColumn": 1,
+  "key": "406ds1rizy",
+  "label": "Nutze Fragen, die fehlerhaft beantwortet wurden!",
+  "labelPosition": "Left",
+  "leftColumn": 2,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
-  "mobileBottomRow": 31,
-  "mobileLeftColumn": 1,
-  "mobileRightColumn": 13,
-  "mobileTopRow": 27,
+  "mobileBottomRow": 80,
+  "mobileLeftColumn": 2,
+  "mobileRightColumn": 14,
+  "mobileTopRow": 76,
   "needsErrorInfo": false,
-  "onChange": "{{}}",
-  "originalBottomRow": 223,
-  "originalTopRow": 182,
-  "parentColumnSpace": 43.375,
+  "parentColumnSpace": 32.6875,
   "parentId": "y70j0qw9nt",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 7,
-  "topRow": 72,
+  "rightColumn": 14,
+  "topRow": 76,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "sgw2szqmbj",
-  "widgetName": "Switch1"
+  "widgetId": "pe352z51o5",
+  "widgetName": "QuestionsWithError"
 }

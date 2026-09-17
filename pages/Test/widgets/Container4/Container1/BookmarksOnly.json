@@ -2,51 +2,47 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 62,
+  "bottomRow": 84,
   "boxShadow": "none",
   "defaultSwitchState": false,
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
-      "key": "onChange"
+      "key": "isDisabled"
     }
   ],
-  "dynamicTriggerPathList": [
-    {
-      "key": "onChange"
-    }
-  ],
-  "isDisabled": false,
+  "dynamicTriggerPathList": [],
+  "isDisabled": "{{!LimitQuestions.isSwitchedOn}}",
   "isLoading": false,
   "isVisible": true,
-  "key": "f0ovrdpcad",
-  "label": "Fragen gewichten:",
-  "labelPosition": "Right",
-  "leftColumn": 1,
+  "key": "406ds1rizy",
+  "label": "Nur gemerkte Fragen / Fragen mit Bookmark",
+  "labelPosition": "Left",
+  "leftColumn": 2,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
-  "mobileBottomRow": 56,
-  "mobileLeftColumn": 1,
-  "mobileRightColumn": 13,
-  "mobileTopRow": 52,
+  "mobileBottomRow": 84,
+  "mobileLeftColumn": 2,
+  "mobileRightColumn": 14,
+  "mobileTopRow": 80,
   "needsErrorInfo": false,
-  "onChange": "{{ ConfigSource.handleSwitchChange() }}\n\n",
-  "originalBottomRow": 62,
-  "originalTopRow": 58,
-  "parentColumnSpace": 32.671875,
+  "parentColumnSpace": 32.6875,
   "parentId": "y70j0qw9nt",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 13,
-  "topRow": 58,
+  "rightColumn": 14,
+  "topRow": 80,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "97z19moqlz",
-  "widgetName": "Switch2"
+  "widgetId": "l5vaw0cxnk",
+  "widgetName": "BookmarksOnly"
 }

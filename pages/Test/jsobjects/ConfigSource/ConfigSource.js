@@ -166,32 +166,7 @@ export default {
 
     return aktualisiertesArray;
   },
-
-
-  updateLimitedQuestions: async () => {
-    const selectedValues = CheckboxGroup1.selectedValues || [];
-
-    // Wenn keine Optionen ausgewählt sind, Variable aus dem Store löschen
-    if (selectedValues.length === 0) {
-      await storeValue("limitedquestions", undefined);
-      return;
-    }
-    let binarySum = 0;
-
-    selectedValues.forEach(val => {
-      const num = parseInt(val, 10);
-      if (!isNaN(num)) {
-        // Wir nutzen den Wert direkt oder verschieben ihn bitweise,
-        // je nachdem wie deine Optionen benannt sind ("1" und "2" -> Summe oder Bitmaske)
-        // Wenn deine Optionen "1" und "2" heißen, reicht oft schon eine Bitwise OR oder einfache Addition.
-        // Für echte Binärarithmetik (Bitmasken): 1 -> (1 << 0) = 1, 2 -> (1 << 1) = 2
-        binarySum |= (1 << (num - 1));
-      }
-    });
-
-    // Wert im Appsmith Store speichern
-    await storeValue("limitedquestions", binarySum);
-  },
+	
   saveValues: async () => {
     await storeValue('title', Input1.text, false);
     await storeValue('nrquestions', parseInt(Input2.text), false);
@@ -199,9 +174,11 @@ export default {
     await storeValue('nature', 'user');
   },
 
-  async  loadTest() {
-    const limitedquestions = appsmith.store.limitedquestions;
+  loadTest: async() => {
+    const limitedquestions =  LimitQuestions.isSwitchedOn;
     const questionsPerDomain = await this.processPercentages();
+		
+		//wait showAlert(limitedquestions);
 
     await storeValue('domains', questionsPerDomain, false);
 
@@ -232,6 +209,7 @@ export default {
         domainQuestions = await GetQuestions.run({ domain: domain.domain, questionLimit: domain.nrQuestions, minOccure: domain.minOccure  });
       } else {
         domainQuestions = await this.getLimitedQuestions(limitedquestions, domain.domain, domain.nrQuestions);
+				return;
       }
 
       console.log("Domain Fragen-Array: ", domainQuestions);
@@ -262,6 +240,10 @@ export default {
   getLimitedQuestions: async (selection, domain, limit) => {
     // 1. Pipeline ausführen und alle passenden Fragen holen
     const pipeline = this.getPipeline(selection);
+		
+		console.log("limited pipeline", pipeline);
+		
+		await showAlert(pipeline);
 
     // Führe die MongoDB Query aus (passe den Namen deiner Query hier an!)
     const response = await GetLimitedQuestions.run({ customPipeline: pipeline });
