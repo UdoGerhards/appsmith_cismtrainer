@@ -4,6 +4,12 @@ export default {
 	
 	init: async() => {
 		await this.loadAndSaveConfiguration();
+		
+		const currentIndex = appsmith.store.currentIndex;
+		const question = appsmith.store.currentQuestions[currentIndex];
+		
+		this.shuffleAnswers(question.answers);
+		
 		await this.startTimer();
 	}, 
 	
@@ -109,24 +115,45 @@ export default {
     // await storeValue("currentIndex", currentIndex + 1);
   },
 	
-  saveUserAnswer: async (selectedValues) => {
+	shuffleAnswers: async (answers) => {
+		  const sortedAnswers = answers.sort(() => Math.random() - 0.5);
+			const chars = ['A', 'B', 'C', 'D'];
+			sortedAnswers.forEach(async(answer, idx) => {
+					const label = "answer"+chars[idx];
+					await storeValue(label, answer.text, false);
+					await storeValue(label+"_value", answer.type, false);
+			});
+	},
+
+	
+  saveUserAnswer: async (selected) => {
+
+		//showAlert(JSON.stringify(selected.widgetName), "info");
+		
+		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
+		const userAnswer = appsmith.store[selected.widgetName+"_value"];
+		answerFields.forEach(field => {
+			if (field !== selected.widgetName.trim()) {
+				resetWidget(field, false);
+			}
+		});
+		
+		//showAlert(userAnswer);
+		
+		//CheckboxGroup1.selectedValues(selectedValues);
+		
     const currentIndex = appsmith.store.currentIndex;
     const questions = [...appsmith.store.currentQuestions];
 
-    const singleValue = selectedValues.length > 0
-      ? selectedValues[selectedValues.length - 1].trim()
-      : null;
-
     const rightAnswer = questions[currentIndex].correct.trim();
-    const isCorrect = rightAnswer === singleValue;
-
-    console.log(singleValue);
+    const isCorrect = rightAnswer === userAnswer;
 
     // 1. Speichern
-    questions[currentIndex].userAnswer = singleValue;
+    questions[currentIndex].userAnswer = userAnswer;
     questions[currentIndex].isCorrect = isCorrect;
 
-    console.log("Value: ", rightAnswer, singleValue, isCorrect);
+    console.log("Value: ", rightAnswer, userAnswer, isCorrect);
+		console.log("Question ", questions[currentIndex]);
 
     await storeValue("currentQuestions", questions);
   },
@@ -146,8 +173,8 @@ export default {
 			if(geminiExplain !== undefined || geminiExplain !== null || geminiExplain === false) {
 				await storeValue("moveToPage", true, false);
 			}
-			this.proceed("Evaluation");
 		}
+			this.proceed("Evaluation");
 	},
 	
   proceed: async (page) => {
@@ -159,32 +186,40 @@ export default {
 
     const currentIndex = appsmith.store.currentIndex;
     const questions = [...appsmith.store.currentQuestions];
-				
+		
+		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
+		answerFields.forEach(label => {
+				removeValue(label);
+				removeValue(label+"_value");
+		});
+			
     // 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
     if (currentIndex < questions.length - 1) {
       const nextIndex = currentIndex + 1; // Der Index der NÄCHSTEN Frage
-      const nextQuestionId = questions[nextIndex]._id;
+      //const nextQuestionId = questions[nextIndex]._id;
+			const answers = questions[nextIndex].answers;
+			this.shuffleAnswers(answers);
 
       // Nächste Frage einblenden (Index erhöhen)
       await storeValue("currentIndex", nextIndex);
 
       // Bereits gespeicherte Antwort für die nächste Frage laden
-      const nextAnswer = questions[nextIndex].userAnswer || [];
-      await storeValue("selectedAnswers", nextAnswer);
+      //const nextAnswer = questions[nextIndex].userAnswer || [];
+      //await storeValue("selectedAnswers", nextAnswer);
 
       // Frisch geladene Kommentare holen
-      await Tags.run();
+      //await Tags.run();
 
       // WICHTIG: Nach der NÄCHSTEN Frage suchen (nextQuestionId oder nextIndex)
-      const existingTags = Tags.data?.find(b => b.questionId === nextQuestionId);
-
+      //const existingTags = Tags.data?.find(b => b.questionId === nextQuestionId);
+      /*
       if (Array.isArray(existingTags)) {
         console.log("Setze tags: ", existingTags);
         await storeValue("tagsList", existingTags);
       } else {
         console.log("Lösche tags");
         await storeValue("tagsList", []);
-      }
+      }*/
 
     } else {
 

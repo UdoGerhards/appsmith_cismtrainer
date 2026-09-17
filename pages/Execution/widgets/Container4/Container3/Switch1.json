@@ -39,6 +39,8 @@
   "mobileTopRow": 2,
   "needsErrorInfo": false,
   "onChange": "{{ TestSource.toggleTimer(Switch1.isSwitchedOn) }}/",
+  "originalBottomRow": 6,
+  "originalTopRow": 2,
   "parentColumnSpace": 43.375,
   "parentId": "6n3jb2wr15",
   "parentRowSpace": 10,

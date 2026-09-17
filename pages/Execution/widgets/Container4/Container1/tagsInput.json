@@ -3,7 +3,7 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "borderWidth": "1",
-  "bottomRow": 76,
+  "bottomRow": 62,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "defaultModel": "{\n  \"tags\": {{ appsmith.store.tagsList || [] }}\n}",
   "dynamicBindingPathList": [
@@ -53,8 +53,8 @@
   "needsErrorInfo": false,
   "onModelChange": "{{ storeValue('tagsList', tagsInput.model.tags) }}",
   "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
-  "originalBottomRow": 76,
-  "originalTopRow": 70,
+  "originalBottomRow": 62,
+  "originalTopRow": 56,
   "parentColumnSpace": 32.984375,
   "parentId": "wl2u4o54zu",
   "parentRowSpace": 10,
@@ -66,7 +66,7 @@
     "js": "const tagContainer = document.getElementById('tagContainer');\nconst tagInput = document.getElementById('tagInput');\n\n// Funktion zum Zeichnen der Tags aus dem Appsmith-Modell\nfunction renderTags() {\n  // Entferne alte Tags (behalte nur das Input-Feld)\n  document.querySelectorAll('.tag').forEach(tag => tag.remove());\n\n  // Sicheres Auslesen aus appsmith.model\n  const tags = appsmith.model.tags || [];\n  tags.forEach((tag, index) => {\n    const tagEl = document.createElement('div');\n    tagEl.classList.add('tag');\n    tagEl.innerHTML = `${tag} <span class=\"close-btn\" data-index=\"${index}\">&times;</span>`;\n    tagContainer.insertBefore(tagEl, tagInput);\n  });\n}\n\n// Event-Listener für neues Tag (Enter-Taste)\ntagInput.addEventListener('keydown', e => {\n  if (e.key === 'Enter' && tagInput.value.trim() !== '') {\n    const currentTags = [...(appsmith.model.tags || [])];\n    const newTag = tagInput.value.trim();\n    if (!currentTags.includes(newTag)) {\n      currentTags.push(newTag);\n\n      // Modell in Appsmith aktualisieren\n      appsmith.updateModel({\n        tags: currentTags\n      });\n    }\n    tagInput.value = '';\n  }\n});\n\n// Event-Listener zum Löschen eines Tags\ntagContainer.addEventListener('click', e => {\n  if (e.target.classList.contains('close-btn')) {\n    const indexToRemove = parseInt(e.target.getAttribute('data-index'), 10);\n    const currentTags = [...(appsmith.model.tags || [])];\n    currentTags.splice(indexToRemove, 1);\n\n    // Modell in Appsmith aktualisieren\n    appsmith.updateModel({\n      tags: currentTags\n    });\n  }\n});\n\n// Initialisierung und Bindung an Appsmith-Datenänderungen\nappsmith.onReady(() => {\n  renderTags();\n\n  // Lausche auf Änderungen des Modells (z.B. wenn sich appsmith.store.tagsList ändert)\n  appsmith.onModelChange(model => {\n    renderTags();\n  });\n});"
   },
   "theme": "{{appsmith.theme}}",
-  "topRow": 70,
+  "topRow": 56,
   "type": "CUSTOM_WIDGET",
   "uncompiledSrcDoc": {
     "css": "* { box-sizing: border-box; font-family: sans-serif; }\n.tag-container {\n  border: 1px solid #ccc;\n  padding: 5px;\n  border-radius: 4px;\n  display: flex;\n  flex-wrap: wrap;\n  gap: 5px;\n  background: #fff;\n}\n.tag {\n  background: #EBF4FF;\n  color: #1E40AF;\n  padding: 4px 8px;\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  font-size: 14px;\n}\n.tag .close-btn {\n  margin-left: 6px;\n  cursor: pointer;\n  font-weight: bold;\n}\n#tagInput {\n  border: none;\n  outline: none;\n  padding: 4px;\n  flex-grow: 1;\n  font-size: 14px;\n}\n",
