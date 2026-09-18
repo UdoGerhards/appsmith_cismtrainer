@@ -2,7 +2,7 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 80,
+  "bottomRow": 131,
   "boxShadow": "none",
   "defaultSwitchState": true,
   "dynamicBindingPathList": [
@@ -17,9 +17,16 @@
   "dynamicPropertyPathList": [
     {
       "key": "isDisabled"
+    },
+    {
+      "key": "onChange"
     }
   ],
-  "dynamicTriggerPathList": [],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
   "isDisabled": "{{!LimitQuestions.isSwitchedOn}}",
   "isLoading": false,
   "isVisible": true,
@@ -34,13 +41,16 @@
   "mobileRightColumn": 14,
   "mobileTopRow": 76,
   "needsErrorInfo": false,
+  "onChange": "{{ConfigSource.handleLimitToError()}}",
+  "originalBottomRow": 80,
+  "originalTopRow": 76,
   "parentColumnSpace": 32.6875,
   "parentId": "y70j0qw9nt",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
   "rightColumn": 14,
-  "topRow": 76,
+  "topRow": 127,
   "type": "SWITCH_WIDGET",
   "version": 1,
   "widgetId": "pe352z51o5",

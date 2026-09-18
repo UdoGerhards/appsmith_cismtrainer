@@ -1,19 +1,12 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_6e2f8523-d33f-4ac2-961b-6fc8e526e343",
-  "id": "Test_ConfigSource.getLimitedQuestions",
+  "gitSyncId": "6a784e96054143865d8dd557_b176c584-284d-4cbd-9e1b-38dea9db2017",
+  "id": "Test_ConfigSource.handleLimitToError",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [
-        {
-          "name": "domain"
-        },
-        {
-          "name": "limit"
-        }
-      ],
+      "jsArguments": [],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -29,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "ConfigSource.getLimitedQuestions",
-    "name": "getLimitedQuestions",
+    "fullyQualifiedName": "ConfigSource.handleLimitToError",
+    "name": "handleLimitToError",
     "pageId": "Test",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

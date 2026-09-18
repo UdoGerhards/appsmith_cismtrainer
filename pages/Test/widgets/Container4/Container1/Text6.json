@@ -2,7 +2,7 @@
   "animateLoading": true,
   "backgroundColor": "",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 67,
+  "bottomRow": 81,
   "disableLink": "",
   "dynamicBindingPathList": [
     {
@@ -56,7 +56,7 @@
   "text": "Wie oft können Fragen in bereits absolvierten Tests vorkommen:",
   "textAlign": "LEFT",
   "textColor": "{{Switch2.isSwitchedOn  &&!(appsmith.store.countPerMinUsage !== undefined && appsmith.store.countPerMinUsage !== null)?\"#231F20\":\"#71717a\"}}",
-  "topRow": 63,
+  "topRow": 77,
   "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
   "type": "TEXT_WIDGET",
   "version": 1,

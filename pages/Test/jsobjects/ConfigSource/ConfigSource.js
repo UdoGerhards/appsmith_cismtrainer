@@ -30,6 +30,12 @@ export default {
 
     this.proceedStep1();
   },
+	
+	handleLimitToError: async() => {
+		if (LimitQuestions.isSwitchedOn && (QuestionsWithError.isSwitchedOn || BookmarksOnly.isSwitchedOn) ) {
+				    this.proceedStep1();
+		}
+	},
 
   // 1. Diese Funktion bindest du an dein List-Widget: {{JSObject1.getDomains()}}
   getDomains: () => {
@@ -175,7 +181,7 @@ export default {
   },
 
   loadTest: async() => {
-    const limitedquestions =  LimitQuestions.isSwitchedOn;
+
     const questionsPerDomain = await this.processPercentages();
 		
 		//wait showAlert(limitedquestions);
@@ -202,15 +208,10 @@ export default {
 				domain.minOccure = Number(Custom1.model.value) || 0;
 			}
 
-      let domainQuestions = [];
+      //let domainQuestions = [];
 
-      if (!limitedquestions) {
-				console.log("Domain ", domain);
-        domainQuestions = await GetQuestions.run({ domain: domain.domain, questionLimit: domain.nrQuestions, minOccure: domain.minOccure  });
-      } else {
-        domainQuestions = await this.getLimitedQuestions(limitedquestions, domain.domain, domain.nrQuestions);
-				return;
-      }
+			console.log("Domain ", domain);
+      const domainQuestions = await GetQuestions.run({ domain: domain.domain, questionLimit: domain.nrQuestions, minOccure: domain.minOccure  });
 
       console.log("Domain Fragen-Array: ", domainQuestions);
 
@@ -235,15 +236,22 @@ export default {
       await storeValue("currentIndex", 0);
     }
   },
+	
+	loadLimitedTest: async() => {
+		const limit = Number(Input2.text);
+		const domain = "";
+		const questions = await this.getLimitedQuestions(domain, limit);
+		
+		await storeValue("currentQuestions", questions);
+		
+	},
 
   // Funktion zum Abrufen UND Zufallsmischen der Fragen
-  getLimitedQuestions: async (selection, domain, limit) => {
+  getLimitedQuestions: async (domain, limit) => {
     // 1. Pipeline ausführen und alle passenden Fragen holen
-    const pipeline = this.getPipeline(selection);
+    const pipeline = this.getPipeline(domain,limit);
 		
 		console.log("limited pipeline", pipeline);
-		
-		await showAlert(pipeline);
 
     // Führe die MongoDB Query aus (passe den Namen deiner Query hier an!)
     const response = await GetLimitedQuestions.run({ customPipeline: pipeline });
@@ -251,6 +259,9 @@ export default {
     // reicht oft auch einfach ein await QueryGetFilteredQuestions.run();
 
     const allQuestions = GetLimitedQuestions.data || [];
+		
+		console.log("length ", allQuestions.length);
+		
     const l = parseInt(limit) || allQuestions.length;
 
     // 2. Fisher-Yates Shuffle Algorithmus (perfektes Mischen)
@@ -264,12 +275,10 @@ export default {
     return shuffled.slice(0, l);
   },
 
-  getPipeline: (selection, domain, limit) => {
-    const s = parseInt(selection) || 0;
+  getPipeline: (domain, limit) => {
     const limitCount = parseInt(limit) || 0;
-
-    const showIncorrect = (s & 8) !== 0;
-    const showBookmark = (s & 128) !== 0;
+    const showIncorrect = QuestionsWithError.isSwitchedOn;
+    const showBookmark = BookmarksOnly.isSwitchedOn;
 
     // Pipeline startet mit dem Aufbrechen des Fragen-Arrays
     const pipeline = [
@@ -289,8 +298,7 @@ export default {
     let orConditions = [];
     if (showIncorrect) {
       orConditions.push(
-        { "questions.isCorrect": false },
-        { "questions.isCorrect": { $exists: false } }
+        { "questions.isCorrect": false }
       );
     }
     if (showBookmark) {
@@ -333,8 +341,10 @@ export default {
     navigateTo(page, {}, 'SAME_WINDOW');
   },
   proceedStep1: async() => {
+		const limitedquestions =  LimitQuestions.isSwitchedOn;
+		
     removeValue("buttonLabel");
-    removeValue("buttonLabelIcon")
+    removeValue("buttonLabelIcon");
 		removeValue("moveToNextPage");
 		
     await this.saveValues();
@@ -346,7 +356,11 @@ export default {
     console.log(appsmith.store.domains);
     console.log("limited questions", appsmith.store.limitedquestions);
 
-    await this.loadTest();
+		if (!limitedquestions) {
+    		await this.loadTest();
+			} else {
+				await this.loadLimitedTest();
+			}
 
     const currQuestions = appsmith.store.currentQuestions;
     const currQuestionsCount = appsmith.store.currentQuestions.length;

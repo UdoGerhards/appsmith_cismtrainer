@@ -3,7 +3,7 @@
   "borderColor": "transparent",
   "borderRadius": "0px",
   "borderWidth": "0",
-  "bottomRow": 68,
+  "bottomRow": 82,
   "boxShadow": "none",
   "defaultModel": "{{ \n{\n    \"isDisabled\": !Switch2.isSwitchedOn || (appsmith.store.countPerMinUsage !== undefined && appsmith.store.countPerMinUsage !== null),\n    \"value\": appsmith.store.customNumValue ?? 0\n}\n}}\n",
   "dynamicBindingPathList": [
@@ -60,7 +60,7 @@
     "js": "// Variable für die Klick-Verzögerung (Debounce)\nlet debounceTimer;\n\n// Bindet die Funktion global an das Fenster, damit das HTML-Feld sie findet\nwindow.sendValue = function (val) {\n  // 1. Wert sofort an Appsmith senden\n  appsmith.updateModel({\n    value: Number(val)\n  });\n\n  // 2. Vorherigen Timer löschen (Debounce)\n  clearTimeout(debounceTimer);\n\n  // 3. Neuen Timer starten: Wartet 500ms nach dem letzten Klick\n  debounceTimer = setTimeout(() => {\n    appsmith.triggerEvent(\"onChange\");\n  }, 500);\n};\nappsmith.onModelChange(() => {\n  const isDisabled = appsmith.model.isDisabled;\n  const inputEl = document.getElementById(\"numInput\");\n  if (inputEl) {\n    inputEl.disabled = isDisabled;\n    inputEl.style.backgroundColor = isDisabled ? \"#f2f4f7\" : \"#ffffff\";\n\n    // NEU: Aktualisiert das HTML-Feld, wenn sich der Wert von außen (per JS) ändert\n    if (appsmith.model.value !== undefined) {\n      inputEl.value = appsmith.model.value;\n    }\n  }\n});"
   },
   "theme": "{{appsmith.theme}}",
-  "topRow": 62,
+  "topRow": 76,
   "type": "CUSTOM_WIDGET",
   "uncompiledSrcDoc": {
     "css": "/* Macht das Feld hübsch und passend zum Appsmith-Design */\ninput[type=\"number\"] {\n  width: 100%;\n  height: 100%;\n  padding: 8px;\n  border: 1px solid #d0d5dd;\n  border-radius: 4px;\n  font-size: 14px;\n  box-sizing: border-box;\n\ttext-align: right;\n}\n",
