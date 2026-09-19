@@ -1,0 +1,49 @@
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": {{ JSON.stringify(this.params.systemContext || "Test-Prompt") }}
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.2,
+    "maxOutputTokens": 4096,
+    "responseMimeType": "application/json",
+    "responseSchema": {
+      "type": "OBJECT",
+      "properties": {
+        "weightedScore": { "type": "NUMBER" },
+        "unweightedScore": { "type": "NUMBER" },
+        "projectedIsacaScoreMin": { "type": "NUMBER" },
+        "projectedIsacaScoreMax": { "type": "NUMBER" },
+        "examStatus": { "type": "STRING" },
+        "domainResults": {
+          "type": "ARRAY",
+          "items": {
+            "type": "OBJECT",
+            "properties": {
+              "domainName": { "type": "STRING" },
+              "correct": { "type": "NUMBER" },
+              "total": { "type": "NUMBER" },
+              "percentage": { "type": "NUMBER" }
+            }
+          }
+        },
+        "scoreAnalysisHtml": { "type": "STRING" },
+        "thematicAnalysisHtml": { "type": "STRING" },
+        "revisionPlanHtml": { "type": "STRING" }
+      },
+      "required": [
+        "weightedScore", 
+        "projectedIsacaScoreMin", 
+        "projectedIsacaScoreMax", 
+        "examStatus", 
+        "thematicAnalysisHtml",
+        "revisionPlanHtml"
+      ]
+    }
+  }
+}
