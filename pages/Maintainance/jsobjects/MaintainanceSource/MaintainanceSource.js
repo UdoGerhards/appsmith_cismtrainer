@@ -524,6 +524,7 @@ export default {
     return appsmith.store.geminiChatHistory || [];
   },
 
+	/*
   sendMessage: async (userMessage) => {
     if (!userMessage || userMessage.trim() === "") return;
     
@@ -566,6 +567,146 @@ export default {
     }
   },
 
+	sendMessage: async (userMessage) => {
+  if (!userMessage || userMessage.trim() === "") return;
+  
+  if (!appsmith.store.gemini_chat_key) {
+    await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
+    await this.initChat();
+  }
+
+  let history = appsmith.store.geminiChatHistory || [];
+
+  history.push({
+    role: "user",
+    parts: [{ text: userMessage }]
+  });
+
+  await storeValue("geminiChatHistory", history);
+
+  try {
+    await this.executeWithKeyFallback(history);
+
+    // Einmaliges Scrollen zum Ende nach kurzem Delay fürs Rendering
+    setTimeout(() => {
+      try {
+        const editorBody = document.querySelector(".t--widget-richtexteditorwidget .ql-editor") || 
+                           document.querySelector(".rich-text-editor .ql-editor") ||
+                           document.querySelector(".ql-editor");
+        if (editorBody) {
+          // Scrollt das letzte Element/Kind im RTE sanft in den Sichtbereich
+          if (editorBody.lastElementChild) {
+            editorBody.lastElementChild.scrollIntoView({ behavior: "smooth", block: "end" });
+          } else {
+            editorBody.scrollTop = editorBody.scrollHeight;
+          }
+        }
+      } catch (e) {}
+    }, 250);
+
+  } catch (error) {
+    showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
+  }
+},
+	sendMessage: async (userMessage) => {
+  if (!userMessage || userMessage.trim() === "") return;
+  
+  if (!appsmith.store.gemini_chat_key) {
+    await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
+    await this.initChat();
+  }
+
+  let history = appsmith.store.geminiChatHistory || [];
+
+  history.push({
+    role: "user",
+    parts: [{ text: userMessage }]
+  });
+
+  await storeValue("geminiChatHistory", history);
+
+  try {
+    await this.executeWithKeyFallback(history);
+
+    // Gestaffeltes Scrollen mit Erkennung von manueller Interaktion
+    [200, 500, 800].forEach((delay, index) => {
+      setTimeout(() => {
+        try {
+          const editorBody = document.querySelector(".t--widget-richtexteditorwidget .ql-editor") || 
+                             document.querySelector(".rich-text-editor .ql-editor") ||
+                             document.querySelector(".ql-editor");
+          if (editorBody) {
+            // Beim ersten Durchlauf immer scrollen
+            if (index === 0) {
+              editorBody.scrollTop = editorBody.scrollHeight;
+            } else {
+              // Bei folgenden Durchläufen nur scrollen, wenn der Nutzer noch ganz unten ist (Toleranz 50px)
+              const isAtBottom = editorBody.scrollHeight - editorBody.scrollTop - editorBody.clientHeight < 50;
+              if (isAtBottom) {
+                editorBody.scrollTop = editorBody.scrollHeight;
+              }
+            }
+          }
+        } catch (e) {}
+      }, delay);
+    });
+
+  } catch (error) {
+    showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
+  }
+},
+*/
+	
+	// Flag zum Steuern der Scroll-Sperre
+  isAutoScrolling: false,
+
+  sendMessage: async (userMessage) => {
+    if (!userMessage || userMessage.trim() === "") return;
+    
+    if (!appsmith.store.gemini_chat_key) {
+      await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
+      await this.initChat();
+    }
+
+    let history = appsmith.store.geminiChatHistory || [];
+
+    history.push({
+      role: "user",
+      parts: [{ text: userMessage }]
+    });
+
+    await storeValue("geminiChatHistory", history);
+
+    try {
+      await this.executeWithKeyFallback(history);
+
+      // Einmaligen Auto-Scroll initiieren
+      this.isAutoScrolling = true;
+
+      // Ein kurzes Timeout abwarten, bis das DOM fertig gerendert ist
+      setTimeout(() => {
+        try {
+          const editorBody = document.querySelector(".t--widget-richtexteditorwidget .ql-editor") || 
+                             document.querySelector(".rich-text-editor .ql-editor") ||
+                             document.querySelector(".ql-editor");
+          
+          if (editorBody && this.isAutoScrolling) {
+            // Einmalig zum Ende scrollen
+            editorBody.scrollTop = editorBody.scrollHeight;
+            
+            // Sofort freigeben, damit der User ungestört hochscrollen kann
+            this.isAutoScrolling = false;
+          }
+        } catch (e) {
+          this.isAutoScrolling = false;
+        }
+      }, 300);
+
+    } catch (error) {
+      showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
+    }
+  },
+	
   // Hilfsfunktion: Versucht den API-Call und schaltet bei Quota-Fehler auf den kostenpflichtigen Key um
   executeWithKeyFallback: async (history) => {
     try {

@@ -6,6 +6,11 @@
     "pageId": "Maintainance",
     "pluginId": "js-plugin",
     "pluginType": "JS",
-    "variables": []
+    "variables": [
+      {
+        "name": "isAutoScrolling",
+        "value": "false"
+      }
+    ]
   }
 }

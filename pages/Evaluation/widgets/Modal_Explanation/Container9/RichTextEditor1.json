@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "0px",
-  "bottomRow": 70,
+  "bottomRow": 66,
   "boxShadow": "none",
   "defaultText": "{{ appsmith.store.questionGeminiExplanation || \"Lade Erklärung...\" }}",
   "dynamicBindingPathList": [
