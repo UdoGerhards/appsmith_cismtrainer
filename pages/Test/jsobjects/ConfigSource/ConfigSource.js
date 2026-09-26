@@ -31,10 +31,14 @@ export default {
     this.proceedStep1();
   },
 	
-	handleLimitToError: async() => {
+	handleLimitToErrorAndBookmarked: async() => {
+		/*
 		if (LimitQuestions.isSwitchedOn && (QuestionsWithError.isSwitchedOn || BookmarksOnly.isSwitchedOn) ) {
 				    this.proceedStep1();
 		}
+		*/
+		
+		this.proceedStep1();
 	},
 
   // 1. Diese Funktion bindest du an dein List-Widget: {{JSObject1.getDomains()}}
@@ -242,12 +246,17 @@ export default {
 		const domain = "";
 		const questions = await this.getLimitedQuestions(domain, limit);
 		
+		//showAlert("Limited questoins length: " + questions.length, "info");
+		
 		await storeValue("currentQuestions", questions);
 		
 	},
 
   // Funktion zum Abrufen UND Zufallsmischen der Fragen
   getLimitedQuestions: async (domain, limit) => {
+		
+		showAlert("Excuting limited questions", "info");
+		
     // 1. Pipeline ausführen und alle passenden Fragen holen
     const pipeline = this.getPipeline(domain,limit);
 		
@@ -257,6 +266,10 @@ export default {
     const response = await GetLimitedQuestions.run({ customPipeline: pipeline });
     // Hinweis: Falls deine Query die Pipeline direkt über das JSObject holt,
     // reicht oft auch einfach ein await QueryGetFilteredQuestions.run();
+		
+		console.log("============================================================================");
+		console.log(response);
+		console.log("============================================================================");
 
     const allQuestions = GetLimitedQuestions.data || [];
 		
@@ -275,62 +288,103 @@ export default {
     return shuffled.slice(0, l);
   },
 
-  getPipeline: (domain, limit) => {
-    const limitCount = parseInt(limit) || 0;
-    const showIncorrect = QuestionsWithError.isSwitchedOn;
-    const showBookmark = BookmarksOnly.isSwitchedOn;
+	getPipeline: (domain, limit) => {
+  const limitCount = parseInt(limit) || 0;
+  const showIncorrect = QuestionsWithError.isSwitchedOn;
+  const showBookmark = BookmarksOnly.isSwitchedOn;
+  const currentUserId = appsmith.store.userId; // `userId` aus dem Store
 
-    // Pipeline startet mit dem Aufbrechen des Fragen-Arrays
-    const pipeline = [
-      { $unwind: "$questions" }
-    ];
+  const pipeline = [];
 
-    // 1. DOMAIN FILTER: Nur Fragen der gesuchten Domain berücksichtigen
-    if (domain) {
-      pipeline.push({
-        $match: {
-          "questions.domain": domain
-        }
-      });
+  // 1. DOMAIN FILTER
+  if (domain && domain.trim() !== "") {
+    pipeline.push({
+      $match: {
+        domain: domain
+      }
+    });
+  }
+
+  // 2. FALSCHE FRAGEN FILTER (countWrong > 0)
+  if (showIncorrect) {
+    pipeline.push({
+      $match: {
+        countWrong: { $gt: 0 }
+      }
+    });
+  }
+
+  // 3. BOOKMARKS HINZUFÜGEN & `hasBookmark` FELDERSTELLUNG
+  pipeline.push(
+    // _id (ObjectId) temporär in String umwandeln für den Match mit questionId
+    {
+      $addFields: {
+        stringId: { $toString: "$_id" }
+      }
+    },
+    // Lookup zu 'bookmark'
+    {
+      $lookup: {
+        from: "bookmark",
+        let: { qId: "$stringId" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {$and: [
+                  { $eq: ["$questionId", "$$qId"] },
+                  { $eq: ["$userId", currentUserId] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "userBookmark"
+      }
+    },
+    // Erstellt das Boolean-Feld 'hasBookmark' (true, wenn Array nicht leer ist)
+    {
+      $addFields: {
+        hasBookmark: { $gt: [{ $size: "$userBookmark" }, 0] }
+      }
+    },
+    // Aufräumen: Hilfsfelder entfernen
+    {
+      $project: {
+        userBookmark: 0,
+        stringId: 0
+      }
     }
+  );
 
-    // 2. STATUS FILTER (Falsche Fragen / Bookmarks)
-    let orConditions = [];
-    if (showIncorrect) {
-      orConditions.push(
-        { "questions.isCorrect": false }
-      );
+  // 4. BOOKMARK FILTER (Nur ausführen, wenn 'showBookmark' aktiv ist)
+  if (showBookmark) {
+    pipeline.push({
+      $match: {
+        hasBookmark: true
+      }
+    });
+  }
+
+  // 5. ANTWORTEN HINZUFÜGEN (ObjectId _id -> question_id)
+  pipeline.push({
+    $lookup: {
+      from: "answer",
+      localField: "_id",
+      foreignField: "question_id",
+      as: "answers"
     }
-    if (showBookmark) {
-      orConditions.push({ "questions.bookmark": true });
-    }
+  });
 
-    if (orConditions.length > 0) {
-      pipeline.push({ $match: { $or: orConditions } });
-    }
+  // 6. LIMIT ANWENDEN
+  if (limitCount > 0) {
+    pipeline.push({
+      $limit: limitCount
+    });
+  }
 
-    // 3. DUBLETTEN ENTFERNEN & DOKUMENT-STRUKTUR WIEDERHERSTELLEN
-    pipeline.push(
-      {
-        $group: {
-          _id: "$questions.ID",
-          frageDetails: { $first: "$questions" }
-        }
-      },
-      { $replaceRoot: { newRoot: "$frageDetails" } }
-    );
-
-    // 4. LIMIT ANWENDEN: Begrenzt die Anzahl der eindeutigen Fragen
-    if (limitCount > 0) {
-      pipeline.push({
-        $limit: limitCount
-      });
-    }
-
-    return pipeline;
-  },
-
-
+  return pipeline;
+},
+	
   // Hilfsfunktion zum Starten der Abfrage aus JS heraus
   runQuery: async () => {
     return await GetLimitedQuestions.run();
@@ -363,6 +417,7 @@ export default {
 			}
 
     const currQuestions = appsmith.store.currentQuestions;
+showAlert("Question count "+ currQuestions.length, "info");
     const currQuestionsCount = appsmith.store.currentQuestions.length;
     const questionCountReq = appsmith.store.nrquestions;
 

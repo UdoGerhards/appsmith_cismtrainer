@@ -1,6 +1,6 @@
 {
   "gitSyncId": "6a784e96054143865d8dd557_b176c584-284d-4cbd-9e1b-38dea9db2017",
-  "id": "Test_ConfigSource.handleLimitToError",
+  "id": "Test_ConfigSource.handleLimitToErrorAndBookmarked",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "ConfigSource.handleLimitToError",
-    "name": "handleLimitToError",
+    "fullyQualifiedName": "ConfigSource.handleLimitToErrorAndBookmarked",
+    "name": "handleLimitToErrorAndBookmarked",
     "pageId": "Test",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

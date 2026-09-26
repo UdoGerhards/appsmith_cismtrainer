@@ -12,11 +12,11 @@
             "data": "{{ this.params.customPipeline }}"
           },
           "limit": {
-            "data": "10"
+            "data": "150"
           }
         },
         "collection": {
-          "data": "appsmith_test"
+          "data": "question"
         },
         "command": {
           "data": "AGGREGATE"
@@ -66,7 +66,7 @@
         },
         "misc": {
           "formToNativeQuery": {
-            "data": "{\n  \"aggregate\": \"appsmith_test\",\n  \"pipeline\": {{ this.params.customPipeline }},\n  \"cursor\": {}\n}\n",
+            "data": "{\n  \"aggregate\": \"question\",\n  \"pipeline\": {{ this.params.customPipeline }},\n  \"cursor\": {}\n}\n",
             "status": "SUCCESS"
           }
         },
