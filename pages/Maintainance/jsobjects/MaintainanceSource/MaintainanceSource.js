@@ -208,6 +208,8 @@ export default {
   loadBookOfQuestions: async() =>{
     const allQuestions = await GetQuestions.run();
 		
+		await storeValue("questionsCount", allQuestions.length, false);
+		
     await storeValue("book_questions", allQuestions, false);
     await storeValue('book_index', 0 , false);
 

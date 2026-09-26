@@ -361,25 +361,26 @@ export default {
 	},
 
 	getDomain1: () => {
-		const dom = 'Domain 1 – Information Security Governance';
+		const dom = 'Domain 1 - Information Security Governance';
 		return this.prepareDomainTestChart(dom);
 	},
 
 	getDomain2: () => {
-		const dom = 'Domain 2 – Information Risk Management';
+		const dom = 'Domain 2 - Information Security Risk Management';
 		return this.prepareDomainTestChart(dom);
 	},
 
 	getDomain3: () => {
-		const dom = 'Domain 3 – Information Security Program Development and Management';
+		const dom = 'Domain 3 - Information Security Program Development and Management';
 		return this.prepareDomainTestChart(dom);
 	},
 
 	getDomain4: () => {
-		const dom = 'Domain 4 – Information Security Incident Management';
+		const dom = 'Domain 4 - Information Security Incident Management';
 		return this.prepareDomainTestChart(dom);
 	},
 
+	/*
 	prepareDomainTestChart: (selectedDomain) => {
 		const report = appsmith.store.report;
 
@@ -387,12 +388,16 @@ export default {
 		if (!report || !report.questions) {
 			return {};
 		}
-
+		
+		console.log("======================================================================");
+		console.log("Evaluating report", "info");
+		
 		// Fragen nach Domain filtern (wenn eine ausgewählt ist und nicht "Alle" o.ä.)
 		const questions = report.questions;
-		const filteredQuestions = selectedDomain && selectedDomain !== "Alle"
-		? questions.filter(q => (q.domain || "").toLowerCase() === selectedDomain.toLowerCase())
-		: questions;
+		const filteredQuestions = questions.filter(q => (q.domain || "").toLowerCase() === selectedDomain.toLowerCase());
+		console.log(selectedDomain);
+		console.log(questions);
+		console.log(filteredQuestions);
 
 		// Korrekte und inkorrekte Antworten für die gefilterten Fragen berechnen
 		let correctCount = 0;
@@ -410,7 +415,8 @@ export default {
 				incorrectCount++;
 			}
 		});
-
+		
+	console.log("======================================================================");
 
 		// Apache E-Charts Struktur zurückgeben
 		return {
@@ -447,6 +453,106 @@ export default {
 			]
 		};
 	},
+	*/
+	prepareDomainTestChart: (selectedDomain) => {
+	const report = appsmith.store.report;
+
+	// Sicherheitscheck für den Store
+	if (!report || !report.questions) {
+		return {
+			graphic: {
+				type: 'text',
+				left: 'center',
+				top: 'middle',
+				style: {
+					text: 'Keine Daten geladen',
+					fill: '#9CA3AF',
+					fontSize: 14
+				}
+			}
+		};
+	}
+
+	// Hilfsfunktion: Vereinheitlicht Gedankenstriche (En-Dash) und Bindestriche
+	const normalize = str => (str || "").replace(/[–—]/g, "-").toLowerCase().trim();
+
+	// Fragen nach Domain filtern
+	const questions = report.questions;
+	const filteredQuestions = questions.filter(
+		q => normalize(q.domain) === normalize(selectedDomain)
+	);
+
+	// FALL 1: Keine Fragen gefunden -> "Keine Daten vorhanden!" anzeigen
+	if (filteredQuestions.length === 0) {
+		return {
+			title: {
+				text: selectedDomain,
+				left: 'center'
+			},
+			graphic: {
+				type: 'text',
+				left: 'center',
+				top: 'middle',
+				style: {
+					text: 'Keine Daten vorhanden!',
+					fill: '#9CA3AF',
+					fontSize: 15,
+					fontWeight: 'bold'
+				}
+			}
+		};
+	}
+
+	// FALL 2: Fragen vorhanden -> Auswertung berechnen & Pie-Chart rendern
+	let correctCount = 0;
+	let incorrectCount = 0;
+
+	filteredQuestions.forEach(q => {
+		if (q.userAnswer !== "" && q.correct !== "") {
+			if (q.correct === q.userAnswer) {
+				correctCount++;
+			} else {
+				incorrectCount++;
+			}
+		} else {
+			incorrectCount++;
+		}
+	});
+
+	return {
+		title: {
+			text: selectedDomain,
+			left: 'center'
+		},
+		tooltip: {
+			trigger: 'item'
+		},
+		legend: {
+			orient: 'horizontal',
+			left: 'left',
+			bottom: 'bottom'
+		},
+		series: [
+			{
+				name: 'Antworten',
+				type: 'pie',
+				radius: '50%',
+				color: ['#22C55E', '#EF4444'],
+				data: [
+					{ value: correctCount, name: 'Korrekte Antworten' },
+					{ value: incorrectCount, name: 'Inkorrekte Antworten' }
+				],
+				emphasis: {
+					itemStyle: {
+						shadowBlur: 10,
+						shadowOffsetX: 0,
+						shadowColor: 'rgba(0, 0, 0, 0.5)'
+					}
+				}
+			}
+		]
+	};
+},
 
 	processGeminiExplain: async(index) => {
 
