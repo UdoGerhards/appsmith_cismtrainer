@@ -17,6 +17,7 @@ export default {
 		}
 		
 		await FindAllReportsWeighted.run();
+		await EvaluateAllTestsPerDomain.run();
 
 	},
 getTestChartOptions: () => {
@@ -250,44 +251,27 @@ getDomainsWeighted: () => {
   });
 },
 
-getChartOptions: (selectedReport) => {
-  // WICHTIG: Ersetze 'NameDeinesJSObjekts' mit dem echten Namen deines Appsmith JS-Objekts
-  const reports = this.getDomainsWeighted(); 
-  
-  const doc = selectedReport || (reports && reports.length > 0 ? reports[0] : null);
+getChartOptions: () => {
+  // 1. Daten aus der neuen Query holen
+  const rawData = EvaluateAllTestsPerDomain.data || [];
 
-  if (!doc || !doc.domain_stats) {
-    return {
-      title: { text: 'Keine Daten verfügbar', left: 'center', top: 'center' }
-    };
-  }
-
-  const domains = Object.keys(doc.domain_stats);
-  if (domains.length === 0) {
+  if (!rawData || rawData.length === 0) {
     return {
       title: { text: 'Keine Domain-Daten vorhanden', left: 'center', top: 'center' }
     };
   }
 
-  // 1. Berechnung der Gesamtsumme aller Gewichtungen
-  const totalWeight = domains.reduce((sum, d) => sum + (doc.domain_stats[d].gewichtung || 0), 0);
+  // 2. Arrays für Achsen und Daten aufbauen
+  const domains = rawData.map(d => d.domain || 'Unbekannt');
+  const correctData = rawData.map(d => d.totalCorrect || 0);
+  const incorrectData = rawData.map(d => d.totalIncorrect || 0);
 
-  // 2. Umrechnung der einzelnen Gewichtungen in anteilsmäßige Prozentwerte
-  const percentageLabels = domains.map(d => {
-    const weight = doc.domain_stats[d].gewichtung || 0;
-    const percentage = totalWeight > 0 ? (weight / totalWeight) * 100 : 0;
-    return percentage.toFixed(2) + '%';
-  });
-
-  const correctData = domains.map(d => doc.domain_stats[d].correct || 0);
-  const incorrectData = domains.map(d => doc.domain_stats[d].incorrect || 0);
-  
-  const barLabelData = domains.map(d => {
-    return {
-      value: (doc.domain_stats[d].correct || 0) + (doc.domain_stats[d].incorrect || 0),
-      domainName: d
-    };
-  });
+  // Daten für die unsichtbare Overlay-Serie inkl. Prozentwert im Datenobjekt
+  const barLabelData = rawData.map(d => ({
+    value: (d.totalCorrect || 0) + (d.totalIncorrect || 0),
+    domainName: d.domain || 'Unbekannt',
+    pct: d.percentageCorrect || 0
+  }));
 
   return {
     tooltip: {
@@ -296,14 +280,12 @@ getChartOptions: (selectedReport) => {
       formatter: function(params) {
         if (!params || params.length === 0) return '';
         
-        const index = params[0].dataIndex;
+        // Holt die Daten direkt aus der 'DomainLabel'-Serie im Param-Objekt
         const labelSerie = params.find(p => p.seriesName === 'DomainLabel');
         const domainName = labelSerie && labelSerie.data ? labelSerie.data.domainName : 'Unbekannt';
-        
-        // Holt den berechneten Prozentwert für den Tooltip
-        const currentPercentage = percentageLabels[index];
+        const pctValue = labelSerie && labelSerie.data ? labelSerie.data.pct : 0;
 
-        let res = `<b>${domainName}</b><br/>Anteil: ${currentPercentage}<br/>`;
+        let res = `<b>${domainName}</b><br/>Erfolgsquote: <b>${pctValue}%</b><br/>`;
         params.forEach(item => {
           if (item.seriesName !== 'DomainLabel') {
             const val = typeof item.value === 'object' ? item.value.value : item.value;
@@ -318,24 +300,28 @@ getChartOptions: (selectedReport) => {
       top: 10
     },
     grid: {
-      top: 100, 
-      bottom: 60,
+      top: 80, 
+      bottom: 80,
       left: 50,
-      right: 30
+      right: 30,
+      containLabel: true
     },
     xAxis: {
       type: 'category',
-      data: percentageLabels, // Zeigt jetzt die Prozentwerte auf der X-Achse
-      name: 'Anteil an Gesamtgewichtung',
-      nameLocation: 'middle',
-      nameGap: 35,
+      data: domains,
       axisLabel: {
         interval: 0,
-        fontWeight: 'bold'
+        rotate: 20,
+        fontSize: 10,
+        fontWeight: 'bold',
+        formatter: function (value) {
+          return value.length > 25 ? value.substring(0, 25) + '...' : value;
+        }
       }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      name: 'Anzahl Fragen'
     },
     series: [
       {
@@ -375,7 +361,10 @@ getChartOptions: (selectedReport) => {
           show: true,
           position: 'top', 
           distance: 8,
-          formatter: (params) => params.data.domainName,
+          formatter: (params) => {
+            const pct = params.data && params.data.pct !== undefined ? params.data.pct : 0;
+            return `${pct}%`;
+          },
           fontWeight: 'bold',
           color: '#1f2937',
           fontSize: 11

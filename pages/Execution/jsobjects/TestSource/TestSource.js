@@ -264,9 +264,8 @@ export default {
     await removeValue('bookmark');
     await resetWidget("Checkbox1", false);
 
-
+    /*
     await Tags.run();
-    const tags = tagsInput.model.tags;
     const existingTags = Tags.data?.find(b => b.questionId === currentQuestionId);
 
     console.log(tags);
@@ -294,6 +293,7 @@ export default {
         await DeleteTags.run({qId: currentQuestionId});
       }
     }
+		*/
   },
 
   startTimer: async () => {

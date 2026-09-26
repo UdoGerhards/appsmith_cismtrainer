@@ -95,7 +95,7 @@
     "dynamicBindingPathList": [],
     "name": "FindAllReportsWeighted",
     "pageId": "Home",
-    "runBehaviour": "AUTOMATIC",
+    "runBehaviour": "MANUAL",
     "userSetOnLoad": false
   }
 }

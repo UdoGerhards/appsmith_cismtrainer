@@ -44,7 +44,7 @@
   "mobileTopRow": 6,
   "needsErrorInfo": false,
   "onCheckChange": "{{TestSource.saveUserAnswer(answerA)}}",
-  "originalBottomRow": 10,
+  "originalBottomRow": 11,
   "originalTopRow": 6,
   "parentColumnSpace": 31.65625,
   "parentId": "wl2u4o54zu",

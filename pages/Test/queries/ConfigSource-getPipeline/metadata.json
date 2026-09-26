@@ -1,12 +1,19 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_b176c584-284d-4cbd-9e1b-38dea9db2017",
-  "id": "Test_ConfigSource.handleLimitToErrorAndBookmarked",
+  "gitSyncId": "6a784e96054143865d8dd557_e76dc361-c642-46f8-ae7d-34f0208c0679",
+  "id": "Test_ConfigSource.getPipeline",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [],
+      "jsArguments": [
+        {
+          "name": "domain"
+        },
+        {
+          "name": "limit"
+        }
+      ],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -22,8 +29,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "ConfigSource.handleLimitToErrorAndBookmarked",
-    "name": "handleLimitToErrorAndBookmarked",
+    "fullyQualifiedName": "ConfigSource.getPipeline",
+    "name": "getPipeline",
     "pageId": "Test",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

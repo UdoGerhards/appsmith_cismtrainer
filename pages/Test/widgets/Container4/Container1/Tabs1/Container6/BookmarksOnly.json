@@ -2,15 +2,12 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 325,
+  "bottomRow": 12,
   "boxShadow": "none",
-  "defaultSwitchState": true,
+  "defaultSwitchState": false,
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
-    },
-    {
-      "key": "isDisabled"
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
@@ -27,32 +24,32 @@
       "key": "onChange"
     }
   ],
-  "isDisabled": "{{!LimitQuestions.isSwitchedOn}}",
+  "isDisabled": "",
   "isLoading": false,
   "isVisible": true,
   "key": "406ds1rizy",
-  "label": "Nutze Fragen, die fehlerhaft beantwortet wurden!",
+  "label": "Nur gemerkte Fragen / Fragen mit Bookmark",
   "labelPosition": "Left",
-  "leftColumn": 2,
+  "leftColumn": 1,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
-  "mobileBottomRow": 80,
+  "mobileBottomRow": 84,
   "mobileLeftColumn": 2,
   "mobileRightColumn": 14,
-  "mobileTopRow": 76,
+  "mobileTopRow": 80,
   "needsErrorInfo": false,
   "onChange": "{{ConfigSource.handleLimitToErrorAndBookmarked()}}",
-  "originalBottomRow": 80,
-  "originalTopRow": 76,
+  "originalBottomRow": 13,
+  "originalTopRow": 9,
   "parentColumnSpace": 32.6875,
-  "parentId": "y70j0qw9nt",
+  "parentId": "3i60lgw40o",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 14,
-  "topRow": 248,
+  "rightColumn": 35,
+  "topRow": 8,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "pe352z51o5",
-  "widgetName": "QuestionsWithError"
+  "widgetId": "ilk55qb3aa",
+  "widgetName": "BookmarksOnly"
 }
