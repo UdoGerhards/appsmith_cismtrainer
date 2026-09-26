@@ -124,7 +124,6 @@ export default {
 					await storeValue(label+"_value", answer.type, false);
 			});
 	},
-
 	
   saveUserAnswer: async (selected) => {
 
@@ -145,15 +144,20 @@ export default {
     const currentIndex = appsmith.store.currentIndex;
     const questions = [...appsmith.store.currentQuestions];
 
-    const rightAnswer = questions[currentIndex].correct.trim();
-    const isCorrect = rightAnswer === userAnswer;
+    const rightAnswer = questions[currentIndex].correct;
+    const isCorrect = (rightAnswer.trim() === userAnswer.trim());
+		
+		console.log("Types:", typeof rightAnswer, typeof userAnswer);
+		console.log("JSON:", JSON.stringify(rightAnswer), JSON.stringify(userAnswer));
+		
+		//showAlert("right: "+rightAnswer+", user: "+userAnswer+", is correct "+isCorrect+" len right: "+rightAnswer.length + ", len user: "+userAnswer.length);
 
     // 1. Speichern
     questions[currentIndex].userAnswer = userAnswer;
     questions[currentIndex].isCorrect = isCorrect;
 
-    console.log("Value: ", rightAnswer, userAnswer, isCorrect);
-		console.log("Question ", questions[currentIndex]);
+    //console.log("Value: ", rightAnswer, userAnswer, isCorrect);
+		//console.log("Question ", questions[currentIndex]);
 
     await storeValue("currentQuestions", questions);
   },
@@ -194,6 +198,8 @@ export default {
 				resetWidget(field, false);
 		});
 			
+		//showAlert("currentIndex: "+currentIndex, "info");
+		
     // 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
     if (currentIndex < questions.length - 1) {
       const nextIndex = currentIndex + 1; // Der Index der NÄCHSTEN Frage
@@ -223,7 +229,7 @@ export default {
       }*/
 
     } else {
-
+			//showAlert("Switch to next page", "info");
       const questionIds = questions.map(q => q._id);
       await storeValue('questionIds', questionIds, false);
 

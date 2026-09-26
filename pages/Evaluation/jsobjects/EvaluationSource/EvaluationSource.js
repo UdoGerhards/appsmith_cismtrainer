@@ -718,6 +718,7 @@ export default {
 		await storeValue('mins', mins, false);
 		await storeValue('nature', 'synthetic');
 		await storeValue('domains', uniqueDomains, false);
+		await storeValue('currentIndex', 0, false);
 
 		console.log(falseQuestions);
 
