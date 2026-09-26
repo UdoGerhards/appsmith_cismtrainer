@@ -454,6 +454,8 @@ export default {
 
 		const questions = appsmith.store.report.questions;
 		const currentData = this.getWrongAnswers()[index];
+		
+		//this.clearChat();
 
 
 		if (!currentData) return;
@@ -819,13 +821,14 @@ export default {
 
 			// 3. Gestaffeltes Scrollen nach unten, sobald Gemini geantwortet hat
 			[200, 500, 800].forEach(delay => {
-				setTimeout(() => {
+				let timer = setTimeout(() => {
 					try {
 						const editorBody = document.querySelector(".t--widget-richtexteditorwidget .ql-editor") || 
 									document.querySelector(".rich-text-editor .ql-editor") ||
 									document.querySelector(".ql-editor");
 						if (editorBody) {
 							editorBody.scrollTop = editorBody.scrollHeight;
+							// Sobald es geklappt hat: Alle nachfolgenden Timeouts stoppen
 						}
 					} catch (e) {}
 				}, delay);
@@ -944,8 +947,12 @@ export default {
 	},
 	
 	handleTabChange: async () => {
+		showAlert("Auswertung gestartet");
+		
     // Gibt den Namen/Label des aktivierten Tabs als String zurück (z. B. "Tab 1" oder "Settings")
-    const currentTab = Tabs2.selectedTab;
+    const currentTab = Tabs1.selectedTab;
+		
+		showAlert(currentTab);
 		if (currentTab === "Gemini Auswertung") {
       await this.evaluateTest();
     }
@@ -1041,9 +1048,9 @@ export default {
 	evaluateTest: async function() {
 		showAlert("Evaluation Test with Gemini!", "info");
 		
-		const rteContent = appsmith.store.geminiEvaluationResult;
+		const geminiOpinion = appsmith.store.report.geminiEvaluation;
 		
-		if (rteContent) {
+		if (geminiOpinion) {
 			return;
 		}
 		
@@ -1114,6 +1121,15 @@ export default {
 			try {
 				// Da Gemini ein JSON-Objekt zurückliefert, parsen wir es hier direkt
 				const parsedJson = JSON.parse(responseText);
+				
+				const report = appsmith.store.report;
+				const updatedReport = {
+					...report,
+					geminiEvaluation: parsedJson
+				}
+				await storeValue("report", updatedReport);
+				
+				console.log("report in store ", appsmith.store.report);
 				
 				//const raw = parsedJson. scoreAnalysisHtml + parsedJson.revisionPlanHtml + parsedJson.scoreAnalysisHtml;
 				console.log(parsedJson);
