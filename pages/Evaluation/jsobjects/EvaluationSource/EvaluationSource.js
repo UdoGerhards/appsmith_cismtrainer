@@ -388,10 +388,10 @@ export default {
 		if (!report || !report.questions) {
 			return {};
 		}
-		
+
 		console.log("======================================================================");
 		console.log("Evaluating report", "info");
-		
+
 		// Fragen nach Domain filtern (wenn eine ausgewählt ist und nicht "Alle" o.ä.)
 		const questions = report.questions;
 		const filteredQuestions = questions.filter(q => (q.domain || "").toLowerCase() === selectedDomain.toLowerCase());
@@ -415,7 +415,7 @@ export default {
 				incorrectCount++;
 			}
 		});
-		
+
 	console.log("======================================================================");
 
 		// Apache E-Charts Struktur zurückgeben
@@ -455,104 +455,104 @@ export default {
 	},
 	*/
 	prepareDomainTestChart: (selectedDomain) => {
-	const report = appsmith.store.report;
+		const report = appsmith.store.report;
 
-	// Sicherheitscheck für den Store
-	if (!report || !report.questions) {
-		return {
-			graphic: {
-				type: 'text',
-				left: 'center',
-				top: 'middle',
-				style: {
-					text: 'Keine Daten geladen',
-					fill: '#9CA3AF',
-					fontSize: 14
+		// Sicherheitscheck für den Store
+		if (!report || !report.questions) {
+			return {
+				graphic: {
+					type: 'text',
+					left: 'center',
+					top: 'middle',
+					style: {
+						text: 'Keine Daten geladen',
+						fill: '#9CA3AF',
+						fontSize: 14
+					}
 				}
+			};
+		}
+
+		// Hilfsfunktion: Vereinheitlicht Gedankenstriche (En-Dash) und Bindestriche
+		const normalize = str => (str || "").replace(/[–—]/g, "-").toLowerCase().trim();
+
+		// Fragen nach Domain filtern
+		const questions = report.questions;
+		const filteredQuestions = questions.filter(
+			q => normalize(q.domain) === normalize(selectedDomain)
+		);
+
+		// FALL 1: Keine Fragen gefunden -> "Keine Daten vorhanden!" anzeigen
+		if (filteredQuestions.length === 0) {
+			return {
+				title: {
+					text: selectedDomain,
+					left: 'center'
+				},
+				graphic: {
+					type: 'text',
+					left: 'center',
+					top: 'middle',
+					style: {
+						text: 'Keine Daten vorhanden!',
+						fill: '#9CA3AF',
+						fontSize: 15,
+						fontWeight: 'bold'
+					}
+				}
+			};
+		}
+
+		// FALL 2: Fragen vorhanden -> Auswertung berechnen & Pie-Chart rendern
+		let correctCount = 0;
+		let incorrectCount = 0;
+
+		filteredQuestions.forEach(q => {
+			if (q.userAnswer !== "" && q.correct !== "") {
+				if (q.correct === q.userAnswer) {
+					correctCount++;
+				} else {
+					incorrectCount++;
+				}
+			} else {
+				incorrectCount++;
 			}
-		};
-	}
+		});
 
-	// Hilfsfunktion: Vereinheitlicht Gedankenstriche (En-Dash) und Bindestriche
-	const normalize = str => (str || "").replace(/[–—]/g, "-").toLowerCase().trim();
-
-	// Fragen nach Domain filtern
-	const questions = report.questions;
-	const filteredQuestions = questions.filter(
-		q => normalize(q.domain) === normalize(selectedDomain)
-	);
-
-	// FALL 1: Keine Fragen gefunden -> "Keine Daten vorhanden!" anzeigen
-	if (filteredQuestions.length === 0) {
 		return {
 			title: {
 				text: selectedDomain,
 				left: 'center'
 			},
-			graphic: {
-				type: 'text',
-				left: 'center',
-				top: 'middle',
-				style: {
-					text: 'Keine Daten vorhanden!',
-					fill: '#9CA3AF',
-					fontSize: 15,
-					fontWeight: 'bold'
-				}
-			}
-		};
-	}
-
-	// FALL 2: Fragen vorhanden -> Auswertung berechnen & Pie-Chart rendern
-	let correctCount = 0;
-	let incorrectCount = 0;
-
-	filteredQuestions.forEach(q => {
-		if (q.userAnswer !== "" && q.correct !== "") {
-			if (q.correct === q.userAnswer) {
-				correctCount++;
-			} else {
-				incorrectCount++;
-			}
-		} else {
-			incorrectCount++;
-		}
-	});
-
-	return {
-		title: {
-			text: selectedDomain,
-			left: 'center'
-		},
-		tooltip: {
-			trigger: 'item'
-		},
-		legend: {
-			orient: 'horizontal',
-			left: 'left',
-			bottom: 'bottom'
-		},
-		series: [
-			{
-				name: 'Antworten',
-				type: 'pie',
-				radius: '50%',
-				color: ['#22C55E', '#EF4444'],
-				data: [
-					{ value: correctCount, name: 'Korrekte Antworten' },
-					{ value: incorrectCount, name: 'Inkorrekte Antworten' }
-				],
-				emphasis: {
-					itemStyle: {
-						shadowBlur: 10,
-						shadowOffsetX: 0,
-						shadowColor: 'rgba(0, 0, 0, 0.5)'
+			tooltip: {
+				trigger: 'item'
+			},
+			legend: {
+				orient: 'horizontal',
+				left: 'left',
+				bottom: 'bottom'
+			},
+			series: [
+				{
+					name: 'Antworten',
+					type: 'pie',
+					radius: '50%',
+					color: ['#22C55E', '#EF4444'],
+					data: [
+						{ value: correctCount, name: 'Korrekte Antworten' },
+						{ value: incorrectCount, name: 'Inkorrekte Antworten' }
+					],
+					emphasis: {
+						itemStyle: {
+							shadowBlur: 10,
+							shadowOffsetX: 0,
+							shadowColor: 'rgba(0, 0, 0, 0.5)'
+						}
 					}
 				}
-			}
-		]
-	};
-},
+			]
+		};
+	},
 
 	processGeminiExplain: async(index) => {
 
@@ -560,7 +560,7 @@ export default {
 
 		const questions = appsmith.store.report.questions;
 		const currentData = this.getWrongAnswers()[index];
-		
+
 		//this.clearChat();
 
 
@@ -1052,18 +1052,18 @@ export default {
 		await storeValue("geminiChatHistory", []);
 		await storeValue("geminiSystemContext", "");
 	},
-	
+
 	handleTabChange: async () => {
 		showAlert("Auswertung gestartet");
-		
-    // Gibt den Namen/Label des aktivierten Tabs als String zurück (z. B. "Tab 1" oder "Settings")
-    const currentTab = Tabs1.selectedTab;
-		
+
+		// Gibt den Namen/Label des aktivierten Tabs als String zurück (z. B. "Tab 1" oder "Settings")
+		const currentTab = Tabs1.selectedTab;
+
 		showAlert(currentTab);
 		if (currentTab === "Gemini Auswertung") {
-      await this.evaluateTest();
-    }
-  },
+			await this.evaluateTest();
+		}
+	},
 	/**
 	 * Hilfsfunktion: Bettet die JSON-Ergebnisse von Gemini in dein HTML-Template ein
 	 */
@@ -1077,7 +1077,7 @@ export default {
 		const scoreAnalysis = data.scoreAnalysisHtml || "";
 		const thematicAnalysis = data.thematicAnalysisHtml || "";
 		const revisionPlan = data.revisionPlanHtml || "";
-		
+
 		// Fallback, falls Gemini alles in ein einziges Feld geschrieben hat
 		const singleReport = data.reportMarkdown || data.reportHtml || "";
 
@@ -1122,7 +1122,7 @@ export default {
 							<div class="metric-lbl">Bestehensgrenze</div>
 						</div>
 					</div>
-					
+
 					${scoreAnalysis ? `<div class="cism-content" style="margin-top: 20px;">${scoreAnalysis}</div>` : ''}
 				</div>
 
@@ -1154,13 +1154,13 @@ export default {
 
 	evaluateTest: async function() {
 		showAlert("Evaluation Test with Gemini!", "info");
-		
+
 		const geminiOpinion = appsmith.store.report.geminiEvaluation;
-		
+
 		if (geminiOpinion) {
 			return;
 		}
-		
+
 		const report = appsmith.store.report;
 
 		const qIds = report.questions.map(q => {
@@ -1168,54 +1168,54 @@ export default {
 		});
 
 		const questionsResult = await GetQuestionsForTest.run({qIds: qIds});
-	
+
 		const questions = questionsResult.reduce((acc, item) => {
 			const idStr = typeof item._id === 'object' ? item._id.$oid : item._id.toString();
 			acc[idStr] = item;
 			return acc;
 		}, {});
-		
+
 		const domainResult = {};
 		const wrongQuestions = [];
-		
+
 		report.questions.map(q => {
-				const _id = q._id;
-				questions[_id].userAnswer = q.userAnswer;
-			
-				const domain = questions[_id].domain;
-			
-				if (!domainResult[domain]) {
-					domainResult[domain] = {
-						correctCount: 0,
-						falseCount: 0 
-					};
-				}
-			
-				if (q.isCorrect) {
-					domainResult[domain].correctCount += 1;
-				} else {
-					domainResult[domain].falseCount += 1;
-					const wrongQuestion = {
-						"Questions-ID": questions[_id].ID,
-						Domain: questions[_id].domain,
-						Frage: questions[_id].question
-					};
-					
-					let userAnswer = "";
-					let correctAnswer = "";
-					questions[_id].answers.map(a => {
-						if (a.type === questions[_id].correct) {
-							correctAnswer = a.text;
-						} else if (a.type === q.userAnswer) {
-							userAnswer = a.text;
-						}
-					});
-					
-					wrongQuestion["Meine Antwort"] = userAnswer;
-					wrongQuestion["Richtige Antwort"] = correctAnswer;
-					
-					wrongQuestions.push(wrongQuestion);
-				}
+			const _id = q._id;
+			questions[_id].userAnswer = q.userAnswer;
+
+			const domain = questions[_id].domain;
+
+			if (!domainResult[domain]) {
+				domainResult[domain] = {
+					correctCount: 0,
+					falseCount: 0 
+				};
+			}
+
+			if (q.isCorrect) {
+				domainResult[domain].correctCount += 1;
+			} else {
+				domainResult[domain].falseCount += 1;
+				const wrongQuestion = {
+					"Questions-ID": questions[_id].ID,
+					Domain: questions[_id].domain,
+					Frage: questions[_id].question
+				};
+
+				let userAnswer = "";
+				let correctAnswer = "";
+				questions[_id].answers.map(a => {
+					if (a.type === questions[_id].correct) {
+						correctAnswer = a.text;
+					} else if (a.type === q.userAnswer) {
+						userAnswer = a.text;
+					}
+				});
+
+				wrongQuestion["Meine Antwort"] = userAnswer;
+				wrongQuestion["Richtige Antwort"] = correctAnswer;
+
+				wrongQuestions.push(wrongQuestion);
+			}
 		});
 
 		const prompt = this.buildPrompt(domainResult, wrongQuestions);
@@ -1228,16 +1228,16 @@ export default {
 			try {
 				// Da Gemini ein JSON-Objekt zurückliefert, parsen wir es hier direkt
 				const parsedJson = JSON.parse(responseText);
-				
+
 				const report = appsmith.store.report;
 				const updatedReport = {
 					...report,
 					geminiEvaluation: parsedJson
 				}
 				await storeValue("report", updatedReport);
-				
+
 				console.log("report in store ", appsmith.store.report);
-				
+
 				//const raw = parsedJson. scoreAnalysisHtml + parsedJson.revisionPlanHtml + parsedJson.scoreAnalysisHtml;
 				console.log(parsedJson);
 
@@ -1276,10 +1276,10 @@ export default {
 
 		return str;
 	},
-	
-	  // Hauptfunktion zum Befüllen des Templates
-  buildPrompt(domainResults, wrongQuestions = []) {
-		
+
+	// Hauptfunktion zum Befüllen des Templates
+	buildPrompt(domainResults, wrongQuestions = []) {
+
 		const rawTemplate = `Du bist ein erfahrener ISACA CISM Exam Tutor und Datenanalyst. Ich übergebe Dir hiermit die Ergebnisse meines CISM-Prüfungstests zur Auswertung und Schwerpunktanalyse.
 
 ### 1. ERGEBNISSE NACH DOMAINS
@@ -1309,56 +1309,78 @@ Struktur des geforderten JSON-Objekts:
   "thematicAnalysisHtml": "HTML-String",     // Gruppierung der Fehler & Denkfehler (Abschnitt 2)
   "revisionPlanHtml": "HTML-String"          // Priorisierter Lernplan (Abschnitt 3)
 }`;
-		
-		
-    // 1. Extrahiere die Statistiken für D1 bis D4 mit Lodash
-    const d1 = this.getDomainStats(domainResults, "Domain 1");
-    const d2 = this.getDomainStats(domainResults, "Domain 2");
-    const d3 = this.getDomainStats(domainResults, "Domain 3");
-    const d4 = this.getDomainStats(domainResults, "Domain 4");
 
-    // 2. Falsche Fragen als formatierte Liste aufbereiten
-    const wrongQuestionsText = _.isEmpty(wrongQuestions)
-      ? "Keine falschen Fragen vorhanden."
-      : _.map(wrongQuestions, (q) => {
-          return `- Question-ID: ${q["Questions-ID"]}
+
+		// 1. Extrahiere die Statistiken für D1 bis D4 mit Lodash
+		const d1 = this.getDomainStats(domainResults, "Domain 1");
+		const d2 = this.getDomainStats(domainResults, "Domain 2");
+		const d3 = this.getDomainStats(domainResults, "Domain 3");
+		const d4 = this.getDomainStats(domainResults, "Domain 4");
+
+		// 2. Falsche Fragen als formatierte Liste aufbereiten
+		const wrongQuestionsText = _.isEmpty(wrongQuestions)
+		? "Keine falschen Fragen vorhanden."
+		: _.map(wrongQuestions, (q) => {
+			return `- Question-ID: ${q["Questions-ID"]}
   Domain: ${q.Domain}
   Frage: ${q.Frage}
   Meine Antwort: ${q["Meine Antwort"]}
   Richtige Antwort: ${q["Richtige Antwort"]}`;
-        }).join('\n\n');
+		}).join('\n\n');
 
-    // 3. Flaches Objekt mit allen Platzhaltern erstellen
-    const templateContext = {
-      D1_RIGHT: d1.RIGHT, D1_WRONG: d1.WRONG, D1_TOTAL: d1.TOTAL,
-      D2_RIGHT: d2.RIGHT, D2_WRONG: d2.WRONG, D2_TOTAL: d2.TOTAL,
-      D3_RIGHT: d3.RIGHT, D3_WRONG: d3.WRONG, D3_TOTAL: d3.TOTAL,
-      D4_RIGHT: d4.RIGHT, D4_WRONG: d4.WRONG, D4_TOTAL: d4.TOTAL,
-      EACH_WRONG_QUESTION: wrongQuestionsText
-    };
+		// 3. Flaches Objekt mit allen Platzhaltern erstellen
+		const templateContext = {
+			D1_RIGHT: d1.RIGHT, D1_WRONG: d1.WRONG, D1_TOTAL: d1.TOTAL,
+			D2_RIGHT: d2.RIGHT, D2_WRONG: d2.WRONG, D2_TOTAL: d2.TOTAL,
+			D3_RIGHT: d3.RIGHT, D3_WRONG: d3.WRONG, D3_TOTAL: d3.TOTAL,
+			D4_RIGHT: d4.RIGHT, D4_WRONG: d4.WRONG, D4_TOTAL: d4.TOTAL,
+			EACH_WRONG_QUESTION: wrongQuestionsText
+		};
 
-    // 4. Template-Engine konfigurieren (Interpolation für {{ Platzhalter }})
-    const compiled = _.template(rawTemplate, {
-      interpolate: /\{\{([\s\S]+?)\}\}/g
-    });
+		// 4. Template-Engine konfigurieren (Interpolation für {{ Platzhalter }})
+		const compiled = _.template(rawTemplate, {
+			interpolate: /\{\{([\s\S]+?)\}\}/g
+		});
 
-    return compiled(templateContext);
-  },
-	
+		return compiled(templateContext);
+	},
+
 	// Hilfsfunktion: Sucht die Domain-Daten im geschachtelten Objekt
-  getDomainStats(domainResults, domainPrefix) {
-    // Findet den passenden Schlüssel (z. B. den mit "Domain 1" beginnt)
-    const key = _.find(_.keys(domainResults), (k) => k.startsWith(domainPrefix));
-    const data = domainResults[key] || { correctCount: 0, falseCount: 0 };
-    
-    const right = data.correctCount || 0;
-    const wrong = data.falseCount || 0;
-    
-    return {
-      RIGHT: right,
-      WRONG: wrong,
-      TOTAL: right + wrong
-    };
-  }
+	getDomainStats(domainResults, domainPrefix) {
+		// Findet den passenden Schlüssel (z. B. den mit "Domain 1" beginnt)
+		const key = _.find(_.keys(domainResults), (k) => k.startsWith(domainPrefix));
+		const data = domainResults[key] || { correctCount: 0, falseCount: 0 };
 
+		const right = data.correctCount || 0;
+		const wrong = data.falseCount || 0;
+
+		return {
+			RIGHT: right,
+			WRONG: wrong,
+			TOTAL: right + wrong
+		};
+	},
+
+	resetBookmarksForReport: async() => {
+
+		const report = appsmith.store.report;
+		const questions = report.questions;
+		let ids = [];
+
+		const newQuestions = questions.map(question => {
+			if (question.isBookmarked) {
+				question.isBookmarked = false;
+				question.hasBookmark = false;
+				ids.push(question._id.toString());
+			}
+			return question;
+		});
+
+		if (ids.length > 0){
+			report.questions = newQuestions;
+			DeleteManyBookmarks.run({ questionIds: ids });
+		}
+		
+		showAlert("Alle Bookmarks in diesem Report wurden zurückgesetzt!!!", "info");
+	}
 }

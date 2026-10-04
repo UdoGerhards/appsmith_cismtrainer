@@ -16,7 +16,7 @@
           }
         },
         "body": {
-          "data": "{\n  \"find\": \"appsmith_test\",\n  \"filter\": {\n    \"nature\": \"user\"\n  },\n  \"sort\": { \"finsihed\": -1 },\n  \"limit\": 2000,\n  \"batchSize\": 10\n}\n"
+          "data": "{\n  \"find\": \"appsmith_test\",\n  \"filter\": {\n    \"nature\": \"user\"\n  },\n  \"sort\": { \"finished\": -1 },\n  \"limit\": 15,\n}\n"
         },
         "collection": {
           "data": "appsmith_test"

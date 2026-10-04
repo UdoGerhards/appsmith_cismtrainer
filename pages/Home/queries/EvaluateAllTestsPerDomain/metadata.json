@@ -98,7 +98,7 @@
     "dynamicBindingPathList": [],
     "name": "EvaluateAllTestsPerDomain",
     "pageId": "Home",
-    "runBehaviour": "MANUAL",
+    "runBehaviour": "AUTOMATIC",
     "userSetOnLoad": false
   }
 }

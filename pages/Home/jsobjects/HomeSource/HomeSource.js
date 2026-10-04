@@ -25,6 +25,7 @@ getTestChartOptions: () => {
     const rawData = FindReports.data || [];
 
 		// 2. Dokumente nach 'finsihed' AUFSTEIGEND (ältestes zuerst) sortieren
+	/*
     const sortedDocs = [...rawData].sort((a, b) => {
       // Hilfsfunktion, um "DD.MM.YYYY HH:mm" in ein Date-Objekt umzuwandeln
       const parseDateStr = (dateStr) => {
@@ -37,15 +38,43 @@ getTestChartOptions: () => {
         return new Date(year, month - 1, day, hour, minute).getTime();
       };
 
-      return parseDateStr(a.finsihed) - parseDateStr(b.finsihed);
+      return parseDateStr(a.finished) - parseDateStr(b.finished);
     });
+		
+		*/
+	
+	const sortedDocs = [...rawData]
+  // 1. Sortieren (absteigend: neueste zuerst)
+  .sort((a, b) => new Date(b.finished) - new Date(a.finished))
+  // 2. finished als formatierten String ausgeben
+  .map(doc => {
+    const formatDate = (dateValue) => {
+      if (!dateValue) return '';
+      const d = new Date(dateValue);
+      if (isNaN(d)) return dateValue; // Falls es bereits ein String war
+
+      const pad = (num) => String(num).padStart(2, '0');
+      const day = pad(d.getDate());
+      const month = pad(d.getMonth() + 1); // Monate sind 0-basiert
+      const year = d.getFullYear();
+      const hours = pad(d.getHours());
+      const minutes = pad(d.getMinutes());
+
+      return `${day}.${month}.${year} ${hours}:${minutes}`;
+    };
+
+    return {
+			...doc,
+      finished: formatDate(doc.finished)
+    };
+  });
 
     // Da sortedDocs jetzt schon AUFSTEIGEND ist (ältestes links), 
     // brauchen wir .reverse() hier NICHT mehr!
     const recentDocs = sortedDocs;
 
     // 3. Achsen- und Seriendaten vorbereiten
-    const categories = recentDocs.map(doc => doc.finsihed || 'Test');
+    const categories = recentDocs.map(doc => doc.finished || 'Test');
     
     // HIER DIE ANPASSUNG: Statt nur doc.correct ein Objekt mit value und id zurückgeben
     const correctData = recentDocs.map(doc => ({

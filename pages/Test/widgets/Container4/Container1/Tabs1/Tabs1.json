@@ -133,7 +133,7 @@
   "mobileTopRow": 19,
   "needsErrorInfo": false,
   "onTabSelected": "{{ConfigSource.handleTabSwitch()}}",
-  "originalBottomRow": 57,
+  "originalBottomRow": 41,
   "originalTopRow": 18,
   "parentColumnSpace": 32.6875,
   "parentId": "y70j0qw9nt",

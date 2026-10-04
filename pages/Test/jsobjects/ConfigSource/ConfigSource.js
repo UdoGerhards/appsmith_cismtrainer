@@ -194,7 +194,12 @@ export default {
 		await storeValue('title', Input1.text, false);
 		await storeValue('nrquestions', parseInt(Input2.text), false);
 		await storeValue('mins', parseInt(Input3.text), false);
-		await storeValue('nature', 'user');
+		const errorTrainig = QuestionsWithError.isSwitchedOn;
+		if (!errorTrainig) {
+				await storeValue('nature', 'user');
+			} else {
+				await storeValue('nature', "error_training");
+			}
 	},
 
 	loadTest: async() => {
@@ -304,7 +309,8 @@ export default {
 	getPipeline: (domain, limit) => {
 		const limitCount = parseInt(limit) || 0;
 		const showIncorrect = QuestionsWithError.isSwitchedOn;
-		const showBookmark = BookmarksOnly.isSwitchedOn;
+		const showBookmark = false;
+		const sorting = ReverseSorting.isSwitchedOn;
 		const currentUserId = appsmith.store.userId; // `userId` aus dem Store
 
 		const pipeline = [];
@@ -387,6 +393,14 @@ export default {
 				as: "answers"
 			}
 		});
+		
+		if(sorting) {
+			pipeline.push({
+				$sort: {
+					countWrong: -1
+				}
+			});
+		}
 
 		// 6. LIMIT ANWENDEN
 		if (limitCount > 0) {

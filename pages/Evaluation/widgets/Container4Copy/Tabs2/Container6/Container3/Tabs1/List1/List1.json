@@ -9,7 +9,7 @@
   "animateLoading": true,
   "backgroundColor": "transparent",
   "borderRadius": "1.5rem",
-  "bottomRow": 269,
+  "bottomRow": 273,
   "boxShadow": "none",
   "children": [
     {
@@ -110,8 +110,8 @@
   "mobileTopRow": 67,
   "needsErrorInfo": false,
   "onItemClick": "",
-  "originalBottomRow": 269,
-  "originalTopRow": 10,
+  "originalBottomRow": 273,
+  "originalTopRow": 14,
   "pageSize": 8,
   "parentColumnSpace": 43.984375,
   "parentId": "9f5r03vyqy",
@@ -123,7 +123,7 @@
   "rightColumn": 64,
   "selectedItemView": "{{{}}}",
   "templateHeight": 160,
-  "topRow": 10,
+  "topRow": 14,
   "triggeredItemView": "{{{}}}",
   "type": "LIST_WIDGET_V2",
   "widgetId": "c5xm431bev",
