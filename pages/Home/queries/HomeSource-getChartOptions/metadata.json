@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_cdd8dfe1-c5d2-474c-956f-07c0402f8192",
-  "id": "Home_HomeSource.getTestChartOptions",
+  "gitSyncId": "6a784e96054143865d8dd557_9832e794-ee05-4ee5-a7f3-f3f19f1decce",
+  "id": "Home_HomeSource.getChartOptions",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "HomeSource.getTestChartOptions",
-    "name": "getTestChartOptions",
+    "fullyQualifiedName": "HomeSource.getChartOptions",
+    "name": "getChartOptions",
     "pageId": "Home",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

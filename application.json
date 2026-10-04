@@ -27,6 +27,10 @@
   "icon": "calender",
   "pages": [
     {
+      "id": "Home",
+      "isDefault": true
+    },
+    {
       "id": "Test",
       "isDefault": false
     },
@@ -41,10 +45,6 @@
     {
       "id": "Absolvierte Tests",
       "isDefault": false
-    },
-    {
-      "id": "Home",
-      "isDefault": true
     },
     {
       "id": "Maintainance",
