@@ -35,6 +35,10 @@
       "isDefault": false
     },
     {
+      "id": "Quiz",
+      "isDefault": false
+    },
+    {
       "id": "Execution",
       "isDefault": false
     },
@@ -48,10 +52,6 @@
     },
     {
       "id": "Maintainance",
-      "isDefault": false
-    },
-    {
-      "id": "Quiz",
       "isDefault": false
     }
   ],
