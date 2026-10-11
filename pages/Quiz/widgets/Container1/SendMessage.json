@@ -1,0 +1,55 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 83,
+  "boxShadow": "none",
+  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "buttonVariant": "TERTIARY",
+  "dynamicBindingPathList": [
+    {
+      "key": "buttonColor"
+    },
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "onClick"
+    },
+    {
+      "key": "isDisabled"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconName": "edit",
+  "isDisabled": "",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "tqihdfm6qs",
+  "leftColumn": 48,
+  "minWidth": 50,
+  "mobileBottomRow": 67,
+  "mobileLeftColumn": 59,
+  "mobileRightColumn": 63,
+  "mobileTopRow": 63,
+  "needsErrorInfo": false,
+  "onClick": "{{QuizConfiguration.sendMessage(UserInput.text);}}",
+  "originalBottomRow": 136,
+  "originalTopRow": 132,
+  "parentColumnSpace": 11.04296875,
+  "parentId": "jb4blbitim",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "hug",
+  "rightColumn": 50,
+  "topRow": 79,
+  "type": "ICON_BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "7czqvb3s7f",
+  "widgetName": "SendMessage"
+}
