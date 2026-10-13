@@ -1,5 +1,5 @@
 export default {
-	
+
 	setupPage: async() => {
 		await removeValue("gemini_key_free");
 		await removeValue("gemini_key");
@@ -7,9 +7,9 @@ export default {
 		await removeValue("geminiEvaluationResult");
 
 		await this.loadAndSaveConfiguration();
-		
+
 		const domainResult = await GetDistinctDomain.run();
-		
+
 		if (domainResult && domainResult.values.length > 0) {
 			const domains = domainResult.values;
 			await storeValue("domains", domains, false);
@@ -18,10 +18,10 @@ export default {
 			showAlert("No domains found!!", "warning");
 			console.log("Domains ", domainResult);
 		}
-		
+
 		this.nextQuestion();
 	},
-	
+
 	loadAndSaveConfiguration: async () => {
 		try {
 			// 1. MongoDB-Query ausführen (ersetze 'findConfiguration' mit dem tatsächlichen Namen deiner Query)
@@ -48,7 +48,7 @@ export default {
 			showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
 		}
 	},
-	
+
 	nextQuestion: async() => {
 		const result = await GetQuestion.run();
 		if (result && result.length > 0) {
@@ -59,57 +59,57 @@ export default {
 			showAlert("No questions found!!", "warning");
 			console.log("Random question ", result);
 		}
-		
+
 		this.initChat();
 	},
-	
+
 	createAnswerList: () => {
 		const questionObject = appsmith.store.question;
-		
+
 		const correct = questionObject.correct;
 		const answersRaw = questionObject.answers;
-		
+
 		const answers = answersRaw.map(answer => {
 			let obj = {
 				text: answer.text,
 				position: answer.type,
 				isBold: answer.type === correct,
-				};	
+			};	
 			return obj;
 		});
-		
+
 		console.log("Answers ", answers);
-		
+
 		return answers;
 	},
-	
+
 	initChat: async () => {
-			// 1. Generiere den Prompt über deine bestehende Funktion
-			const promptText = this.getGeminiStartPrompt();
+		// 1. Generiere den Prompt über deine bestehende Funktion
+		const promptText = this.getGeminiStartPrompt();
 
-			if (!promptText) {
-					return null;
+		if (!promptText) {
+			return null;
+		}
+
+		// 2. Erstelle die initiale Historie für den Gemini Chat
+		const initialHistory = [
+			{
+				role: "user",
+				parts: [{ text: promptText }]
+			},
+			{
+				role: "model",
+				parts: [{ text: "Ich habe die CISM-Prüfungsfrage mitsamt den Antwortoptionen und der korrekten Lösung erhalten. Bitte reiche jetzt deine Begründungen für die Optionen A bis D ein." }]
 			}
+		];
 
-			// 2. Erstelle die initiale Historie für den Gemini Chat
-			const initialHistory = [
-					{
-							role: "user",
-							parts: [{ text: promptText }]
-					},
-					{
-							role: "model",
-							parts: [{ text: "Ich habe die CISM-Prüfungsfrage mitsamt den Antwortoptionen und der korrekten Lösung erhalten. Bitte reiche jetzt deine Begründungen für die Optionen A bis D ein." }]
-					}
-			];
+		// 3. Im Appsmith Store speichern
+		await storeValue("geminiChatHistory", initialHistory);
+		await storeValue("geminiSystemContext", "Du bist ein erfahrener ISACA CISM Fachexperte und Prüfungscoach.");
 
-			// 3. Im Appsmith Store speichern
-			await storeValue("geminiChatHistory", initialHistory);
-			await storeValue("geminiSystemContext", "Du bist ein erfahrener ISACA CISM Fachexperte und Prüfungscoach.");
-		
-			showAlert("Chat initilisiert!");
+		showAlert("Chat initilisiert!");
 
-			return true;
+		return true;
 	},
 
 	// Gibt den aktuellen Verlauf für das List-Widget zurück
@@ -158,6 +158,8 @@ export default {
 		} catch (error) {
 			showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
 		}
+
+		UserInput.setValue("");
 	},
 
 	// Hilfsfunktion: Versucht den API-Call und schaltet bei Quota-Fehler auf den kostenpflichtigen Key um
@@ -192,36 +194,6 @@ export default {
 	},
 
 	// Kleinere Hilfsfunktion für den eigentlichen Run und das Speichern der Antwort
-	/*
-	runApiCall: async (history) => {
-		const apiResult = await GeminiAPIChat.run({ 
-			systemContext: appsmith.store.geminiSystemContext,
-			chatHistory: history 
-		});
-
-		// In Appsmith steckt die eigentliche API-Antwort oft in .data oder direkt im Objekt
-		const responseObj = apiResult?.data || apiResult;
-
-		// Extrahiere den Text sicher aus der Kandidaten-Struktur
-		const botReply = responseObj?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-		if (!botReply) {
-			// Falls Google einen Fehler im JSON zurückgibt
-			const apiErrorMsg = responseObj?.error?.message || JSON.stringify(responseObj) || "Keine Antwort erhalten.";
-			throw new Error(apiErrorMsg);
-		}
-
-		// Bot-Antwort an die Historie anhängen
-		history.push({
-			role: "model",
-			parts: [{ text: botReply }]
-		});
-
-		await storeValue("geminiChatHistory", history);
-	},
-	*/
-	
-	// Kleinere Hilfsfunktion für den eigentlichen Run und das Speichern der Antwort
 	runApiCall: async (history) => {
 		const apiResult = await GeminiAPIChat.run({ 
 			systemContext: appsmith.store.geminiSystemContext,
@@ -249,7 +221,8 @@ export default {
 		await storeValue("geminiChatHistory", history);
 
 		// --- NEU: Prüfen, ob Gemini die finale ISACA-Auswertung (Schritt 3) geliefert hat ---
-		if (botReply.includes("---ISACA_START---") || botReply.includes("Offizielle ISACA-Erklärung")) {
+		//if (botReply.includes("<!--ISACA, START-->") || botReply.includes("Offizielle ISACA-Erklärung")) {
+		if (botReply.includes("<!--ISACA, START-->")) {
 			// Ruft deine Extraktions- und Speicherfunktion auf
 			await this.extractAndSaveExplanation(botReply);
 		}
@@ -302,115 +275,280 @@ export default {
 		await storeValue("geminiChatHistory", []);
 		await storeValue("geminiSystemContext", "");
 	},
-	
+
 	getGeminiStartPrompt:() => {
-	
+
 		const questionObject = appsmith.store.question;
 		const questionText = questionObject.question;
 		const correct = questionObject.correct;
 		const answersRaw = questionObject.answers;
-		
+
 		let correctAnswer = null;
-		
+
 		const answers = answersRaw.map(answer => {
 			let obj = {
 				text: answer.text,
 				position: answer.type,
 				isCorrect: answer.type === correct,
-				};	
-			
+			};	
+
 			if (obj.isCorrect) {
 				correctAnswer = obj.position;
 			}
-			
+
 			return obj;
 		});
-		
+
 		console.log("Answers ", answers);
 		console.log("Correct answer ", correctAnswer);
-		
+
 		const options = answers.map(answer => {
-				return answer.position + ". "+answer.text;
+			return answer.position + ". "+answer.text;
 		});
 
 		console.log("Options ", options);
 		
-		const cismCoachPrompt =`
-		Du bist ein erfahrener ISACA CISM (Certified Information Security Manager) Fachexperte und Prüfungscoach. Deine Aufgabe ist es, mich bei der Prüfungsvorbereitung durch ein interaktives Verfahren zu unterstützen.
+		const cismCoachPrompt = `
+				Du bist ein erfahrener ISACA CISM (Certified Information Security Manager) Fachexperte und Prüfungscoach. Deine Aufgabe ist es, mich bei der Prüfungsvorbereitung durch ein interaktives Verfahren zu unterstützen.
 
-		Bitte halte dich strikt an folgende Regeln:
+				Bitte halte dich strikt an folgende Regeln:
 
-		1. ABLAUF – SCHRITT 1 (Empfang von Frage & Lösung):
-			 - Am Ende dieser Nachricht findest du eine CISM-Prüfungsfrage mitsamt Antwortoptionen (A, B, C, D) sowie den korrekten Lösungsbuchstaben.
-			 - Deine Aufgabe in Schritt 1: Bestätige mir NUR kurz den Empfang der Frage und fordere mich auf, meine eigenen Begründungen für die Optionen A bis D einzureichen.
-			 - WICHTIG: Gib in Schritt 1 KEINERLEI inhaltliche Auswertungen, Hinweise, Tipps oder Erklärungen ab!
+				1. ABLAUF – SCHRITT 1 (Empfang von Frage & Lösung):
+				- Am Ende dieser Nachricht findest du eine CISM-Prüfungsfrage mitsamt Antwortoptionen (A, B, C, D) sowie den korrekten Lösungsbuchstaben.
+				- Deine Aufgabe in Schritt 1: Bestätige mir NUR kurz den Empfang der Frage und fordere mich auf, meine eigenen Begründungen für die Optionen A bis D einzureichen.
+				- WICHTIG: Gib in Schritt 1 KEINERLEI inhaltliche Auswertungen, Hinweise, Tipps oder Erklärungen ab!
 
-		2. ABLAUF – SCHRITT 2 (Vollständigkeitsprüfung deiner Begründungen):
-			 - In meiner nächsten Nachricht werde ich dir meine Begründungen senden (warum jede Option A, B, C, D richtig oder falsch ist).
-			 - Prüfe meine Eingabe auf Vollständigkeit: Habe ich zu ALLEN vier Antwortoptionen (A–D) eine Begründung abgegeben?
-			 - Falls Begründungen fehlen: Weise mich kurz darauf hin, welche Option noch fehlt, und warte auf meine Ergänzung. Gib noch KEINE Auswertung ab.
+				2. ABLAUF – SCHRITT 2 (Vollständigkeitsprüfung deiner Begründungen):
+				- In meiner nächsten Nachricht werde ich dir meine Begründungen senden (warum jede Option A, B, C, D richtig oder falsch ist).
+				- Prüfe meine Eingabe auf Vollständigkeit: Habe ich zu ALLEN vier Antwortoptionen (A–D) eine Begründung abgegeben?
+				- Falls Begründungen fehlen: Weise mich kurz darauf hin, welche Option noch fehlt, und warte auf meine Ergänzung. Gib noch KEINE Auswertung ab.
 
-		3. ABLAUF – SCHRITT 3 (Detaillierte Evaluierung & ISACA-Erklärung):
-			 Erst wenn alle Optionen (A–D) vollständig begründet wurden, erstellst du die Auswertung basierend auf den offiziellen ISACA-CISM-Standards:
-			 a) Feedback zu meiner Begründung: Bewerte meine Argumentation zu jeder Option (A–D) und spiegle sie am "ISACA Mindset".
-			 b) Offizielle ISACA-Erklärung: Bestätige die Lösung und erläutere die zugrundeliegenden ISACA-Konzepte.
+				3. ABLAUF – SCHRITT 3 (Detaillierte Evaluierung & ISACA-Erklärung):
+				Erst wenn alle Optionen (A–D) vollständig begründet wurden, erstellst du die Auswertung. Gib die Antwort genau in den folgenden 4 Abschnitten aus.
 
-			 WICHTIG: Setze vor den Teil der offiziellen ISACA-Erklärung exakt diese Zeile als Trenner:
-			 ---ISACA_START---
+				WICHTIGE FORMATIERUNGSREGELN FÜR SCHRITT 3:
+				- Jede Section MUSS durch eine Leerzeile von der vorherigen getrennt sein.
+				- Jede Überschrift MUSS fett dargestellt werden (**Überschrift**).
+				- Der jeweilige Text MUSS immer in der nächsten Zeile direkt unter der Überschrift beginnen.
+				- Verwende keine Nummerierungen wie a), b), c).
 
-		4. ABLAUF – SCHRITT 4 (Vertiefender Dialog):
-			 Nach Schritt 3 bleibt der Chat für meine Ergänzungs- und Vertiefungsfragen geöffnet, die du weiterhin streng aus ISACA-CISM-Perspektive beantwortest.
+				Gliedere deine Antwort in Schritt 3 exakt so:
 
-		--- Hier ist die Frage für diesen Chat ---
+				**Feedback zu meiner Begründung:**
+				Bewerte meine Argumentation zu jeder Option (A–D) ausführlich und spiegle sie am "ISACA Mindset".
 
-		Frage:
-		${questionText}
+				**Offizielle ISACA Erklärung:**
+				<!--ISACA, START-->
+				Erläutere hier die offizielle ISACA-Erklärung, bestätige die richtige Lösung und vertiefe die zugrundeliegenden ISACA-Konzepte.
+				<!--ISACA, END-->
 
-		Optionen:
-		${options}
+				**CISM-Tags:**
+				<!--TAGS, START-->
+				Nenne hier die offizielle CISM-Domäne sowie 3-5 prägnante Schlagworte/Tags.
+				<!--TAGS, END-->
 
-		Korrekte Antwort:
-		${correctAnswer}
-		`.trim();
-		
+				**Auswertung:**
+				<!--AUSWERTUNG, START-->
+				korrekt
+				<!--AUSWERTUNG, END-->
+				(Gib innerhalb der Tags ausschließlich das Wort "korrekt" oder "falsch" an, je nachdem ob meine Begründungen und die gewählte Antwort inhaltlich richtig waren.)
+
+				4. ABLAUF – SCHRITT 4 (Vertiefender Dialog):
+				Nach Schritt 3 bleibt der Chat für meine Ergänzungs- und Vertiefungsfragen geöffnet, die du weiterhin streng aus ISACA-CISM-Perspektive beantwortest.
+
+				--- Hier ist die Frage für diesen Chat ---
+
+				Frage:
+				${questionText}
+
+				Optionen:
+				${options}
+
+				Korrekte Antwort:
+				${correctAnswer}
+				`.trim();
+
 		console.log("Gemini prompt "+cismCoachPrompt);
-		
+
 		return cismCoachPrompt;
 	},
-	
+
 	extractAndSaveExplanation: async (geminiResponseText) => {
-    if (!geminiResponseText) return null;
+		if (!geminiResponseText) return null;
+		
+		const extractBlock = (startTag, endTag) => {
+			const regex = new RegExp(`${startTag}([\\s\\S]*?)${endTag}`, 'i');
+			const match = geminiResponseText.match(regex);
+			return match ? match[1].trim() : null;
+		};
 
-    let officialExplanation = "";
+		//let officialExplanation = "";
+		const officialExplanation = extractBlock('<!--ISACA, START-->', '<!--ISACA, END-->');
+		console.log("Official ISACA-Explanation: ", officialExplanation);
+		const cismTags = extractBlock('<!--TAGS, START-->', '<!--TAGS, END-->');
+		console.log("Tags: ", cismTags);
+		
+		const tagIDs = await this.processTags(cismTags);
+		console.log("Query tag IDs: ", tagIDs);
+		const queryUpdateResult = await this.updateQuestionTags(tagIDs);
+		console.log("Question updated: ", queryUpdateResult);
+		
+		const evaluation = extractBlock('<!--AUSWERTUNG, START-->', '<!--AUSWERTUNG, END-->');
+		console.log("Evaluation: ", evaluation);
 
-    // Methode A: Wenn du den Trenner ---ISACA_START--- im Prompt verwendet hast
-    if (geminiResponseText.includes("---ISACA_START---")) {
-        const parts = geminiResponseText.split("---ISACA_START---");
-        officialExplanation = parts[1] ? parts[1].trim() : "";
-    } 
-    // Methode B: Fallback, falls der Trenner fehlt (suche nach klassischer Überschrift)
-    else if (geminiResponseText.includes("Offizielle ISACA-Erklärung")) {
-        const parts = geminiResponseText.split(/Offizielle ISACA-Erklärung/i);
-        officialExplanation = parts[1] ? parts[1].trim() : "";
-    } else {
-        officialExplanation = geminiResponseText; // Gesamten Text nehmen, wenn nichts gefunden
+		// Objekt für deine Collection / DB / Store vorbereiten
+		const explanationRecord = {
+			questionId: appsmith.store.question?._id,
+			explanationText: officialExplanation,
+		};
+
+		console.log("Extrahierte ISACA-Erklärung:", explanationRecord);
+
+		// Beispiel 1: Im Appsmith Store ablegen
+		await storeValue("savedIsacaExplanation", explanationRecord);
+
+		const qId = explanationRecord.questionId;
+    const text = explanationRecord.explanationText;
+
+    // 1. Suchen, ob das Dokument existiert
+    const searchResult = await FindMasterQueryExplanation.run({ questionId: qId });
+    const documents = searchResult?.cursor?.firstBatch || searchResult;
+    const exists = Array.isArray(documents) && documents.length > 0;
+		
+      // 3. Insert ausführen
+			try {
+					const result = await InsertMasterQueryExplanation.run({ 
+						questionId: qId, 
+						explanation: text 
+					});
+				showAlert("Explanation saved!!!", "info");
+			} catch(e) {
+				console.log("Error on insert explanation: ", e);
+				showAlert("Error on insert explanation: "+e, "Warning");		
+			}
+
+		// Beispiel 2: In eine MongoDB-Collection oder API schreiben (Hier deinen Query-Aufruf einfügen)
+		// await insertIntoMyMongoDBCollection.run(explanationRecord);
+
+		return explanationRecord;
+	},
+	
+	async processTags(rawTagsString) {
+    // 1. Tag-String in ein sauberes, eindeutiges Array umwandeln
+    const tagsArray = [...new Set(
+      rawTagsString
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+    )];
+		
+		console.log("Tags to save: ", tagsArray);
+
+    const tagIds = [];
+
+    // 2. Durch jedes Tag iterieren
+    for (const tagName of tagsArray) {
+      
+      // Schritt A: Nachschauen, ob das Tag bereits existiert (Query: FindTag)
+      const existingTags = await FindTag.run({ tagName: tagName });
+      
+      let tagId;
+
+      if (existingTags && existingTags.length > 0) {
+				
+				console.log(`Tag ${tagName} found in collection!`);
+        // Fall 1: Tag ist bereits vorhanden -> ID übernehmen
+        tagId = existingTags[0]._id;
+				// Funktionierende Interpolation (mit Backticks):
+				console.log(`Tag ID is ${tagId}!`);
+				
+      } else {
+				console.log(`Saving ${tagName} in collection!`);
+        // Fall 2: Tag existiert noch nicht -> Neu anlegen (Query: InsertTag)
+        const insertResult = await InsertTag.run({ tagName: tagName });
+				
+				const freshTags = await FindTag.run({ tagName: tagName });
+        if (freshTags && freshTags.length > 0) {
+          tagId = freshTags[0]._id;
+        }
+				
+				console.log(`Tag ID is ${tagId}!`);
+      }
+
+      // 3. ID zum Ergebnis-Array hinzufügen, wenn erfolgreich ermittelt
+      if (tagId) {
+        tagIds.push(tagId);
+      }
     }
+		
+		console.log("Tag ID array is ", tagIds);
 
-    // Objekt für deine Collection / DB / Store vorbereiten
-    const explanationRecord = {
-        questionId: appsmith.store.question?.id || "unknown",
-        explanationText: officialExplanation,
-        createdAt: new Date().toISOString()
+    // Gibt das Array mit allen Object-IDs (bestehend & neu) an den Aufrufer zurück
+    return tagIds;
+  },
+	
+	// Funktion 2: Aktualisiert die jeweilige Frage und mergt alte & neue Tags
+  async updateQuestionTags(newTagIds) {
+		
+		const questionDoc = appsmith.store.question;
+		
+    if (!questionDoc || !questionDoc._id) {
+      throw new Error("Kein gültiges Frage-Dokument übergeben!");
+    }
+		
+		if (!newTagIds || newTagIds.length == 0) {
+			console.log("No tags saved! Due to this there is no need to update the question!");
+			return true;
+		}
+		
+		console.log("Question to modify: ", questionDoc);
+
+    // A: Bereits vorhandene Tags aus der Frage holen (falls vorhanden)
+    const existingTags = questionDoc.tags || [];
+		console.log("Existing tag IDs ", existingTags);
+
+    // B: Altes und neues Array mergen und Duplikate (als String verglichen) entfernen
+    const mergedTagsSet = new Set([
+      ...existingTags.map(id => id.toString()),
+      ...newTagIds.map(id => id.toString())
+    ]);
+    
+    const finalTagIds = Array.from(mergedTagsSet);
+		console.log("Merged tag IDs ", finalTagIds);
+
+    // C: Anhand des 'origin'-Parameters die richtige Collection-Query auswählen
+    const questionId = questionDoc._id;
+    const origin = questionDoc.origin;
+    let updateResult;
+
+    if (origin === "iquestion") {
+			console.log("Saving tags in iquestion!");
+      updateResult = await UpdateIQuestion.run({ 
+        questionId: questionId, 
+        tags: finalTagIds 
+      });
+    } else if (origin === "gemini_query") {
+			console.log("Saving tags in gemini_query!");
+      updateResult = await UpdateGeminiQuestion.run({ 
+        questionId: questionId, 
+        tags: finalTagIds 
+      });
+    } else {
+      // Fallback für "question"
+			console.log("Saving tags in question!");
+      updateResult = await UpdateQuestion.run({ 
+        questionId: questionId, 
+        tags: finalTagIds 
+      });
+    }
+		
+		console.log("Update result ", updateResult);
+    return {
+      success: true,
+      origin: origin,
+      questionId: questionId,
+      updatedTags: finalTagIds,
+      result: updateResult
     };
-
-    console.log("Extrahierte ISACA-Erklärung:", explanationRecord);
-
-    // Beispiel 1: Im Appsmith Store ablegen
-    await storeValue("savedIsacaExplanation", explanationRecord);
-
-    // Beispiel 2: In eine MongoDB-Collection oder API schreiben (Hier deinen Query-Aufruf einfügen)
-    // await insertIntoMyMongoDBCollection.run(explanationRecord);
-
-    return explanationRecord;
-	}
+  },
 }
