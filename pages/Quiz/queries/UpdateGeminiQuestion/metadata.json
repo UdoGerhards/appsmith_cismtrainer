@@ -66,7 +66,7 @@
         },
         "misc": {
           "formToNativeQuery": {
-            "data": "{\n  \"update\": \"gemini_question\",\n  \"updates\": [{\n    \"q\": {\n  \"_id\": \"{{ this.params.questionId }}\"\n},\n    \"u\": {\n  \"$set\": {\n    \"tags\": {{ this.params.tags }}\n  }\n},\n    \"multi\": false,\n  }]\n}\n",
+            "data": "{\n  \"update\": \"gemini_question\",\n  \"updates\": [{\n    \"q\": {\n  \"_id\": {\n    \"$oid\": \"{{ this.params.questionId }}\"\n  }\n},\n    \"u\": {\n  \"$set\": {\n    \"tags\": {{ (this.params.tags || []).map(tag => ({ \"$oid\": tag })) }}\n  }\n},\n    \"multi\": false,\n  }]\n}\n",
             "status": "SUCCESS"
           }
         },
@@ -78,10 +78,10 @@
             "data": "SINGLE"
           },
           "query": {
-            "data": "{\n  \"_id\": \"{{ this.params.questionId }}\"\n}"
+            "data": "{\n  \"_id\": {\n    \"$oid\": \"{{ this.params.questionId }}\"\n  }\n}"
           },
           "update": {
-            "data": "{\n  \"$set\": {\n    \"tags\": {{ this.params.tags }}\n  }\n}"
+            "data": "{\n  \"$set\": {\n    \"tags\": {{ (this.params.tags || []).map(tag => ({ \"$oid\": tag })) }}\n  }\n}"
           }
         }
       },

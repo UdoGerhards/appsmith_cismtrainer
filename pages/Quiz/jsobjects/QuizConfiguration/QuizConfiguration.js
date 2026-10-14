@@ -490,6 +490,8 @@ export default {
 	// Funktion 2: Aktualisiert die jeweilige Frage und mergt alte & neue Tags
   async updateQuestionTags(newTagIds) {
 		
+		showAlert("Updating Question with new tags", "info");
+		
 		const questionDoc = appsmith.store.question;
 		
     if (!questionDoc || !questionDoc._id) {
@@ -506,6 +508,7 @@ export default {
     // A: Bereits vorhandene Tags aus der Frage holen (falls vorhanden)
     const existingTags = questionDoc.tags || [];
 		console.log("Existing tag IDs ", existingTags);
+		showAlert("Existing tags length "+existingTags.length, "info");
 
     // B: Altes und neues Array mergen und Duplikate (als String verglichen) entfernen
     const mergedTagsSet = new Set([
@@ -514,7 +517,9 @@ export default {
     ]);
     
     const finalTagIds = Array.from(mergedTagsSet);
+		
 		console.log("Merged tag IDs ", finalTagIds);
+		showAlert("Tags array length "+finalTagIds.length, "info");
 
     // C: Anhand des 'origin'-Parameters die richtige Collection-Query auswählen
     const questionId = questionDoc._id;
@@ -522,20 +527,20 @@ export default {
     let updateResult;
 
     if (origin === "iquestion") {
-			console.log("Saving tags in iquestion!");
+			console.log("Saving tags in iquestion!", finalTagIds);
       updateResult = await UpdateIQuestion.run({ 
         questionId: questionId, 
         tags: finalTagIds 
       });
     } else if (origin === "gemini_query") {
-			console.log("Saving tags in gemini_query!");
+			console.log("Saving tags in gemini_query!", finalTagIds);
       updateResult = await UpdateGeminiQuestion.run({ 
         questionId: questionId, 
         tags: finalTagIds 
       });
     } else {
       // Fallback für "question"
-			console.log("Saving tags in question!");
+			console.log("Saving tags in question!", finalTagIds);
       updateResult = await UpdateQuestion.run({ 
         questionId: questionId, 
         tags: finalTagIds 

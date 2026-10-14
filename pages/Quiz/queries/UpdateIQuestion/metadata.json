@@ -16,7 +16,7 @@
           }
         },
         "body": {
-          "data": "{\n  \"update\": \"iquestion\",\n  \"updates\": [\n    {\n      \"q\": {\n        \"_id\": \"{{ this.params.questionId }}\"\n      },\n      \"u\": {\n        \"$set\": {\n          \"tags\": {{ this.params.tags }}\n        }\n      }\n    }\n  ]\n}\n"
+          "data": "{\n  \"update\": \"iquestion\",\n  \"updates\": [\n    {\n      \"q\": {\n        \"_id\": {\n          \"$oid\": \"{{ this.params.questionId }}\"\n        }\n      },\n      \"u\": {\n        \"$set\": {\n          \"tags\": {{ (this.params.tags || []).map(tag => ({ \"$oid\": tag })) }}\n        }\n      }\n    }\n  ]\n}"
         },
         "collection": {
           "data": "question"

@@ -48,7 +48,7 @@
   "mobileTopRow": 69,
   "needsErrorInfo": false,
   "onSubmit": "{{QuizConfiguration.sendMessage(UserInput.text);}}",
-  "originalBottomRow": 89,
+  "originalBottomRow": 85,
   "originalTopRow": 77,
   "parentColumnSpace": 33,
   "parentId": "jb4blbitim",
