@@ -11,7 +11,25 @@ export default {
 		const domainResult = await GetDistinctDomain.run();
 
 		if (domainResult && domainResult.values.length > 0) {
-			const domains = domainResult.values;
+			const domainsRaw = domainResult.values;
+			const domains = domainsRaw
+					.map(domain => ({ name: domain }))
+					// { numeric: true } sorgt dafür, dass Domain 1 vor Domain 4 einsortiert wird
+					.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }))
+					.map((item, idx) => ({
+							id: idx,
+							name: item.name
+					}));
+			
+			console.log("Sorted domains: ", domains);
+			
+			const defaultSelected = domains.map(item => {
+				return item.name;
+			});
+			
+			await storeValue('selectedDomains', defaultSelected);
+			console.log(defaultSelected);
+		
 			await storeValue("domains", domains, false);
 			console.log("Domains ", domains);
 		} else {
@@ -21,6 +39,15 @@ export default {
 
 		this.nextQuestion();
 	},
+	
+	saveSelectedDomains: async () => {
+        // Holt ein Array aller ausgewählten Werte der Checkbox Group
+        const selected = CheckboxGroup1.selectedValues;
+        
+        // Speichert das Array im Appsmith-Store unter dem Key 'selectedDomains'
+        await storeValue('selectedDomains', selected);
+				console.log("Ausgewählte domains: ", appsmith.store.selectedDomains);
+    },
 
 	loadAndSaveConfiguration: async () => {
 		try {

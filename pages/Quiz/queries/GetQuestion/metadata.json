@@ -16,7 +16,7 @@
           }
         },
         "body": {
-          "data": "{\n  \"aggregate\": \"master_question\",\n  \"pipeline\": [\n    {\n      \"$sample\": {\n        \"size\": 1\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"master_answer\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"answers\"\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"master_explanation\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"explanation\"\n      }\n    },\n    {\n      \"$unwind\": {\n        \"path\": \"$explanation\",\n        \"preserveNullAndEmptyArrays\": true\n      }\n    }\n  ],\n  \"cursor\": {\n    \"batchSize\": 1\n  }\n}"
+          "data": "{\n  \"aggregate\": \"master_question\",\n  \"pipeline\": [\n    {{ \n      ErrorOnly.isSwitchedOn \n        ? { \"$match\": { \"countWrong\": { \"$gte\": Number(ErrorNumber.text) } } } \n        : { \"$match\": {} } \n    }},\n    {{ \n      appsmith.store.selectedDomains && appsmith.store.selectedDomains.length > 0 \n        ? { \"$match\": { \"domain\": { \"$in\": appsmith.store.selectedDomains } } } \n        : { \"$match\": {} } \n    }},\n    {\n      \"$sample\": {\n        \"size\": 1\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"master_answer\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"answers\"\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"master_explanation\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"explanation\"\n      }\n    },\n    {\n      \"$unwind\": {\n        \"path\": \"$explanation\",\n        \"preserveNullAndEmptyArrays\": true\n      }\n    }\n  ],\n  \"cursor\": {\n    \"batchSize\": 1\n  }\n}"
         },
         "collection": {
           "data": "question"
@@ -98,7 +98,11 @@
       "name": "CISM",
       "pluginId": "mongo-plugin"
     },
-    "dynamicBindingPathList": [],
+    "dynamicBindingPathList": [
+      {
+        "key": "formData.body.data"
+      }
+    ],
     "name": "GetQuestion",
     "pageId": "Quiz",
     "runBehaviour": "MANUAL",
