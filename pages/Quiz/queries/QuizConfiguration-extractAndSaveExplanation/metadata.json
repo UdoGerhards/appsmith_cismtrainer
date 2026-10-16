@@ -9,6 +9,9 @@
       "jsArguments": [
         {
           "name": "geminiResponseText"
+        },
+        {
+          "name": "history"
         }
       ],
       "paginationType": "NONE",

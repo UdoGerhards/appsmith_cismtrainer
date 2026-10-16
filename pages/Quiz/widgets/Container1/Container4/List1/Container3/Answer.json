@@ -49,7 +49,7 @@
   "parentId": "5wd97fedd8",
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 64,
+  "rightColumn": 27,
   "shouldTruncate": false,
   "text": "{{currentItem.text}}",
   "textAlign": "LEFT",

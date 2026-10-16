@@ -213,18 +213,26 @@ export default {
 		}
 
 		// Bot-Antwort an die Historie anhängen
+		/*
 		history.push({
 			role: "model",
 			parts: [{ text: botReply }]
 		});
+		*/
 
-		await storeValue("geminiChatHistory", history);
+		//await storeValue("geminiChatHistory", history);
 
 		// --- NEU: Prüfen, ob Gemini die finale ISACA-Auswertung (Schritt 3) geliefert hat ---
 		//if (botReply.includes("<!--ISACA, START-->") || botReply.includes("Offizielle ISACA-Erklärung")) {
 		if (botReply.includes("<!--ISACA, START-->")) {
 			// Ruft deine Extraktions- und Speicherfunktion auf
-			await this.extractAndSaveExplanation(botReply);
+			await this.extractAndSaveExplanation(botReply, history);
+		} else {
+			history.push({
+				role: "model",
+				parts: [{ text: botReply }]
+			});
+			await storeValue("geminiChatHistory", history);		
 		}
 	},
 
@@ -335,7 +343,9 @@ export default {
 				Gliedere deine Antwort in Schritt 3 exakt so:
 
 				**Feedback zu meiner Begründung:**
+				<!--FEEDBACK, START-->
 				Bewerte meine Argumentation zu jeder Option (A–D) ausführlich und spiegle sie am "ISACA Mindset".
+				<!--FEEDBACK, END-->
 
 				**Offizielle ISACA Erklärung:**
 				<!--ISACA, START-->
@@ -373,7 +383,7 @@ export default {
 		return cismCoachPrompt;
 	},
 
-	extractAndSaveExplanation: async (geminiResponseText) => {
+	extractAndSaveExplanation: async (geminiResponseText, history) => {
 		if (!geminiResponseText) return null;
 		
 		const extractBlock = (startTag, endTag) => {
@@ -382,10 +392,30 @@ export default {
 			return match ? match[1].trim() : null;
 		};
 
-		//let officialExplanation = "";
+		const textArr = [];
+		
+		// Feedback
+		const feedBackHeader = "**Feedback zu Deiner Begründung**";
+		const feedBack = extractBlock('<!--FEEDBACK, START-->','<!--FEEDBACK, END-->');
+		showAlert(feedBack, "info");
+		textArr.push(this.createArticle(feedBackHeader, feedback));
+
+		console.log("Feedback from gemini ", feedBack);
+		
+		// ISACA Explanation
+		const officialExplanationHeader = "**Offizielle ISACA Erklärung:**";
 		const officialExplanation = extractBlock('<!--ISACA, START-->', '<!--ISACA, END-->');
+		showAlert(officialExplanation, "info");
+		textArr.push(this.createArticle(officialExplanationHeader, officialExplanation));
+		
 		console.log("Official ISACA-Explanation: ", officialExplanation);
+		
+		// CISM Tags
+		const cismTagsHeader = "**CISM-Tags**";
 		const cismTags = extractBlock('<!--TAGS, START-->', '<!--TAGS, END-->');
+		showAlert(cismTags, "info");
+		textArr.push(this.createArticle(cismTagsHeader, cismTags));
+
 		console.log("Tags: ", cismTags);
 		
 		const tagIDs = await this.processTags(cismTags);
@@ -393,8 +423,27 @@ export default {
 		const queryUpdateResult = await this.updateQuestionTags(tagIDs);
 		console.log("Question updated: ", queryUpdateResult);
 		
-		const evaluation = extractBlock('<!--AUSWERTUNG, START-->', '<!--AUSWERTUNG, END-->');
+		// Evaluation
+		const evaluationHeader = "**Auswertung**";
+		let evaluation = extractBlock('<!--AUSWERTUNG, START-->', '<!--AUSWERTUNG, END-->');
+		
+		let color = "#FF0000";
+		if (evaluation === "korrekt") {
+			 color = "#008000";
+		}
+		showAlert(evaluation, "info");
+		evaluation = `<span style="color: ${color};">${evaluation}</span>`;
 		console.log("Evaluation: ", evaluation);
+		textArr.push(this.createArticle(evaluationHeader, evaluation));
+		
+		const botReply = textArr.join("");
+		
+		history.push({
+			role: "model",
+			parts: [{ text: botReply }]
+		});
+		
+		await storeValue("geminiChatHistory", history);
 
 		// Objekt für deine Collection / DB / Store vorbereiten
 		const explanationRecord = {
@@ -431,6 +480,10 @@ export default {
 		// await insertIntoMyMongoDBCollection.run(explanationRecord);
 
 		return explanationRecord;
+	},
+	
+	createArticle: (header, body) => {
+		return `<article style="margin-bottom: 10px">${header}<br /><br />${body}</article>`;
 	},
 	
 	async processTags(rawTagsString) {
