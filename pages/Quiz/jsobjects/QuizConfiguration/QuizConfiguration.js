@@ -15,7 +15,7 @@ export default {
 			await storeValue("domains", domains, false);
 			console.log("Domains ", domains);
 		} else {
-			showAlert("No domains found!!", "warning");
+			//showAlert("No domains found!!", "warning");
 			console.log("Domains ", domainResult);
 		}
 
@@ -29,7 +29,7 @@ export default {
 
 			// Prüfen, ob Daten vorhanden sind
 			if (!data || !Array.isArray(data)) {
-				showAlert("Keine Konfigurationsdaten gefunden.", "warning");
+				//showAlert("Keine Konfigurationsdaten gefunden.", "warning");
 				return;
 			}
 
@@ -37,12 +37,12 @@ export default {
 			// Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
 			for (const item of data) {
 				if (item.name) {
-					showAlert("Configuration - saving '"+item.name+"'", "success");
+					//showAlert("Configuration - saving '"+item.name+"'", "success");
 					await storeValue(item.name, item.value);
 				}
 			}
 
-			showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
+			//showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
 
 		} catch (error) {
 			showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
@@ -224,10 +224,12 @@ export default {
 
 		// --- NEU: Prüfen, ob Gemini die finale ISACA-Auswertung (Schritt 3) geliefert hat ---
 		//if (botReply.includes("<!--ISACA, START-->") || botReply.includes("Offizielle ISACA-Erklärung")) {
-		if (botReply.includes("<!--ISACA, START-->")) {
+		if (botReply.includes("==ISACA_START==")) {
 			// Ruft deine Extraktions- und Speicherfunktion auf
+			showAlert("Transforming gemini reply to HTML!", "info");
 			await this.extractAndSaveExplanation(botReply, history);
 		} else {
+			showAlert("Transforming of gemini reply failed!", "warning");
 			history.push({
 				role: "model",
 				parts: [{ text: botReply }]
@@ -315,7 +317,7 @@ export default {
 		});
 
 		console.log("Options ", options);
-		
+
 		const cismCoachPrompt = `
 				Du bist ein erfahrener ISACA CISM (Certified Information Security Manager) Fachexperte und Prüfungscoach. Deine Aufgabe ist es, mich bei der Prüfungsvorbereitung durch ein interaktives Verfahren zu unterstützen.
 
@@ -343,24 +345,24 @@ export default {
 				Gliedere deine Antwort in Schritt 3 exakt so:
 
 				**Feedback zu meiner Begründung:**
-				<!--FEEDBACK, START-->
+				==FEEDBACK_START==
 				Bewerte meine Argumentation zu jeder Option (A–D) ausführlich und spiegle sie am "ISACA Mindset".
-				<!--FEEDBACK, END-->
+				==FEEDBACK_END==
 
 				**Offizielle ISACA Erklärung:**
-				<!--ISACA, START-->
+				==ISACA_START==
 				Erläutere hier die offizielle ISACA-Erklärung, bestätige die richtige Lösung und vertiefe die zugrundeliegenden ISACA-Konzepte.
-				<!--ISACA, END-->
+				==ISACA_END==
 
 				**CISM-Tags:**
-				<!--TAGS, START-->
+				==TAGS_START==
 				Nenne hier die offizielle CISM-Domäne sowie 3-5 prägnante Schlagworte/Tags.
-				<!--TAGS, END-->
+				==TAGS_END==
 
 				**Auswertung:**
-				<!--AUSWERTUNG, START-->
+				==AUSWERTUNG_START==
 				korrekt
-				<!--AUSWERTUNG, END-->
+				==AUSWERTUNG_END==
 				(Gib innerhalb der Tags ausschließlich das Wort "korrekt" oder "falsch" an, je nachdem ob meine Begründungen und die gewählte Antwort inhaltlich richtig waren.)
 
 				4. ABLAUF – SCHRITT 4 (Vertiefender Dialog):
@@ -385,7 +387,7 @@ export default {
 
 	extractAndSaveExplanation: async (geminiResponseText, history) => {
 		if (!geminiResponseText) return null;
-		
+
 		const extractBlock = (startTag, endTag) => {
 			const regex = new RegExp(`${startTag}([\\s\\S]*?)${endTag}`, 'i');
 			const match = geminiResponseText.match(regex);
@@ -393,56 +395,57 @@ export default {
 		};
 
 		const textArr = [];
-		
+
 		// Feedback
-		const feedBackHeader = "**Feedback zu Deiner Begründung**";
-		const feedBack = extractBlock('<!--FEEDBACK, START-->','<!--FEEDBACK, END-->');
-		showAlert(feedBack, "info");
-		textArr.push(this.createArticle(feedBackHeader, feedback));
+		const feedBackHeader = "<h3>Feedback zu Deiner Begründung:</h3>";
+		const feedBack = extractBlock('==FEEDBACK_START==','==FEEDBACK_END==');
+		//showAlert(feedBack, "info");
+		textArr.push(this.createArticle(feedBackHeader, feedBack ));
 
 		console.log("Feedback from gemini ", feedBack);
-		
+
 		// ISACA Explanation
-		const officialExplanationHeader = "**Offizielle ISACA Erklärung:**";
-		const officialExplanation = extractBlock('<!--ISACA, START-->', '<!--ISACA, END-->');
-		showAlert(officialExplanation, "info");
+		const officialExplanationHeader = "Offizielle ISACA Erklärung:";
+		const officialExplanation = extractBlock('==ISACA_START==', '==ISACA_END==');
+		//showAlert(officialExplanation, "info");
 		textArr.push(this.createArticle(officialExplanationHeader, officialExplanation));
-		
+
 		console.log("Official ISACA-Explanation: ", officialExplanation);
-		
+
 		// CISM Tags
-		const cismTagsHeader = "**CISM-Tags**";
-		const cismTags = extractBlock('<!--TAGS, START-->', '<!--TAGS, END-->');
-		showAlert(cismTags, "info");
+		const cismTagsHeader = "CISM-Tags:";
+		const cismTags = extractBlock('==TAGS_START==', '==TAGS_END==');
+		//showAlert(cismTags, "info");
 		textArr.push(this.createArticle(cismTagsHeader, cismTags));
 
 		console.log("Tags: ", cismTags);
-		
+
 		const tagIDs = await this.processTags(cismTags);
 		console.log("Query tag IDs: ", tagIDs);
 		const queryUpdateResult = await this.updateQuestionTags(tagIDs);
 		console.log("Question updated: ", queryUpdateResult);
-		
+
 		// Evaluation
-		const evaluationHeader = "**Auswertung**";
-		let evaluation = extractBlock('<!--AUSWERTUNG, START-->', '<!--AUSWERTUNG, END-->');
-		
+		const evaluationHeader = "Auswertung:";
+		let evaluation = extractBlock('==AUSWERTUNG_START==', '==AUSWERTUNG_END==');
+
 		let color = "#FF0000";
 		if (evaluation === "korrekt") {
-			 color = "#008000";
+			color = "#008000";
 		}
 		showAlert(evaluation, "info");
+		evaluation = evaluation.toUpperCase();
 		evaluation = `<span style="color: ${color};">${evaluation}</span>`;
 		console.log("Evaluation: ", evaluation);
 		textArr.push(this.createArticle(evaluationHeader, evaluation));
-		
+
 		const botReply = textArr.join("");
-		
+
 		history.push({
 			role: "model",
 			parts: [{ text: botReply }]
 		});
-		
+
 		await storeValue("geminiChatHistory", history);
 
 		// Objekt für deine Collection / DB / Store vorbereiten
@@ -454,159 +457,159 @@ export default {
 		console.log("Extrahierte ISACA-Erklärung:", explanationRecord);
 
 		// Beispiel 1: Im Appsmith Store ablegen
-		await storeValue("savedIsacaExplanation", explanationRecord);
+		//await storeValue("savedIsacaExplanation", explanationRecord);
 
 		const qId = explanationRecord.questionId;
-    const text = explanationRecord.explanationText;
+		const text = explanationRecord.explanationText;
 
-    // 1. Suchen, ob das Dokument existiert
-    const searchResult = await FindMasterQueryExplanation.run({ questionId: qId });
-    const documents = searchResult?.cursor?.firstBatch || searchResult;
-    const exists = Array.isArray(documents) && documents.length > 0;
-		
-      // 3. Insert ausführen
-			try {
-					const result = await InsertMasterQueryExplanation.run({ 
-						questionId: qId, 
-						explanation: text 
-					});
-				showAlert("Explanation saved!!!", "info");
-			} catch(e) {
-				console.log("Error on insert explanation: ", e);
-				showAlert("Error on insert explanation: "+e, "Warning");		
-			}
+		// 1. Suchen, ob das Dokument existiert
+		const searchResult = await FindMasterQueryExplanation.run({ questionId: qId });
+		const documents = searchResult?.cursor?.firstBatch || searchResult;
+		const exists = Array.isArray(documents) && documents.length > 0;
+
+		// 3. Insert ausführen
+		try {
+			const result = await InsertMasterQueryExplanation.run({ 
+				questionId: qId, 
+				explanation: text 
+			});
+			//showAlert("Explanation saved!!!", "info");
+		} catch(e) {
+			console.log("Error on insert explanation: ", e);
+			//showAlert("Error on insert explanation: "+e, "Warning");		
+		}
 
 		// Beispiel 2: In eine MongoDB-Collection oder API schreiben (Hier deinen Query-Aufruf einfügen)
 		// await insertIntoMyMongoDBCollection.run(explanationRecord);
 
 		return explanationRecord;
 	},
-	
+
 	createArticle: (header, body) => {
-		return `<article style="margin-bottom: 10px">${header}<br /><br />${body}</article>`;
+		return `<article style="margin-bottom: 20px"><h3 style="margin-bottom:5px">${header}</h3>${body}</article>`;
 	},
-	
+
 	async processTags(rawTagsString) {
-    // 1. Tag-String in ein sauberes, eindeutiges Array umwandeln
-    const tagsArray = [...new Set(
-      rawTagsString
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0)
-    )];
-		
+		// 1. Tag-String in ein sauberes, eindeutiges Array umwandeln
+		const tagsArray = [...new Set(
+			rawTagsString
+			.split(',')
+			.map(tag => tag.trim())
+			.filter(tag => tag.length > 0)
+		)];
+
 		console.log("Tags to save: ", tagsArray);
 
-    const tagIds = [];
+		const tagIds = [];
 
-    // 2. Durch jedes Tag iterieren
-    for (const tagName of tagsArray) {
-      
-      // Schritt A: Nachschauen, ob das Tag bereits existiert (Query: FindTag)
-      const existingTags = await FindTag.run({ tagName: tagName });
-      
-      let tagId;
+		// 2. Durch jedes Tag iterieren
+		for (const tagName of tagsArray) {
 
-      if (existingTags && existingTags.length > 0) {
-				
+			// Schritt A: Nachschauen, ob das Tag bereits existiert (Query: FindTag)
+			const existingTags = await FindTag.run({ tagName: tagName });
+
+			let tagId;
+
+			if (existingTags && existingTags.length > 0) {
+
 				console.log(`Tag ${tagName} found in collection!`);
-        // Fall 1: Tag ist bereits vorhanden -> ID übernehmen
-        tagId = existingTags[0]._id;
+				// Fall 1: Tag ist bereits vorhanden -> ID übernehmen
+				tagId = existingTags[0]._id;
 				// Funktionierende Interpolation (mit Backticks):
 				console.log(`Tag ID is ${tagId}!`);
-				
-      } else {
-				console.log(`Saving ${tagName} in collection!`);
-        // Fall 2: Tag existiert noch nicht -> Neu anlegen (Query: InsertTag)
-        const insertResult = await InsertTag.run({ tagName: tagName });
-				
-				const freshTags = await FindTag.run({ tagName: tagName });
-        if (freshTags && freshTags.length > 0) {
-          tagId = freshTags[0]._id;
-        }
-				
-				console.log(`Tag ID is ${tagId}!`);
-      }
 
-      // 3. ID zum Ergebnis-Array hinzufügen, wenn erfolgreich ermittelt
-      if (tagId) {
-        tagIds.push(tagId);
-      }
-    }
-		
+			} else {
+				console.log(`Saving ${tagName} in collection!`);
+				// Fall 2: Tag existiert noch nicht -> Neu anlegen (Query: InsertTag)
+				const insertResult = await InsertTag.run({ tagName: tagName });
+
+				const freshTags = await FindTag.run({ tagName: tagName });
+				if (freshTags && freshTags.length > 0) {
+					tagId = freshTags[0]._id;
+				}
+
+				console.log(`Tag ID is ${tagId}!`);
+			}
+
+			// 3. ID zum Ergebnis-Array hinzufügen, wenn erfolgreich ermittelt
+			if (tagId) {
+				tagIds.push(tagId);
+			}
+		}
+
 		console.log("Tag ID array is ", tagIds);
 
-    // Gibt das Array mit allen Object-IDs (bestehend & neu) an den Aufrufer zurück
-    return tagIds;
-  },
-	
+		// Gibt das Array mit allen Object-IDs (bestehend & neu) an den Aufrufer zurück
+		return tagIds;
+	},
+
 	// Funktion 2: Aktualisiert die jeweilige Frage und mergt alte & neue Tags
-  async updateQuestionTags(newTagIds) {
-		
-		showAlert("Updating Question with new tags", "info");
-		
+	async updateQuestionTags(newTagIds) {
+
+		//showAlert("Updating Question with new tags", "info");
+
 		const questionDoc = appsmith.store.question;
-		
-    if (!questionDoc || !questionDoc._id) {
-      throw new Error("Kein gültiges Frage-Dokument übergeben!");
-    }
-		
+
+		if (!questionDoc || !questionDoc._id) {
+			throw new Error("Kein gültiges Frage-Dokument übergeben!");
+		}
+
 		if (!newTagIds || newTagIds.length == 0) {
 			console.log("No tags saved! Due to this there is no need to update the question!");
 			return true;
 		}
-		
+
 		console.log("Question to modify: ", questionDoc);
 
-    // A: Bereits vorhandene Tags aus der Frage holen (falls vorhanden)
-    const existingTags = questionDoc.tags || [];
+		// A: Bereits vorhandene Tags aus der Frage holen (falls vorhanden)
+		const existingTags = questionDoc.tags || [];
 		console.log("Existing tag IDs ", existingTags);
-		showAlert("Existing tags length "+existingTags.length, "info");
+		//showAlert("Existing tags length "+existingTags.length, "info");
 
-    // B: Altes und neues Array mergen und Duplikate (als String verglichen) entfernen
-    const mergedTagsSet = new Set([
-      ...existingTags.map(id => id.toString()),
-      ...newTagIds.map(id => id.toString())
-    ]);
-    
-    const finalTagIds = Array.from(mergedTagsSet);
-		
+		// B: Altes und neues Array mergen und Duplikate (als String verglichen) entfernen
+		const mergedTagsSet = new Set([
+			...existingTags.map(id => id.toString()),
+			...newTagIds.map(id => id.toString())
+		]);
+
+		const finalTagIds = Array.from(mergedTagsSet);
+
 		console.log("Merged tag IDs ", finalTagIds);
-		showAlert("Tags array length "+finalTagIds.length, "info");
+		//showAlert("Tags array length "+finalTagIds.length, "info");
 
-    // C: Anhand des 'origin'-Parameters die richtige Collection-Query auswählen
-    const questionId = questionDoc._id;
-    const origin = questionDoc.origin;
-    let updateResult;
+		// C: Anhand des 'origin'-Parameters die richtige Collection-Query auswählen
+		const questionId = questionDoc._id;
+		const origin = questionDoc.origin;
+		let updateResult;
 
-    if (origin === "iquestion") {
+		if (origin === "iquestion") {
 			console.log("Saving tags in iquestion!", finalTagIds);
-      updateResult = await UpdateIQuestion.run({ 
-        questionId: questionId, 
-        tags: finalTagIds 
-      });
-    } else if (origin === "gemini_query") {
+			updateResult = await UpdateIQuestion.run({ 
+				questionId: questionId, 
+				tags: finalTagIds 
+			});
+		} else if (origin === "gemini_query") {
 			console.log("Saving tags in gemini_query!", finalTagIds);
-      updateResult = await UpdateGeminiQuestion.run({ 
-        questionId: questionId, 
-        tags: finalTagIds 
-      });
-    } else {
-      // Fallback für "question"
+			updateResult = await UpdateGeminiQuestion.run({ 
+				questionId: questionId, 
+				tags: finalTagIds 
+			});
+		} else {
+			// Fallback für "question"
 			console.log("Saving tags in question!", finalTagIds);
-      updateResult = await UpdateQuestion.run({ 
-        questionId: questionId, 
-        tags: finalTagIds 
-      });
-    }
-		
+			updateResult = await UpdateQuestion.run({ 
+				questionId: questionId, 
+				tags: finalTagIds 
+			});
+		}
+
 		console.log("Update result ", updateResult);
-    return {
-      success: true,
-      origin: origin,
-      questionId: questionId,
-      updatedTags: finalTagIds,
-      result: updateResult
-    };
-  },
+		return {
+			success: true,
+			origin: origin,
+			questionId: questionId,
+			updatedTags: finalTagIds,
+			result: updateResult
+		};
+	},
 }
