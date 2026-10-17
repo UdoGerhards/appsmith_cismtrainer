@@ -1,134 +1,134 @@
 export default {
-	  // Speichert den aktuellen Status der Checkboxen
-  selectedOptions: [],
-	
+	// Speichert den aktuellen Status der Checkboxen
+	selectedOptions: [],
+
 	init: async() => {
 		await this.loadAndSaveConfiguration();
-		
+
 		const currentIndex = appsmith.store.currentIndex;
 		const question = appsmith.store.currentQuestions[currentIndex];
-		
+
 		this.shuffleAnswers(question.answers);
-		
+
 		await this.startTimer();
 	}, 
-	
+
 	loadAndSaveConfiguration: async () => {
-    try {
-      // 1. MongoDB-Query ausführen (ersetze 'findConfiguration' mit dem tatsächlichen Namen deiner Query)
-      const data = await loadConfiguration.run();
-      
-      // Prüfen, ob Daten vorhanden sind
-      if (!data || !Array.isArray(data)) {
-        showAlert("Keine Konfigurationsdaten gefunden.", "warning");
-        return;
-      }
+		try {
+			// 1. MongoDB-Query ausführen (ersetze 'findConfiguration' mit dem tatsächlichen Namen deiner Query)
+			const data = await loadConfiguration.run();
 
-      // 2. Durch das Array iterieren und jeden Wert in den Store schreiben
-      // Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
-      for (const item of data) {
-        if (item.name) {
-					showAlert("Configuration - saving '"+item.name+"'", "success");
-          await storeValue(item.name, item.value);
-        }
-      }
-
-      showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
-      
-    } catch (error) {
-      showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
-    }
-  },
-	
-  toggleQuestionBookmark: async (val) => {
-    const bookmark = appsmith.store.bookmark;
-
-    if (bookmark === val) {
-      // Wenn es schon gespeichert ist, lösche es wieder
-      await removeValue('bookmark');
-    } else {
-      // Ansonsten speichere das neue Bookmark
-      await storeValue('bookmark', val);
-    }
-  },
-
-	processInput: async (text) => {
-			if (!text) return;
-
-			const command = text.toLowerCase().trim();
-
-			// 1. Aktuelle Fragen-Daten aus dem Store holen
-			const questions = appsmith.store.currentQuestions || [];
-			const currentIndex = appsmith.store.currentIndex || 0;
-
-			if (!questions[currentIndex]) {
-				showAlert("Keine aktive Frage gefunden!", "error");
-				await resetWidget("Input1", true);
+			// Prüfen, ob Daten vorhanden sind
+			if (!data || !Array.isArray(data)) {
+				showAlert("Keine Konfigurationsdaten gefunden.", "warning");
 				return;
 			}
 
-			let newAnswer = [];
-
-			// 2. Sprachbefehl für Checkbox-Auswahl auswerten (Single-Select)
-			if (command.includes("option a") || command.includes("wahl a") || command.includes(" a ")) {
-				newAnswer = ["A"];
-			} else if (command.includes("option b") || command.includes("wahl b") || command.includes(" b ")) {
-				newAnswer = ["B"];
-			} else if (command.includes("option c") || command.includes("wahl c") || command.includes(" c ")) {
-				newAnswer = ["C"];
-			} else if (command.includes("option d") || command.includes("wahl d") || command.includes(" d ")) {
-				newAnswer = ["D"];
-			} else if (command.includes("löschen") || command.includes("zurücksetzen")) {
-				newAnswer = [];
+			// 2. Durch das Array iterieren und jeden Wert in den Store schreiben
+			// Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
+			for (const item of data) {
+				if (item.name) {
+					showAlert("Configuration - saving '"+item.name+"'", "success");
+					await storeValue(item.name, item.value);
+				}
 			}
 
-			// 3. Antwort im Fragen-Array aktualisieren
-			questions[currentIndex].userAnswer = newAnswer;
+			showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
 
-			// 4. Den Appsmith Store aktualisieren (löst sofortiges UI-Update aus)
-			await storeValue("currentQuestions", questions);
-
-			// 5. BUTTON-STEUERUNG (Aktion ausführen)
-			if (command.includes("speichern") || command.includes("absenden") || command.includes("weiter") || command.includes("button klicken")) {
-				await this.executeButtonAction();
-			}
-
-			// 6. Input-Feld leeren
-			await resetWidget("Input1", true);
-		},
-	
-// Die Funktion für Ihren Button
-  executeButtonAction: async () => {
-    const questions = appsmith.store.currentQuestions || [];
-    const currentIndex = appsmith.store.currentIndex || 0;
-    const currentAnswer = questions[currentIndex]?.userAnswer || [];
-
-    if (currentAnswer.length === 0) {
-      showAlert("Bitte wählen Sie zuerst eine Antwort aus!", "warning");
-      return;
-    }
-
-    // Hier Ihre bestehende Button-Logik aufrufen (z. B. nächste Frage oder Speichern)
-    showAlert(`Antwort '${currentAnswer[0]}' gespeichert!`, "success");
-    
-    // Beispiel: Zur nächsten Frage springen
-    // await storeValue("currentIndex", currentIndex + 1);
-  },
-	
-	shuffleAnswers: async (answers) => {
-		  const sortedAnswers = answers.sort(() => Math.random() - 0.5);
-			const chars = ['A', 'B', 'C', 'D'];
-			sortedAnswers.forEach(async(answer, idx) => {
-					const label = "answer"+chars[idx];
-					await storeValue(label, answer.text, false);
-					await storeValue(label+"_value", answer.type, false);
-			});
+		} catch (error) {
+			showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
+		}
 	},
-	
-  saveUserAnswer: async (selected) => {
+
+	toggleQuestionBookmark: async (val) => {
+		const bookmark = appsmith.store.bookmark;
+
+		if (bookmark === val) {
+			// Wenn es schon gespeichert ist, lösche es wieder
+			await removeValue('bookmark');
+		} else {
+			// Ansonsten speichere das neue Bookmark
+			await storeValue('bookmark', val);
+		}
+	},
+
+	processInput: async (text) => {
+		if (!text) return;
+
+		const command = text.toLowerCase().trim();
+
+		// 1. Aktuelle Fragen-Daten aus dem Store holen
+		const questions = appsmith.store.currentQuestions || [];
+		const currentIndex = appsmith.store.currentIndex || 0;
+
+		if (!questions[currentIndex]) {
+			showAlert("Keine aktive Frage gefunden!", "error");
+			await resetWidget("Input1", true);
+			return;
+		}
+
+		let newAnswer = [];
+
+		// 2. Sprachbefehl für Checkbox-Auswahl auswerten (Single-Select)
+		if (command.includes("option a") || command.includes("wahl a") || command.includes(" a ")) {
+			newAnswer = ["A"];
+		} else if (command.includes("option b") || command.includes("wahl b") || command.includes(" b ")) {
+			newAnswer = ["B"];
+		} else if (command.includes("option c") || command.includes("wahl c") || command.includes(" c ")) {
+			newAnswer = ["C"];
+		} else if (command.includes("option d") || command.includes("wahl d") || command.includes(" d ")) {
+			newAnswer = ["D"];
+		} else if (command.includes("löschen") || command.includes("zurücksetzen")) {
+			newAnswer = [];
+		}
+
+		// 3. Antwort im Fragen-Array aktualisieren
+		questions[currentIndex].userAnswer = newAnswer;
+
+		// 4. Den Appsmith Store aktualisieren (löst sofortiges UI-Update aus)
+		await storeValue("currentQuestions", questions);
+
+		// 5. BUTTON-STEUERUNG (Aktion ausführen)
+		if (command.includes("speichern") || command.includes("absenden") || command.includes("weiter") || command.includes("button klicken")) {
+			await this.executeButtonAction();
+		}
+
+		// 6. Input-Feld leeren
+		await resetWidget("Input1", true);
+	},
+
+	// Die Funktion für Ihren Button
+	executeButtonAction: async () => {
+		const questions = appsmith.store.currentQuestions || [];
+		const currentIndex = appsmith.store.currentIndex || 0;
+		const currentAnswer = questions[currentIndex]?.userAnswer || [];
+
+		if (currentAnswer.length === 0) {
+			showAlert("Bitte wählen Sie zuerst eine Antwort aus!", "warning");
+			return;
+		}
+
+		// Hier Ihre bestehende Button-Logik aufrufen (z. B. nächste Frage oder Speichern)
+		showAlert(`Antwort '${currentAnswer[0]}' gespeichert!`, "success");
+
+		// Beispiel: Zur nächsten Frage springen
+		// await storeValue("currentIndex", currentIndex + 1);
+	},
+
+	shuffleAnswers: async (answers) => {
+		const sortedAnswers = answers.sort(() => Math.random() - 0.5);
+		const chars = ['A', 'B', 'C', 'D'];
+		sortedAnswers.forEach(async(answer, idx) => {
+			const label = "answer"+chars[idx];
+			await storeValue(label, answer.text, false);
+			await storeValue(label+"_value", answer.type, false);
+		});
+	},
+
+	saveUserAnswer: async (selected) => {
 
 		//showAlert(JSON.stringify(selected.widgetName), "info");
-		
+
 		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
 		const userAnswer = appsmith.store[selected.widgetName+"_value"];
 		answerFields.forEach(field => {
@@ -136,313 +136,268 @@ export default {
 				resetWidget(field, false);
 			}
 		});
-		
-		//showAlert(userAnswer);
-		
-		//CheckboxGroup1.selectedValues(selectedValues);
-		
-    const currentIndex = appsmith.store.currentIndex;
-    const questions = [...appsmith.store.currentQuestions];
 
-    const rightAnswer = questions[currentIndex].correct;
-    const isCorrect = (rightAnswer.trim() === userAnswer.trim());
-		
+		//showAlert(userAnswer);
+
+		//CheckboxGroup1.selectedValues(selectedValues);
+
+		const currentIndex = appsmith.store.currentIndex;
+		const questions = [...appsmith.store.currentQuestions];
+
+		const rightAnswer = questions[currentIndex].correct;
+		const isCorrect = (rightAnswer.trim() === userAnswer.trim());
+
 		console.log("Types:", typeof rightAnswer, typeof userAnswer);
 		console.log("JSON:", JSON.stringify(rightAnswer), JSON.stringify(userAnswer));
-		
+
 		//showAlert("right: "+rightAnswer+", user: "+userAnswer+", is correct "+isCorrect+" len right: "+rightAnswer.length + ", len user: "+userAnswer.length);
 
-    // 1. Speichern
-    questions[currentIndex].userAnswer = userAnswer;
-    questions[currentIndex].isCorrect = isCorrect;
+		// 1. Speichern
+		questions[currentIndex].userAnswer = userAnswer;
+		questions[currentIndex].isCorrect = isCorrect;
 
-    //console.log("Value: ", rightAnswer, userAnswer, isCorrect);
+		//console.log("Value: ", rightAnswer, userAnswer, isCorrect);
 		//console.log("Question ", questions[currentIndex]);
 
-    await storeValue("currentQuestions", questions);
-  },
+		await storeValue("currentQuestions", questions);
+	},
 
-  goTo: async (page) => {
-    navigateTo(page, {}, 'SAME_WINDOW');
-  },
-	
+	goTo: async (page) => {
+		navigateTo(page, {}, 'SAME_WINDOW');
+	},
+
 	proceedWithGeminExplanation: async() => {
 		const geminiExplain = appsmith.store.geminiExplain;
 		const moveToPage = appsmith.store.moveToPage;
 		if (!moveToPage && geminiExplain !== undefined && geminiExplain !== null && geminiExplain === true) {
-      await this.processGeminiExplain();
+			await this.processGeminiExplain();
 			await storeValue("moveToPage", true, false);
-    } else {
+		} else {
 			await removeValue("moveToPage");
 			if(geminiExplain !== undefined || geminiExplain !== null || geminiExplain === false) {
 				await storeValue("moveToPage", true, false);
 			}
 		}
-			this.proceed("Evaluation");
+		this.proceed("Evaluation");
 	},
-	
-  proceed: async (page) => {
-		
-		resetWidget("RichTextEditor1");
-		
-    // 1. Speichere zuerst die Metadaten (Kommentar/Bookmark) der AKTUELLEN Frage
-    await this.saveQuestionMeta();
 
-    const currentIndex = appsmith.store.currentIndex;
-    const questions = [...appsmith.store.currentQuestions];
-		
+	proceed: async (page) => {
+
+		resetWidget("RichTextEditor1");
+
+		// 1. Speichere zuerst die Metadaten (Kommentar/Bookmark) der AKTUELLEN Frage
+		await this.saveQuestionMeta();
+
+		// Aktuellen Stand in der DB sichern!
+		this.cacheTest();
+
+		const currentIndex = appsmith.store.currentIndex;
+		const questions = [...appsmith.store.currentQuestions];
+
 		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
 		answerFields.forEach(field => {
-				removeValue(field);
-				removeValue(field+"_value");
-				resetWidget(field, false);
+			removeValue(field);
+			removeValue(field+"_value");
+			resetWidget(field, false);
 		});
-			
+
 		//showAlert("currentIndex: "+currentIndex, "info");
-		
-    // 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
-    if (currentIndex < questions.length - 1) {
-      const nextIndex = currentIndex + 1; // Der Index der NÄCHSTEN Frage
-      //const nextQuestionId = questions[nextIndex]._id;
+
+		// 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
+		if (currentIndex < questions.length - 1) {
+			const nextIndex = currentIndex + 1; // Der Index der NÄCHSTEN Frage
+			//const nextQuestionId = questions[nextIndex]._id;
 			const answers = questions[nextIndex].answers;
 			this.shuffleAnswers(answers);
 
-      // Nächste Frage einblenden (Index erhöhen)
-      await storeValue("currentIndex", nextIndex);
+			// Nächste Frage einblenden (Index erhöhen)
+			await storeValue("currentIndex", nextIndex);
 
-      // Bereits gespeicherte Antwort für die nächste Frage laden
-      //const nextAnswer = questions[nextIndex].userAnswer || [];
-      //await storeValue("selectedAnswers", nextAnswer);
-
-      // Frisch geladene Kommentare holen
-      //await Tags.run();
-
-      // WICHTIG: Nach der NÄCHSTEN Frage suchen (nextQuestionId oder nextIndex)
-      //const existingTags = Tags.data?.find(b => b.questionId === nextQuestionId);
-      /*
-      if (Array.isArray(existingTags)) {
-        console.log("Setze tags: ", existingTags);
-        await storeValue("tagsList", existingTags);
-      } else {
-        console.log("Lösche tags");
-        await storeValue("tagsList", []);
-      }*/
-
-    } else {
+		} else {
 			//showAlert("Switch to next page", "info");
-      const questionIds = questions.map(q => q._id);
-      await storeValue('questionIds', questionIds, false);
+			const questionIds = questions.map(q => q._id);
+			await storeValue('questionIds', questionIds, false);
 
-      this.getResults();
-      this.goTo(page);
-    }
-  },
-  saveQuestionMeta: async () => {
-    const currentIndex = appsmith.store.currentIndex;
-    const questions = [...appsmith.store.currentQuestions];
-    const currentQuestionId = questions[currentIndex]._id;
-    
-    // === BOOKMARKS ===
-    await Bookmarks.run();
-    const bookmark = appsmith.store.bookmark;
-    const existingBookmark = Bookmarks.data?.find(b => b.questionId === currentQuestionId);
+			this.dropTestCache();
+			this.getResults();
+			this.goTo(page);
+		}
+	},
+	saveQuestionMeta: async () => {
+		const currentIndex = appsmith.store.currentIndex;
+		const questions = [...appsmith.store.currentQuestions];
+		const currentQuestionId = questions[currentIndex]._id;
 
-    if (bookmark) {
-      questions[currentIndex].bookmark = bookmark;
-      if (!existingBookmark) {
-        console.log("Insert bookmark for question: ", currentQuestionId);
-        await InsertBookmark.run({qId: currentQuestionId});
-      }
-    } else {
-      questions[currentIndex].bookmark = false;
-      if (existingBookmark) {
-        console.log("Delete bookmark for question: ", currentQuestionId);
-        await DeleteBookmark.run({qId: currentQuestionId});
-      }
-    }
+		// === BOOKMARKS ===
+		await Bookmarks.run();
+		const bookmark = appsmith.store.bookmark;
+		const existingBookmark = Bookmarks.data?.find(b => b.questionId === currentQuestionId);
 
-    await removeValue('bookmark');
-    await resetWidget("Checkbox1", false);
+		if (bookmark) {
+			questions[currentIndex].bookmark = bookmark;
+			if (!existingBookmark) {
+				console.log("Insert bookmark for question: ", currentQuestionId);
+				await InsertBookmark.run({qId: currentQuestionId});
+			}
+		} else {
+			questions[currentIndex].bookmark = false;
+			if (existingBookmark) {
+				console.log("Delete bookmark for question: ", currentQuestionId);
+				await DeleteBookmark.run({qId: currentQuestionId});
+			}
+		}
 
-    /*
-    await Tags.run();
-    const existingTags = Tags.data?.find(b => b.questionId === currentQuestionId);
+		await removeValue('bookmark');
+		await resetWidget("Checkbox1", false);
+	},
 
-    console.log(tags);
+	startTimer: async () => {
+		// Falls bereits ein Timer läuft, diesen stoppen
+		if (appsmith.store.timerInterval) {
+			clearInterval(appsmith.store.timerInterval);
+		}
 
-    if (Array.isArray(tags) && tags.length > 0) {
-      questions[currentIndex].tags = tags;
+		// Minuten aus dem Store holen (Standardwert 5, falls leer oder ungültig)
+		const totalMinutes = Number(appsmith.store.mins) || 5;
+		const totalSeconds = totalMinutes * 60;
 
-      if (!existingTags) {
-        console.log("Insert tags for question: ", currentQuestionId);
-        await InsertTags.run({
-          qId: currentQuestionId,
-          tags: tags
-        });
-      } else {
-        console.log("Updating tags for questioni: ", currentQuestionId);
-        await UpdateTags.run({
-          qId: currentQuestionId, // z.B. Table1.selectedRow._id oder eine Variable
-          tags: tags           // Das Array aus dem Custom Widget
-        });
-      }
-    } else {
-      delete questions[currentIndex].tags;
-      if (existingTags) {
-        console.log("Delete tags for question: ", currentQuestionId);
-        await DeleteTags.run({qId: currentQuestionId});
-      }
-    }
-		*/
-  },
+		// Initialisiere die Restzeit in Sekunden
+		await storeValue("timeLeft", totalSeconds);
 
-  startTimer: async () => {
-    // Falls bereits ein Timer läuft, diesen stoppen
-    if (appsmith.store.timerInterval) {
-      clearInterval(appsmith.store.timerInterval);
-    }
+		const intervalId = setInterval(async () => {
+			const currentTime = appsmith.store.timeLeft;
 
-    // Minuten aus dem Store holen (Standardwert 5, falls leer oder ungültig)
-    const totalMinutes = Number(appsmith.store.mins) || 5;
-    const totalSeconds = totalMinutes * 60;
+			if (currentTime > 0) {
+				await storeValue("timeLeft", currentTime - 1);
+			} else {
+				// Zeit abgelaufen!
+				clearInterval(appsmith.store.timerInterval);
+				await storeValue("timerInterval", null);
 
-    // Initialisiere die Restzeit in Sekunden
-    await storeValue("timeLeft", totalSeconds);
+				const page = "Evaluation";
 
-    const intervalId = setInterval(async () => {
-      const currentTime = appsmith.store.timeLeft;
+				this.getResults();
+				this.goTo(page);
 
-      if (currentTime > 0) {
-        await storeValue("timeLeft", currentTime - 1);
-      } else {
-        // Zeit abgelaufen!
-        clearInterval(appsmith.store.timerInterval);
-        await storeValue("timerInterval", null);
+				// Optional: Automatisch zur Auswertung navigieren
+				navigateTo('Evaluation', {}, 'SAME_WINDOW');
+			}
+		}, 1000); // Jede Sekunde (-1 Sekunde)
 
-        const page = "Evaluation";
+		// Interval-ID im Store speichern
+		await storeValue("timerInterval", intervalId);
+	},
 
-        this.getResults();
-        this.goTo(page);
+	// Timer anhalten und Restzeit im Store behalten
+	pauseTimer: async () => {
+		if (appsmith.store.timerInterval) {
+			clearInterval(appsmith.store.timerInterval);
+			await storeValue("timerInterval", null);
+		}
+	},
 
-        // Optional: Automatisch zur Auswertung navigieren
-        navigateTo('Evaluation', {}, 'SAME_WINDOW');
-      }
-    }, 1000); // Jede Sekunde (-1 Sekunde)
+	// Timer an exakt derselben Stelle fortsetzen
+	resumeTimer: async () => {
+		// Verhindern, dass mehrere Intervalle gleichzeitig laufen
+		if (appsmith.store.timerInterval) return;
 
-    // Interval-ID im Store speichern
-    await storeValue("timerInterval", intervalId);
-  },
+		const currentTime = appsmith.store.timeLeft;
 
-// Timer anhalten und Restzeit im Store behalten
-  pauseTimer: async () => {
-    if (appsmith.store.timerInterval) {
-      clearInterval(appsmith.store.timerInterval);
-      await storeValue("timerInterval", null);
-    }
-  },
+		// Wenn keine Zeit mehr da ist, nicht starten
+		if (currentTime === undefined || currentTime <= 0) return;
 
-  // Timer an exakt derselben Stelle fortsetzen
-  resumeTimer: async () => {
-    // Verhindern, dass mehrere Intervalle gleichzeitig laufen
-    if (appsmith.store.timerInterval) return;
+		const intervalId = setInterval(async () => {
+			const current = appsmith.store.timeLeft;
 
-    const currentTime = appsmith.store.timeLeft;
+			if (current > 0) {
+				await storeValue("timeLeft", current - 1);
+			} else {
+				// Zeit abgelaufen!
+				clearInterval(appsmith.store.timerInterval);
+				await storeValue("timerInterval", null);
 
-    // Wenn keine Zeit mehr da ist, nicht starten
-    if (currentTime === undefined || currentTime <= 0) return;
+				this.getResults();
+				this.goTo('Evaluation'); // Seite entsprechend anpassen falls nötig
+			}
+		}, 1000);
 
-    const intervalId = setInterval(async () => {
-      const current = appsmith.store.timeLeft;
+		await storeValue("timerInterval", intervalId);
+	},
 
-      if (current > 0) {
-        await storeValue("timeLeft", current - 1);
-      } else {
-        // Zeit abgelaufen!
-        clearInterval(appsmith.store.timerInterval);
-        await storeValue("timerInterval", null);
+	// Schalter-Logik: Entscheidet ob Pause oder Weiterlaufen
+	toggleTimer: async (isSwitchedOn) => {
+		if (isSwitchedOn) {
+			await this.resumeTimer();
+		} else {
+			await this.pauseTimer();
+		}
+	},
 
-        this.getResults();
-        this.goTo('Evaluation'); // Seite entsprechend anpassen falls nötig
-      }
-    }, 1000);
+	formatTime: (seconds) => {
+		if (seconds === undefined || seconds === null) return "00:00";
+		const mins = Math.floor(seconds / 60);
+		const secs = seconds % 60;
+		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+	},
 
-    await storeValue("timerInterval", intervalId);
-  },
+	getResults: async () => {
+		const questions = appsmith.store.currentQuestions || [];
 
-  // Schalter-Logik: Entscheidet ob Pause oder Weiterlaufen
-  toggleTimer: async (isSwitchedOn) => {
-    if (isSwitchedOn) {
-      await this.resumeTimer();
-    } else {
-      await this.pauseTimer();
-    }
-  },
+		console.log(questions);
 
-  formatTime: (seconds) => {
-    if (seconds === undefined || seconds === null) return "00:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  },
+		// 1. Zähle die korrekten Antworten (Feld 'correct' ist true)
+		const correctCount = questions.filter(q => q.isCorrect === true).length;
 
-  getResults: async () => {
-    const questions = appsmith.store.currentQuestions || [];
+		// 2. Zähle den Rest (Feld 'correct' ist false ODER existiert nicht)
+		const incorrectCount = questions.filter(q => q.isCorrect !== true).length;
 
-    console.log(questions);
+		const questioncount = appsmith.store.nrquestions;
+		const minutes = appsmith.store.mins;
 
-    // 1. Zähle die korrekten Antworten (Feld 'correct' ist true)
-    const correctCount = questions.filter(q => q.isCorrect === true).length;
+		const report = {
+			"questions": questions,
+			"correct": correctCount,
+			"incorrect": incorrectCount,
+			"name": appsmith.store.title,
+			"test_executed_by": appsmith.store.user,
+			"finsihed": moment().format("DD.MM.YYYY HH:mm"),
+			"nature": appsmith.store.nature,
+			"questioncount": questioncount,
+			"minutes": minutes,
+			"domains": appsmith.store.domains
+		};
 
-    // 2. Zähle den Rest (Feld 'correct' ist false ODER existiert nicht)
-    const incorrectCount = questions.filter(q => q.isCorrect !== true).length;
+		storeValue('report', report, false);
 
-    const questioncount = appsmith.store.nrquestions;
-    const minutes = appsmith.store.mins;
+		console.log(report);
+	},
 
-    const report = {
-      "questions": questions,
-      "correct": correctCount,
-      "incorrect": incorrectCount,
-      "name": appsmith.store.title,
-      "test_executed_by": appsmith.store.user,
-      "finsihed": moment().format("DD.MM.YYYY HH:mm"),
-      "nature": appsmith.store.nature,
-      "questioncount": questioncount,
-      "minutes": minutes,
-      "domains": appsmith.store.domains
-    };
-
-    storeValue('report', report, false);
-
-    console.log(report);
-  },
-
-  processGeminiExplain: async() => {
+	processGeminiExplain: async() => {
 
 		showAlert("Evaluierung mit Gemini!!");
-		
+
 		const timerOn = Switch1.isSwitchedOn;
 
 		if (timerOn) {
-    	await this.toggleTimer(false);
+			await this.toggleTimer(false);
 		}
-		
+
 		const currentIndex = appsmith.store.currentIndex;
-    const questions = [...appsmith.store.currentQuestions];
+		const questions = [...appsmith.store.currentQuestions];
 		const question = questions[currentIndex];
-		
+
 		console.log(question);
-		
+
 		const existingResult = await FindExplanation.run({
-  		qId: String(question._id)
+			qId: String(question._id)
 		});
-		
+
 		let evaluationText = null;
 		// 2. Auswerten
 		if (existingResult && existingResult.length > 0) {
-				
+
 			showAlert("Bereits gespeicherte Evaluierung in Datenbank gefunden ... ");
-			
+
 			// Es gibt bereits einen Eintrag -> Text direkt aus der DB nehmen
 			evaluationText = existingResult[0].text;
 
@@ -450,7 +405,7 @@ export default {
 		} else {
 
 			showAlert("Evaluaiere mit Gemini ...");
-			
+
 			// 1. Extrahiere und sortiere die Antworten alphabetisch nach 'type' (A, B, C, D)
 			const sortedAnswers = [...question.answers].sort((a, b) => a.type.localeCompare(b.type));
 
@@ -492,15 +447,15 @@ export default {
 
 			console.log(promptMessage);
 			const response = await GeminiAPI.run({ 
-					bodyPayload: promptMessage 
-				});
-			
+				bodyPayload: promptMessage 
+			});
+
 			showAlert("Evaluierung mit Gemini abgeschlossen ...");
 
 			const parts = response.candidates?.[0]?.content?.parts;
 			evaluationText = parts 
 				? parts.map(p => p.text).join('') 
-				: response.output;
+			: response.output;
 
 			showAlert("Speicher Evaluierung in Datenbank ...");
 			await InsertExplanation.run({
@@ -508,17 +463,17 @@ export default {
 				explText: evaluationText
 			});
 		}
-		
+
 		await storeValue("questionGeminiExplanation", evaluationText, false);
 		question.gemintExplanation = evaluationText;
-		
+
 		if (timerOn) {
-    	await this.toggleTimer(true);
+			await this.toggleTimer(true);
 		}
-		
+
 		return question;
-  },
-	
+	},
+
 	toggleGeminiExplanation: async(switchedOn) => {
 		if (switchedOn) {
 			await storeValue("geminiExplain", Switch1.isSwitchedOn, false);
@@ -527,5 +482,73 @@ export default {
 			await removeValue("geminiExplain");
 			await storeValue("moveToPage", "Evaluation", false);
 		}
+	},
+
+	cacheTest: async() => {
+		const currentIndex = appsmith.store.currentIndex;
+		const questions = [...appsmith.store.currentQuestions];
+		const currentTime = appsmith.store.timeLeft;
+		const testCacheId = appsmith.store.testCacheId;
+
+		const testStatus = {
+				cuIdx: currentIndex,
+				questions: questions,
+				timeLeft: currentTime
+		};
+		
+		let ret = false;
+
+		try {
+			let response = null;
+			if (testCacheId) {
+				
+				testStatus._id = { "$oid": testCacheId };
+				response = await CurrentTestUpdate.run({doc: testStatus});
+				
+			} else  {
+				
+				const timestamp = (new Date().getTime() / 1000 | 0).toString(16);
+				const generatedId = timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => (Math.random() * 16 | 0).toString(16)).toLowerCase();
+				testStatus._id = { "$oid": generatedId };
+				
+				response = await CurrentTestInsert.run({doc: testStatus});				
+				await storeValue('testCacheId', generatedId );
+			}	
+
+			if (response && (response.n === 1 || response.nModified === 1)) {
+				//showAlert("Erfolgreich gespeichert!", "success");
+				ret = true;
+			} else {
+				//showAlert("Der Befehl wurde nicht erfolgreich ausgeführt.", "warning");
+				ret = false;
+			}
+			
+		} catch(e){
+			showAlert("Fehler beim Zwischenspeichern des aktuellen Test-Zwischenstandes: " + e.message, "error");
+			console.error(e);
+		}
+
+		return ret
+	},
+
+	dropTestCache: async() => {
+		let ret = false;
+
+		try {
+			const result = await CurrentTestDelete.run();
+
+			if (result && result.n >= 1) {
+				showAlert("Test cache wurde erfolgreich zurückgesetzt!", "success");
+				ret = true;
+			} else {
+				showAlert("Test cache konnte nicht zurückgesetzt werden!", "warning");
+				ret = false;
+			}
+		} catch (e) {
+			showAlert("Fehler beim Zurücksetzen (dropen) des Test Cache: " + e.message, "error");
+			console.error(e);
+		}
+
+		return ret;
 	}
 }

@@ -15,6 +15,9 @@
             "data": "10"
           }
         },
+        "body": {
+          "data": "{\n  \"insert\": \"aicache\",\n  \"documents\": {{ this.params.doc }}\n}\n"
+        },
         "collection": {
           "data": "aicache"
         },
@@ -101,6 +104,9 @@
       },
       {
         "key": "formData.insert.documents.data"
+      },
+      {
+        "key": "formData.body.data"
       }
     ],
     "name": "InsertAICache",
