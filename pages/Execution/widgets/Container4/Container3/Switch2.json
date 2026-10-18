@@ -42,7 +42,7 @@
   "mobileTopRow": 2,
   "needsErrorInfo": false,
   "onChange": "{{TestSource.toggleGeminiExplanation(Switch2.isSwitchedOn)}}",
-  "originalBottomRow": 6,
+  "originalBottomRow": 7,
   "originalTopRow": 2,
   "parentColumnSpace": 32.25,
   "parentId": "6n3jb2wr15",
