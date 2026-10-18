@@ -484,6 +484,7 @@ export default {
 		}
 	},
 
+	/*
 	cacheTest: async() => {
 		const currentIndex = appsmith.store.currentIndex;
 		const questions = [...appsmith.store.currentQuestions];
@@ -530,8 +531,64 @@ export default {
 
 		return ret
 	},
+	*/
+	
+	cacheTest: async () => {
+		
+		return true;
+
+    try {
+        // Sichere Abfrage der Store-Werte mit Fallbacks, falls etwas undefined ist
+        const currentIndex = appsmith.store.currentIndex ?? 0;
+        const questions = Array.isArray(appsmith.store.currentQuestions) 
+            ? [...appsmith.store.currentQuestions] 
+            : [];
+        const currentTime = appsmith.store.timeLeft ?? 0;
+        const testCacheId = appsmith.store.testCacheId;
+
+        const testStatus = {
+            cuIdx: currentIndex,
+            questions: questions,
+            timeLeft: currentTime
+        };
+        
+        let response = null;
+        
+        if (testCacheId) {
+            testStatus._id = { "$oid": testCacheId };
+            // Hier passiert der Netzwerkaufruf
+            response = await CurrentTestUpdate.run({ doc: testStatus });
+        } else {
+            const timestamp = (new Date().getTime() / 1000 | 0).toString(16);
+            const generatedId = timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => (Math.random() * 16 | 0).toString(16)).toLowerCase();
+            testStatus._id = { "$oid": generatedId };
+            
+            response = await CurrentTestInsert.run({ doc: testStatus });                
+            await storeValue('testCacheId', generatedId);
+        }   
+
+        // Prüfen der Antwort
+        if (response && (response.n === 1 || response.nModified === 1)) {
+            return true;
+        } else {
+					  showAlert("Speicherung war nicht erfolgreich!!", "warning");
+            console.warn("Speichern war nicht erfolgreich:", response);
+            return false;
+        }
+        
+    } catch (e) {
+        // Detailliertes Logging in der Konsole zur Fehleranalyse
+        console.error("Fehler beim Zwischenspeichern:", e);
+        showAlert("Fehler beim Zwischenspeichern: " + (e.message || "Unbekannter Fehler"), "error");
+        return false;
+    }
+},
 
 	dropTestCache: async() => {
+		
+			return true;
+		
+		
 		let ret = false;
 
 		try {
