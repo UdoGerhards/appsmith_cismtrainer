@@ -31,11 +31,15 @@
       "isDefault": true
     },
     {
-      "id": "Test old",
+      "id": "Quiz",
       "isDefault": false
     },
     {
       "id": "Quiz Execution",
+      "isDefault": false
+    },
+    {
+      "id": "Test",
       "isDefault": false
     },
     {
@@ -55,11 +59,7 @@
       "isDefault": false
     },
     {
-      "id": "Quiz",
-      "isDefault": false
-    },
-    {
-      "id": "Test",
+      "id": "Test old",
       "isDefault": false
     }
   ],
