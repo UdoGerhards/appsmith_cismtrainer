@@ -1,0 +1,42 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "bottomRow": 14,
+  "boxShadow": "none",
+  "defaultSwitchState": false,
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicTriggerPathList": [],
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "pd9p6lic4g",
+  "label": "Nur fehlerhaft beantworte Fragen anzeigen:",
+  "labelPosition": "Left",
+  "leftColumn": 2,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 6,
+  "mobileLeftColumn": 2,
+  "mobileRightColumn": 14,
+  "mobileTopRow": 2,
+  "needsErrorInfo": false,
+  "originalBottomRow": 10,
+  "originalTopRow": 2,
+  "parentColumnSpace": 13.09375,
+  "parentId": "k0qut96gcl",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 28,
+  "topRow": 10,
+  "type": "SWITCH_WIDGET",
+  "version": 1,
+  "widgetId": "xuy2f10hw9",
+  "widgetName": "ErrorOnly"
+}

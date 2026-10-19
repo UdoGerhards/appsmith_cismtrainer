@@ -1,4 +1,12 @@
 export default {
+	
+	allDomains: [
+			{id: 1, label: "Domain 1 - Information Security Governance", checked: true, value: 18},
+			{id: 1, label: "Domain 2 - Information Security Risk Management", checked: true, value: 28},
+			{id: 1, label: "Domain 3 - Information Security Program Development and Management", checked: true, value: 33},
+			{id: 1, label: "Domain 4 - Information Security Incident Management", checked: true, value: 29}
+		],
+	
 	resetAll: async () => {
 		// Löscht den gesamten Appsmith-Store
 		await clearStore();
@@ -18,10 +26,10 @@ export default {
 		await GetDomain.run();
 
 		const domainConfig = {
-			"Domain 1 - Information Security Governance": 24,
-			"Domain 2 - Information Security Risk Management": 34,
-			"Domain 3 - Information Security Program Development and Management": 25,
-			"Domain 4 - Information Security Incident Management": 17
+			"Domain 1 - Information Security Governance": 18,
+			"Domain 2 - Information Security Risk Management": 20,
+			"Domain 3 - Information Security Program Development and Management": 33,
+			"Domain 4 - Information Security Incident Management": 29
 		}
 
 		await storeValue("domainConfig", domainConfig, false);
@@ -466,7 +474,7 @@ export default {
 		console.log("Value custom widget: ", Number(Custom1.model.value))
 
 		await removeValue("moveToNextPage");
-		if (currQuestionsCount === questionCountReq) {
+		if (currQuestionsCount >= questionCountReq) {
 			await storeValue("buttonLabelIcon", true, false);
 			await storeValue("moveToNextPage", true, false);
 		} else {
@@ -569,5 +577,9 @@ export default {
 			showAlert("Fehler: " + error.message);
 			return [];
 		}
+	},
+	
+	calcQuestions: async() => {
+		
 	}
 }

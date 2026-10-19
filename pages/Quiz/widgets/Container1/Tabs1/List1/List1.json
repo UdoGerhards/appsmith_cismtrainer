@@ -9,7 +9,7 @@
   "animateLoading": true,
   "backgroundColor": "transparent",
   "borderRadius": "0px",
-  "bottomRow": 37,
+  "bottomRow": 38,
   "boxShadow": "none",
   "children": [
     {
@@ -100,8 +100,8 @@
   "mobileRightColumn": 25,
   "mobileTopRow": 12,
   "needsErrorInfo": false,
-  "originalBottomRow": 37,
-  "originalTopRow": 10,
+  "originalBottomRow": 38,
+  "originalTopRow": 11,
   "pageSize": 4,
   "parentColumnSpace": 33,
   "parentId": "z187up762i",
@@ -113,7 +113,7 @@
   "rightColumn": 64,
   "selectedItemView": "{{{}}}",
   "templateHeight": 160,
-  "topRow": 10,
+  "topRow": 11,
   "triggeredItemView": "{{{}}}",
   "type": "LIST_WIDGET_V2",
   "widgetId": "rgwskipoh4",

@@ -1,0 +1,64 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "borderColor": "#E0DEDE",
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "borderWidth": "1",
+  "bottomRow": 35,
+  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "defaultModel": "{\n  \"tips\": [\n    \"Pass data to this widget in the default model field\",\n    \"Access data in the javascript file using the appsmith.model variable\",\n    \"Create events in the widget and trigger them in the javascript file using appsmith.triggerEvent('eventName')\",\n    \"Access data in CSS as var(--appsmith-model-{property-name})\"\n  ]\n}",
+  "dynamicBindingPathList": [
+    {
+      "key": "theme"
+    },
+    {
+      "key": "borderRadius"
+    },
+    {
+      "key": "boxShadow"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicTriggerPathList": [
+    {
+      "key": "onResetClick"
+    }
+  ],
+  "events": [
+    "onResetClick"
+  ],
+  "isCanvas": false,
+  "isLoading": false,
+  "isSearchWildcard": true,
+  "isVisible": true,
+  "key": "cljg5jzvhx",
+  "leftColumn": 31,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 35,
+  "mobileLeftColumn": 31,
+  "mobileRightColumn": 54,
+  "mobileTopRow": 5,
+  "needsErrorInfo": false,
+  "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+  "parentColumnSpace": 31.8642578125,
+  "parentId": "q33ckmd6t6",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 54,
+  "srcDoc": {
+    "css": "body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 8px;\n  background-color: transparent;\n}\n\n.container {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n\n.row-item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n\n.checkbox-label {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  cursor: pointer;\n  user-select: none;\n}\n\n.text-input {\n  padding: 4px 8px;\n  border: 1px solid #ccc;\n  border-radius: 4px;\n  font-size: 14px;\n  outline: none;\n}\n\n.text-input:focus {\n  border-color: #f95959; /* Anpassbar an dein Appsmith-Thema */\n}",
+    "html": "<div id=\"app\" class=\"container\"></div>\n",
+    "js": "// Lausche auf Daten, die von Appsmith kommen\nwindow.appsmith.onReady(() => {\n  window.appsmith.onModelChange(model => {\n    render(model.list);\n  });\n});\nfunction render(items) {\n  const container = document.getElementById(\"app\");\n  container.innerHTML = \"\"; // Container leeren\n\n  if (!items || !Array.isArray(items)) return;\n  items.forEach((item, index) => {\n    const wrapper = document.createElement(\"div\");\n    wrapper.className = \"row-item\";\n\n    // 1. Checkbox & Label\n    const label = document.createElement(\"label\");\n    label.className = \"checkbox-label\";\n    const checkbox = document.createElement(\"input\");\n    checkbox.type = \"checkbox\";\n    checkbox.checked = !!item.checked;\n    checkbox.onchange = e => {\n      item.checked = e.target.checked;\n      updateAppsmith(items);\n    };\n    const textSpan = document.createElement(\"span\");\n    textSpan.innerText = item.label;\n    label.appendChild(checkbox);\n    label.appendChild(textSpan);\n    wrapper.appendChild(label);\n\n    // 2. Input-Feld (wird nur angezeigt, wenn Checkbox aktiv ist - optional)\n    // Wenn es immer sichtbar sein soll, diesen 'if'-Block oder die Klasse anpassen.\n    const input = document.createElement(\"input\");\n    input.type = \"text\";\n    input.className = \"text-input\";\n    input.placeholder = \"Wert eingeben...\";\n    input.value = item.value || \"\";\n\n    // Optional: Ein-/Ausblenden basierend auf dem Checkbox-Status\n    input.style.display = item.checked ? \"inline-block\" : \"none\";\n    input.oninput = e => {\n      item.value = e.target.value;\n      updateAppsmith(items);\n    };\n    wrapper.appendChild(input);\n    container.appendChild(wrapper);\n  });\n}\n\n// Daten zurück an Appsmith senden\nfunction updateAppsmith(items) {\n  window.appsmith.triggerModelUpdate({\n    list: items\n  });\n}"
+  },
+  "theme": "{{appsmith.theme}}",
+  "topRow": 5,
+  "type": "CUSTOM_WIDGET",
+  "uncompiledSrcDoc": {
+    "css": "body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 8px;\n  background-color: transparent;\n}\n\n.container {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n\n.row-item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n}\n\n.checkbox-label {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  cursor: pointer;\n  user-select: none;\n}\n\n.text-input {\n  padding: 4px 8px;\n  border: 1px solid #ccc;\n  border-radius: 4px;\n  font-size: 14px;\n  outline: none;\n}\n\n.text-input:focus {\n  border-color: #f95959; /* Anpassbar an dein Appsmith-Thema */\n}",
+    "html": "<div id=\"app\" class=\"container\"></div>\n",
+    "js": "// Lausche auf Daten, die von Appsmith kommen\nwindow.appsmith.onReady(() => {\n  window.appsmith.onModelChange((model) => {\n    render(model.list);\n  });\n});\n\nfunction render(items) {\n  const container = document.getElementById(\"app\");\n  container.innerHTML = \"\"; // Container leeren\n\n  if (!items || !Array.isArray(items)) return;\n\n  items.forEach((item, index) => {\n    const wrapper = document.createElement(\"div\");\n    wrapper.className = \"row-item\";\n\n    // 1. Checkbox & Label\n    const label = document.createElement(\"label\");\n    label.className = \"checkbox-label\";\n\n    const checkbox = document.createElement(\"input\");\n    checkbox.type = \"checkbox\";\n    checkbox.checked = !!item.checked;\n    checkbox.onchange = (e) => {\n      item.checked = e.target.checked;\n      updateAppsmith(items);\n    };\n\n    const textSpan = document.createElement(\"span\");\n    textSpan.innerText = item.label;\n\n    label.appendChild(checkbox);\n    label.appendChild(textSpan);\n    wrapper.appendChild(label);\n\n    // 2. Input-Feld (wird nur angezeigt, wenn Checkbox aktiv ist - optional)\n    // Wenn es immer sichtbar sein soll, diesen 'if'-Block oder die Klasse anpassen.\n    const input = document.createElement(\"input\");\n    input.type = \"text\";\n    input.className = \"text-input\";\n    input.placeholder = \"Wert eingeben...\";\n    input.value = item.value || \"\";\n    \n    // Optional: Ein-/Ausblenden basierend auf dem Checkbox-Status\n    input.style.display = item.checked ? \"inline-block\" : \"none\";\n\n    input.oninput = (e) => {\n      item.value = e.target.value;\n      updateAppsmith(items);\n    };\n\n    wrapper.appendChild(input);\n    container.appendChild(wrapper);\n  });\n}\n\n// Daten zurück an Appsmith senden\nfunction updateAppsmith(items) {\n  window.appsmith.triggerModelUpdate({ list: items });\n}"
+  },
+  "version": 1,
+  "widgetId": "cip3xt9zqt",
+  "widgetName": "Custom2"
+}

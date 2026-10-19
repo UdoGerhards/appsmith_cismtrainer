@@ -1,0 +1,68 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "animateLoading": true,
+  "bottomRow": 48,
+  "defaultValue": "{{appsmith.store.maxCountQuestions}}",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "max"
+    },
+    {
+      "key": "defaultValue"
+    }
+  ],
+  "dynamicTriggerPathList": [],
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "l10wizciw7",
+  "labelAlignment": "left",
+  "labelPosition": "Top",
+  "labelText": "Anzahl",
+  "labelTextSize": "0.875rem",
+  "labelWidth": 8,
+  "leftColumn": 22,
+  "marks": [
+    {
+      "label": "25%",
+      "value": 25
+    },
+    {
+      "label": "50%",
+      "value": 50
+    },
+    {
+      "label": "75%",
+      "value": 75
+    }
+  ],
+  "max": "{{appsmith.store.maxCountQuestions}}",
+  "min": "1",
+  "mobileBottomRow": 50,
+  "mobileLeftColumn": 17,
+  "mobileRightColumn": 57,
+  "mobileTopRow": 42,
+  "needsErrorInfo": false,
+  "originalBottomRow": 48,
+  "originalTopRow": 43,
+  "parentColumnSpace": 31.140625,
+  "parentId": "k0qut96gcl",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 53,
+  "shouldScroll": false,
+  "shouldTruncate": false,
+  "showMarksLabel": true,
+  "sliderSize": "m",
+  "step": "1",
+  "tooltipAlwaysOn": false,
+  "topRow": 43,
+  "type": "NUMBER_SLIDER_WIDGET",
+  "version": 1,
+  "widgetId": "x3zoklrkku",
+  "widgetName": "NumberSlider1"
+}

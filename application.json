@@ -53,6 +53,14 @@
     {
       "id": "Maintainance",
       "isDefault": false
+    },
+    {
+      "id": "Page1",
+      "isDefault": false
+    },
+    {
+      "id": "Test Copy",
+      "isDefault": false
     }
   ],
   "unpublishedAppLayout": {
