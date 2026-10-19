@@ -38,7 +38,7 @@
       "mobileTopRow": 0,
       "needsErrorInfo": false,
       "parentColumnSpace": 1,
-      "parentId": "13ovz83wie",
+      "parentId": "pce80y05pv",
       "parentRowSpace": 1,
       "renderMode": "CANVAS",
       "responsiveBehavior": "fill",
@@ -46,7 +46,7 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "xm781yhyjl",
+      "widgetId": "fvjj5q7xse",
       "widgetName": "Canvas2"
     }
   ],
@@ -86,6 +86,6 @@
   "topRow": 0,
   "type": "CONTAINER_WIDGET",
   "version": 1,
-  "widgetId": "13ovz83wie",
+  "widgetId": "pce80y05pv",
   "widgetName": "Container2"
 }

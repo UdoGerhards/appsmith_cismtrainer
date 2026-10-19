@@ -5,12 +5,12 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "0px",
   "borderWidth": "0\n",
-  "bottomRow": 84,
+  "bottomRow": 51,
   "boxShadow": "none",
   "children": [
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 370,
+      "bottomRow": 310,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -40,7 +40,7 @@
       "mobileTopRow": 0,
       "needsErrorInfo": false,
       "parentColumnSpace": 1,
-      "parentId": "qqksphj4pw",
+      "parentId": "bjotav9yd8",
       "parentRowSpace": 1,
       "renderMode": "CANVAS",
       "responsiveBehavior": "fill",
@@ -51,12 +51,12 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "q33ckmd6t6",
+      "widgetId": "r5r1bwx8a1",
       "widgetName": "Canvas7"
     },
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 370,
+      "bottomRow": 310,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -86,7 +86,7 @@
       "mobileTopRow": 0,
       "needsErrorInfo": false,
       "parentColumnSpace": 1,
-      "parentId": "qqksphj4pw",
+      "parentId": "bjotav9yd8",
       "parentRowSpace": 1,
       "renderMode": "CANVAS",
       "responsiveBehavior": "fill",
@@ -97,7 +97,7 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "78zxylnd59",
+      "widgetId": "a6y3ynut5m",
       "widgetName": "Canvas8"
     }
   ],
@@ -132,15 +132,15 @@
   "mobileRightColumn": 25,
   "mobileTopRow": 19,
   "needsErrorInfo": false,
-  "onTabSelected": "{{ConfigSource.handleTabSwitch()}}",
-  "originalBottomRow": 59,
-  "originalTopRow": 18,
+  "onTabSelected": "",
+  "originalBottomRow": 51,
+  "originalTopRow": 16,
   "parentColumnSpace": 32.6875,
-  "parentId": "y70j0qw9nt",
+  "parentId": "pp4v9nu5np",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 64,
+  "rightColumn": 63,
   "shouldScrollContents": true,
   "shouldShowTabs": true,
   "tabsObj": {
@@ -151,7 +151,7 @@
       "isVisible": true,
       "label": "Regulärer Test",
       "positioning": "vertical",
-      "widgetId": "q33ckmd6t6"
+      "widgetId": "r5r1bwx8a1"
     },
     "tab2": {
       "id": "tab2",
@@ -160,12 +160,12 @@
       "isVisible": true,
       "label": "Erweitert",
       "positioning": "vertical",
-      "widgetId": "78zxylnd59"
+      "widgetId": "a6y3ynut5m"
     }
   },
-  "topRow": 43,
+  "topRow": 16,
   "type": "TABS_WIDGET",
   "version": 3,
-  "widgetId": "qqksphj4pw",
+  "widgetId": "bjotav9yd8",
   "widgetName": "Tabs1"
 }

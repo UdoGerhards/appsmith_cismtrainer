@@ -38,11 +38,11 @@
   "mobileRightColumn": 14,
   "mobileTopRow": 76,
   "needsErrorInfo": false,
-  "onChange": "{{ConfigSource.handleLimitToErrorAndBookmarked()}}",
+  "onChange": "{{TestConfig.countAvailableQuestions()}}",
   "originalBottomRow": 8,
   "originalTopRow": 4,
   "parentColumnSpace": 32.6875,
-  "parentId": "3i60lgw40o",
+  "parentId": "qc5dctkkas",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -50,6 +50,6 @@
   "topRow": 4,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "cvca53i6g0",
+  "widgetId": "jt5ev04n85",
   "widgetName": "QuestionsWithError"
 }

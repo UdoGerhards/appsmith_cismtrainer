@@ -2,9 +2,9 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 13,
+  "bottomRow": 12,
   "boxShadow": "none",
-  "defaultSwitchState": true,
+  "defaultSwitchState": false,
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
@@ -35,11 +35,11 @@
   "mobileRightColumn": 49,
   "mobileTopRow": 4,
   "needsErrorInfo": false,
-  "onChange": "{{ConfigSource.handleLimitToErrorAndBookmarked()}}",
-  "originalBottomRow": 12,
+  "onChange": "{{TestConfig.handleLimitToErrorAndBookmarked()}}",
+  "originalBottomRow": 13,
   "originalTopRow": 8,
   "parentColumnSpace": 15.121749877929688,
-  "parentId": "3i60lgw40o",
+  "parentId": "qc5dctkkas",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -47,6 +47,6 @@
   "topRow": 8,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "pztm2p23mw",
+  "widgetId": "iwazccknmg",
   "widgetName": "ReverseSorting"
 }
