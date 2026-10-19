@@ -14,6 +14,8 @@ export default {
 			await storeValue('user', user._id, false);
 		} 
 		
+		await this.setTitle();
+		
     if (!appsmith.store.myDomains) {
       await storeValue('myDomains', [
         { id: 1, label: "Domain 1 - Information Security Governance", checked: false, value: null },
@@ -30,6 +32,22 @@ export default {
 		
 		await this.countAvailableQuestions();
   },
+	
+	setTitle: async() => {
+		
+		const now = new Date();
+
+		const day = String(now.getDate()).padStart(2, '0');
+		const month = String(now.getMonth() + 1).padStart(2, '0');
+		const year = now.getFullYear();
+
+		const hours = String(now.getHours()).padStart(2, '0');
+		const minutes = String(now.getMinutes()).padStart(2, '0');
+
+		const formattedDateTime = `${day}.${month}.${year} ${hours}:${minutes}, CISM Test`;
+		await storeValue("title", formattedDateTime, false);
+		
+	},
 
   // Gibt die aktuellen Daten aus dem Store zurück
   getDomains: () => {
