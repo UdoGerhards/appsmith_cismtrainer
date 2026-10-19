@@ -9,17 +9,11 @@
   "dynamicBindingPathList": [
     {
       "key": "borderRadius"
-    },
-    {
-      "key": "iconName"
     }
   ],
   "dynamicPropertyPathList": [
     {
       "key": "isDisabled"
-    },
-    {
-      "key": "iconName"
     }
   ],
   "dynamicTriggerPathList": [
@@ -28,7 +22,7 @@
     }
   ],
   "iconAlign": "left",
-  "iconName": "{{appsmith.store.buttonLabelIcon?\"tick\": \"ban-circle\"}}",
+  "iconName": "tick",
   "isDefaultClickDisabled": true,
   "isDisabled": "",
   "isLoading": false,
