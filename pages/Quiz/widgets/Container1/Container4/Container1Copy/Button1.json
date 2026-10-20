@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 52,
+  "bottomRow": 57,
   "boxShadow": "none",
   "buttonColor": "#0891b2",
   "buttonVariant": "PRIMARY",
@@ -48,7 +48,7 @@
   "responsiveBehavior": "hug",
   "rightColumn": 62,
   "text": "",
-  "topRow": 48,
+  "topRow": 53,
   "type": "BUTTON_WIDGET",
   "version": 1,
   "widgetId": "wzekq2dgfo",

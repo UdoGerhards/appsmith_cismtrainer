@@ -153,6 +153,14 @@ export default {
 	},
 	
 	setTotalTime: async() => {
+			const wanted = this.getCountQuestions();
+		
+			if (wanted > appsmith.store.questionsAvailable) {
+				const maxQuestionCount = appsmith.store.questionsAvailable;
+				CountQuestions.setValue(maxQuestionCount);
+			} else if (appsmith.store.questionsAvailable === 0) {
+				CountQuestions.setValue(0);
+			}
 		
 			const blockTimeSettings = Number(appsmith.store.blockTimeSettings);
 		
