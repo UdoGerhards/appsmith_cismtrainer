@@ -1,0 +1,11 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_f31c1251-2742-4f66-8dc0-4517f637b50c",
+  "id": "Quiz_QuizDataManagement",
+  "unpublishedCollection": {
+    "name": "QuizDataManagement",
+    "pageId": "Quiz",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": []
+  }
+}

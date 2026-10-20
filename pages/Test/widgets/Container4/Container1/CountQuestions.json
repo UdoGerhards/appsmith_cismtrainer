@@ -62,7 +62,7 @@
   "mobileRightColumn": 22,
   "mobileTopRow": 25,
   "needsErrorInfo": false,
-  "onBlur": "",
+  "onBlur": "{{TestConfig.setTotalTime()}}",
   "onSubmit": "{{TestConfig.setTotalTime()}}",
   "onTextChanged": "",
   "parentColumnSpace": 44,

@@ -1,0 +1,73 @@
+{
+  "backgroundColor": "#FFFFFF",
+  "borderColor": "#E0DEDE",
+  "borderRadius": "0px",
+  "borderWidth": "ß",
+  "bottomRow": 27,
+  "boxShadow": "none",
+  "defaultModel": "{{ { list: appsmith.store.myDomains } }}",
+  "dynamicBindingPathList": [
+    {
+      "key": "theme"
+    },
+    {
+      "key": "defaultModel"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [
+    {
+      "key": "onSelectionChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onResetClick"
+    },
+    {
+      "key": "onSelectionChange"
+    }
+  ],
+  "events": [
+    "onResetClick",
+    "onSelectionChange"
+  ],
+  "isCanvas": false,
+  "isLoading": false,
+  "isSearchWildcard": true,
+  "isVisible": true,
+  "key": "cljg5jzvhx",
+  "leftColumn": 2,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 35,
+  "mobileLeftColumn": 31,
+  "mobileRightColumn": 54,
+  "mobileTopRow": 5,
+  "needsErrorInfo": false,
+  "onResetClick": "{{showAlert('Successfully reset!!', '');}}",
+  "onSelectionChange": "{{QuizDataManagement.countAvailableQuestions()}}",
+  "originalBottomRow": 27,
+  "originalTopRow": 9,
+  "parentColumnSpace": 31.8642578125,
+  "parentId": "e21l9cym8j",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 25,
+  "srcDoc": {
+    "css": "@charset \"UTF-8\";\nbody {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 8px;\n  background-color: transparent;\n}\n\n.container {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n\n.row-item {\n  display: flex;\n  align-items: center;\n  justify-content: space-between; /* Drückt Label nach links und Input nach rechts */\n  gap: 12px;\n  width: 100%; /* Stellt sicher, dass die Zeile die volle Breite nutzt */\n}\n\n.checkbox-label {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  cursor: pointer;\n  user-select: none;\n  font-size: 14px; /* Gleiche Schriftgröße wie das Input-Feld */\n}\n\n/* Kompaktes und rechtsbündiges Input-Feld mit integriertem %-Zeichen */\n.text-input {\n  width: 60px; /* Festgelegte Breite */\n  padding: 2px 18px 2px 6px; /* Platz rechts für das %-Zeichen lassen */\n  font-size: 14px; /* Gleiche Schriftgröße wie das Label */\n  text-align: right; /* Text/Zahlen rechtsbündig */\n  border: 1px solid #ccc;\n  border-radius: 4px;\n  outline: none;\n  background-color: #ffffff;\n  color: #333333;\n  transition: all 0.2s ease;\n  /* Das Prozentzeichen direkt als sauberes SVG im Hintergrund des Inputs */\n  background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\"><text x=\"0\" y=\"10\" font-family=\"sans-serif\" font-size=\"12\" fill=\"%23888888\">%</text></svg>');\n  background-repeat: no-repeat;\n  background-position: right 6px center;\n}\n\n.text-input:focus {\n  border-color: #f95959;\n}\n\n/* Aussehen, wenn das Feld inaktiv (disabled) ist */\n.text-input:disabled {\n  background-color: #f0f0f0; /* Grauer Hintergrund */\n  color: #888888; /* Ausgegrauter Text */\n  border-color: #e0e0e0; /* Hellerer Rahmen */\n  cursor: not-allowed; /* Verbotssymbol als Mauszeiger */\n  /* Prozentzeichen im Disabled-Zustand etwas ausgrauen */\n  background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\"><text x=\"0\" y=\"10\" font-family=\"sans-serif\" font-size=\"12\" fill=\"%23aaaaaa\">%</text></svg>');\n}",
+    "html": "<div id=\"app\" class=\"container\"></div>\n",
+    "js": "let state = [];\nlet isInternalUpdate = false;\nwindow.appsmith.onReady(() => {\n  window.appsmith.onModelChange(model => {\n    if (!model || !model.list || !Array.isArray(model.list)) return;\n    if (isInternalUpdate) {\n      return;\n    }\n    const newJson = JSON.stringify(model.list);\n    const currentJson = JSON.stringify(state);\n    if (newJson !== currentJson) {\n      state = JSON.parse(newJson);\n      renderApp();\n    }\n  });\n});\n\n// Automatische Verteilung nach deinem Schema\nfunction autoDistributeValues() {\n  const checkedItems = state.filter(item => item.checked);\n  const count = checkedItems.length;\n  if (count === 0) {\n    state.forEach(item => {\n      item.value = \"\";\n    });\n  } else if (count === 1) {\n    state.forEach(item => {\n      if (item.checked) item.value = 100;else item.value = \"\";\n    });\n  } else if (count === 2) {\n    state.forEach(item => {\n      if (item.checked) item.value = 50;else item.value = \"\";\n    });\n  } else if (count === 3) {\n    let first = true;\n    state.forEach(item => {\n      if (item.checked) {\n        // Das erste bekommt 34, die anderen beiden 33 (ergibt exakt 100)\n        item.value = first ? 34 : 33;\n        first = false;\n      } else {\n        item.value = \"\";\n      }\n    });\n  } else if (count === 4) {\n    state.forEach(item => {\n      if (item.checked) item.value = 25;else item.value = \"\";\n    });\n  }\n}\nfunction renderApp() {\n  const container = document.getElementById(\"app\");\n  container.innerHTML = \"\";\n  state.forEach((item, index) => {\n    const wrapper = document.createElement(\"div\");\n    wrapper.className = \"row-item\";\n\n    // 1. Checkbox & Label\n    const label = document.createElement(\"label\");\n    label.className = \"checkbox-label\";\n    const checkbox = document.createElement(\"input\");\n    checkbox.type = \"checkbox\";\n    checkbox.checked = !!item.checked;\n    checkbox.onchange = e => {\n      state[index].checked = e.target.checked;\n\n      // Werte automatisch nach Schema verteilen\n      autoDistributeValues();\n\n      // UI komplett neu rendern, damit Inputs und Values synchron sind\n      renderApp();\n      syncToAppsmith();\n    };\n    const span = document.createElement(\"span\");\n    span.innerText = item.label;\n    label.appendChild(checkbox);\n    label.appendChild(span);\n    wrapper.appendChild(label);\n\n    // 2. Input-Feld\n    const input = document.createElement(\"input\");\n    input.type = \"number\";\n    input.className = \"text-input\";\n    input.id = `input-${index}`;\n    input.placeholder = \"0\";\n    input.value = item.value !== undefined && item.value !== null ? item.value : \"\";\n    input.disabled = !item.checked;\n\n    // Erlaubt dem Nutzer auch manuelle Overrides nach dem automatischen Verteilen\n    input.oninput = e => {\n      state[index].value = e.target.value === \"\" ? \"\" : Number(e.target.value);\n    };\n    input.onblur = () => {\n      syncToAppsmith();\n    };\n    wrapper.appendChild(input);\n    container.appendChild(wrapper);\n  });\n}\nfunction syncToAppsmith() {\n  isInternalUpdate = true;\n  const payload = state.map(item => ({\n    ...item\n  }));\n  appsmith.updateModel({\n    list: payload\n  });\n  appsmith.triggerEvent(\"onSelectionChange\");\n  setTimeout(() => {\n    isInternalUpdate = false;\n  }, 300);\n}"
+  },
+  "theme": "{{appsmith.theme}}",
+  "topRow": 9,
+  "type": "CUSTOM_WIDGET",
+  "uncompiledSrcDoc": {
+    "css": "body {\n  font-family: sans-serif;\n  margin: 0;\n  padding: 8px;\n  background-color: transparent;\n}\n\n.container {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n\n.row-item {\n  display: flex;\n  align-items: center;\n  justify-content: space-between; /* Drückt Label nach links und Input nach rechts */\n  gap: 12px;\n  width: 100%; /* Stellt sicher, dass die Zeile die volle Breite nutzt */\n}\n\n.checkbox-label {\n  display: flex;\n  align-items: center;\n  gap: 6px;\n  cursor: pointer;\n  user-select: none;\n  font-size: 14px; /* Gleiche Schriftgröße wie das Input-Feld */\n}\n\n/* Kompaktes und rechtsbündiges Input-Feld mit integriertem %-Zeichen */\n.text-input {\n  width: 60px;          /* Festgelegte Breite */\n  padding: 2px 18px 2px 6px; /* Platz rechts für das %-Zeichen lassen */\n  font-size: 14px;      /* Gleiche Schriftgröße wie das Label */\n  text-align: right;    /* Text/Zahlen rechtsbündig */\n  border: 1px solid #ccc;\n  border-radius: 4px;\n  outline: none;\n  background-color: #ffffff;\n  color: #333333;\n  transition: all 0.2s ease;\n  \n  /* Das Prozentzeichen direkt als sauberes SVG im Hintergrund des Inputs */\n  background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\"><text x=\"0\" y=\"10\" font-family=\"sans-serif\" font-size=\"12\" fill=\"%23888888\">%</text></svg>');\n  background-repeat: no-repeat;\n  background-position: right 6px center;\n}\n\n.text-input:focus {\n  border-color: #f95959;\n}\n\n/* Aussehen, wenn das Feld inaktiv (disabled) ist */\n.text-input:disabled {\n  background-color: #f0f0f0; /* Grauer Hintergrund */\n  color: #888888;            /* Ausgegrauter Text */\n  border-color: #e0e0e0;     /* Hellerer Rahmen */\n  cursor: not-allowed;       /* Verbotssymbol als Mauszeiger */\n  \n  /* Prozentzeichen im Disabled-Zustand etwas ausgrauen */\n  background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\"><text x=\"0\" y=\"10\" font-family=\"sans-serif\" font-size=\"12\" fill=\"%23aaaaaa\">%</text></svg>');\n}",
+    "html": "<div id=\"app\" class=\"container\"></div>\n",
+    "js": "let state = [];\nlet isInternalUpdate = false;\n\nwindow.appsmith.onReady(() => {\n  window.appsmith.onModelChange((model) => {\n    if (!model || !model.list || !Array.isArray(model.list)) return;\n\n    if (isInternalUpdate) {\n      return;\n    }\n\n    const newJson = JSON.stringify(model.list);\n    const currentJson = JSON.stringify(state);\n\n    if (newJson !== currentJson) {\n      state = JSON.parse(newJson);\n      renderApp();\n    }\n  });\n});\n\n// Automatische Verteilung nach deinem Schema\nfunction autoDistributeValues() {\n  const checkedItems = state.filter(item => item.checked);\n  const count = checkedItems.length;\n\n  if (count === 0) {\n    state.forEach(item => { item.value = \"\"; });\n  } else if (count === 1) {\n    state.forEach(item => {\n      if (item.checked) item.value = 100;\n      else item.value = \"\";\n    });\n  } else if (count === 2) {\n    state.forEach(item => {\n      if (item.checked) item.value = 50;\n      else item.value = \"\";\n    });\n  } else if (count === 3) {\n    let first = true;\n    state.forEach(item => {\n      if (item.checked) {\n        // Das erste bekommt 34, die anderen beiden 33 (ergibt exakt 100)\n        item.value = first ? 34 : 33;\n        first = false;\n      } else {\n        item.value = \"\";\n      }\n    });\n  } else if (count === 4) {\n    state.forEach(item => {\n      if (item.checked) item.value = 25;\n      else item.value = \"\";\n    });\n  }\n}\n\nfunction renderApp() {\n  const container = document.getElementById(\"app\");\n  container.innerHTML = \"\";\n\n  state.forEach((item, index) => {\n    const wrapper = document.createElement(\"div\");\n    wrapper.className = \"row-item\";\n\n    // 1. Checkbox & Label\n    const label = document.createElement(\"label\");\n    label.className = \"checkbox-label\";\n\n    const checkbox = document.createElement(\"input\");\n    checkbox.type = \"checkbox\";\n    checkbox.checked = !!item.checked;\n    \n    checkbox.onchange = (e) => {\n      state[index].checked = e.target.checked;\n      \n      // Werte automatisch nach Schema verteilen\n      autoDistributeValues();\n\n      // UI komplett neu rendern, damit Inputs und Values synchron sind\n      renderApp();\n\n      syncToAppsmith();\n    };\n\n    const span = document.createElement(\"span\");\n    span.innerText = item.label;\n\n    label.appendChild(checkbox);\n    label.appendChild(span);\n    wrapper.appendChild(label);\n\n    // 2. Input-Feld\n    const input = document.createElement(\"input\");\n    input.type = \"number\";\n    input.className = \"text-input\";\n    input.id = `input-${index}`;\n    input.placeholder = \"0\";\n    input.value = item.value !== undefined && item.value !== null ? item.value : \"\";\n    input.disabled = !item.checked;\n\n    // Erlaubt dem Nutzer auch manuelle Overrides nach dem automatischen Verteilen\n    input.oninput = (e) => {\n      state[index].value = e.target.value === \"\" ? \"\" : Number(e.target.value);\n    };\n\n    input.onblur = () => {\n      syncToAppsmith();\n    };\n\n    wrapper.appendChild(input);\n    container.appendChild(wrapper);\n  });\n}\n\nfunction syncToAppsmith() {\n  isInternalUpdate = true;\n  const payload = state.map(item => ({ ...item }));\n  \n  appsmith.updateModel({ list: payload });\n  appsmith.triggerEvent(\"onSelectionChange\");\n\n  setTimeout(() => {\n    isInternalUpdate = false;\n  }, 300);\n}"
+  },
+  "version": 1,
+  "widgetId": "0tsmz69x7b",
+  "widgetName": "Domains"
+}

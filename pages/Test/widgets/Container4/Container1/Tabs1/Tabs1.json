@@ -105,12 +105,24 @@
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
+    },
+    {
+      "key": "tabsObj.tab2.isVisible"
+    },
+    {
+      "key": "tabsObj.tab1.isVisible"
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
       "key": "onTabSelected"
+    },
+    {
+      "key": "tabsObj.tab2.isVisible"
+    },
+    {
+      "key": "tabsObj.tab1.isVisible"
     }
   ],
   "dynamicTriggerPathList": [
@@ -148,7 +160,7 @@
       "id": "tab1",
       "index": 0,
       "isDuplicateLabel": false,
-      "isVisible": true,
+      "isVisible": "{{ ExamStyle.selectedOptionValue == 3 }}",
       "label": "Regulärer Test",
       "positioning": "vertical",
       "widgetId": "r5r1bwx8a1"
@@ -157,7 +169,7 @@
       "id": "tab2",
       "index": 1,
       "isDuplicateLabel": false,
-      "isVisible": true,
+      "isVisible": "{{ ExamStyle.selectedOptionValue == 3 }}",
       "label": "Erweitert",
       "positioning": "vertical",
       "widgetId": "a6y3ynut5m"

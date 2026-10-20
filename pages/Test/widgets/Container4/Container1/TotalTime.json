@@ -62,7 +62,7 @@
   "mobileRightColumn": 22,
   "mobileTopRow": 35,
   "needsErrorInfo": false,
-  "onBlur": "",
+  "onBlur": "{{TestConfig.setQuestionsCount()}}}",
   "onSubmit": "{{TestConfig.setQuestionsCount()}}}",
   "onTextChanged": "",
   "parentColumnSpace": 44,

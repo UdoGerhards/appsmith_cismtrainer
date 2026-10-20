@@ -35,7 +35,11 @@
       "isDefault": false
     },
     {
-      "id": "Quiz Execution",
+      "id": "_Quiz execution",
+      "isDefault": false
+    },
+    {
+      "id": "_Quiz results",
       "isDefault": false
     },
     {

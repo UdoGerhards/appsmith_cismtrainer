@@ -30,7 +30,8 @@ export default {
 		
 		await storeValue("timePerQuestion", 1.6, false);
 		
-		await this.countAvailableQuestions();
+		const selectedDomainsWithValue = appsmith.store.myDomains;
+		await this.countAvailableQuestions(selectedDomainsWithValue);
   },
 	
 	setTitle: async() => {
@@ -110,7 +111,8 @@ export default {
 				await storeValue("defaultTime", 0 , false);
 		}
 		
-		await this.countAvailableQuestions();
+		const selectedDomainsWithValue = appsmith.store.myDomains;
+		await this.countAvailableQuestions(selectedDomainsWithValue);
 		
 		return true;
 	},
@@ -159,10 +161,13 @@ export default {
 		
 	},
 	
-	countAvailableQuestions: async () => {
-			await showAlert("Triggered");
-
-			const selectedDomainsWithValue = this.getSelectedDomains();
+	countAvailableQuestions: async (selectedDomainsWithValue) => {
+			//await showAlert("Triggered");
+		
+				if (!selectedDomainsWithValue){
+					selectedDomainsWithValue = this.getSelectedDomains();
+				}
+			//const selectedDomainsWithValue = this.getSelectedDomains();
 			console.log(selectedDomainsWithValue);
 
 			// Sauberer Filter für die Domains
@@ -191,126 +196,136 @@ export default {
 			}
 	},
 
-calculateTestContent: async () => {
+	calculateTestContent: async () => {
 
-		const title = this.getTitle();
-		const countQuestions = this.getCountQuestions();
-		const time = this.getTimeTotal();
-		const selecteDomainsWithalue = this.getSelectedDomains();
-		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
-		
-		const totalPercentageValue = Number(this.getTotalValue());
-		let remainingPercentage = 0;
-		
-		if (totalPercentageValue > 100) {
-			showAlert("Inkorrekte Prozentwerte (>100 %), "+totalPercentageValue, "warning");
-			return false;
-		} else if (totalPercentageValue <100) {
-			showAlert("Inkorrekte Prozentwerte (<100 %), "+totalPercentageValue, "warning");
-			return false;
-		} else {
-			remainingPercentage = 100 - totalPercentageValue;
-		}
-	
-	 	const rawDomainNames = [];
-		const domains = selecteDomainsWithalue.map(domain => {
-			const domainCount = Math.floor((countQuestions * domain.value) / 100);
-			console.log("Domain ", domain.label, ": ", domainCount, " (" + domain.value + ")");
-			rawDomainNames.push(domain.label);
-			return {
-				domain: domain.label,
-				count: domainCount,
-				onlyWrong: onlyCountWrong
-			}
-		});
-		
-	console.log(selecteDomainsWithalue);
-		
-		// 1. Ursprüngliche Fragen laden (mit await!)
-		let testQuestions = await this.loadDomainQuestions(domains);
-		
-		// 2. Ersten Durchgang auffüllen (falls durch Abrunden zu wenig da sind)
-		const fillUp = countQuestions - testQuestions.length;
-		console.log("Remaining rest number of questions to fill: ", fillUp);
-		
-		if (fillUp > 0 && domains.length > 0) {
-			const fillUpCountPerDomain = Math.floor(fillUp / domains.length);
-			console.log("Test questions will be filled up with ", fillUpCountPerDomain, " per domain!");
-			
-			if (fillUpCountPerDomain >= 1) {
-				const fillUpDomains = domains.map(domain => {
-					return {
-						domain: domain.domain,
-						count: fillUpCountPerDomain,
-						onlyWrong: onlyCountWrong
-					}
-				});
+    const title = this.getTitle();
+    const countQuestions = this.getCountQuestions();
+    const time = this.getTimeTotal();
+    const selecteDomainsWithalue = this.getSelectedDomains();
+    const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+    
+    const totalPercentageValue = Number(this.getTotalValue());
+    let remainingPercentage = 0;
+    
+    if (totalPercentageValue > 100) {
+        showAlert("Inkorrekte Prozentwerte (>100 %), "+totalPercentageValue, "warning");
+        return false;
+    } else if (totalPercentageValue < 100) {
+        showAlert("Inkorrekte Prozentwerte (<100 %), "+totalPercentageValue, "warning");
+        return false;
+    } else {
+        remainingPercentage = 100 - totalPercentageValue;
+    }
 
-				const fillUpQuestions = await this.loadDomainQuestions(fillUpDomains);
-				testQuestions = [...testQuestions, ...fillUpQuestions]; // Korrekt mit Spread-Operator
-			}
-		}
-	
-		// 3. Den allerletzten Rest (durch Rundungsreste z. B. 1-2 Fragen) zufällig auffüllen
-		let remainingFillUp = countQuestions - testQuestions.length;
-		
-		if (remainingFillUp > 0 && domains.length > 0) {
-			console.log("Filling up absolute rest of: ", remainingFillUp);
-			
-			// Wir holen für die ersten 'remainingFillUp' Domains jeweils 1 weitere Frage
-			for (let i = 0; i < remainingFillUp; i++) {
-				const randomDomain = domains[i % domains.length]; // Verteilt es gleichmäßig auf die Domains
-				
-				const singleQuestion = await this.loadDomainQuestions([{
-					domain: randomDomain.domain,
-					questionLimit: 1,
-					onlyWrong: onlyCountWrong
-				}]);
-				
-				testQuestions = [...testQuestions, ...singleQuestion];
-			}
-		}
-		
-		console.log("Final testQuestions length: ", testQuestions.length, " (Target: ", countQuestions, ")");
-	
-		// Prepare test data
-		await storeValue('title', title, false);
-		await storeValue('nrquestions', parseInt(countQuestions), false);
-		await storeValue('mins', parseInt(time), false);
-	  await storeValue("domains", rawDomainNames, false);
-	
-		await storeValue("currentQuestions", testQuestions, false);
-	  await storeValue("currentIndex", 0);
-	
-		if (!onlyCountWrong) {
-				await storeValue('nature', 'user');
-			} else {
-				await storeValue('nature', "error_training");
-			}
-	
-		await navigateTo("Execution", {}, 'SAME_WINDOW');
-	},
-	
-	loadDomainQuestions: async (domains) => {
-		let testQuestions = [];
-			
-		for (const domain of domains) {
-			// Falls count 0 ist, überspringen wir den Aufruf
-			if (domain.count <= 0 && domain.questionLimit <= 0) continue;
-			
-			const limit = domain.count !== undefined ? domain.count : domain.questionLimit;
-			
-			const domainQuestions = await GetQuestions.run({
-				domain: domain.label || domain.domain,
-				questionLimit: limit,
-			});
-			
-			if (domainQuestions && Array.isArray(domainQuestions)) {
-				testQuestions = [...testQuestions, ...domainQuestions];
-			}
-		}
-		
-		return testQuestions;
-	}
+    const rawDomainNames = [];
+    const domains = selecteDomainsWithalue.map(domain => {
+        const domainCount = Math.floor((countQuestions * domain.value) / 100);
+        console.log("Domain ", domain.label, ": ", domainCount, " (" + domain.value + ")");
+        rawDomainNames.push(domain.label);
+        return {
+            domain: domain.label,
+            count: domainCount,
+            onlyWrong: onlyCountWrong
+        }
+    });
+    
+    console.log(selecteDomainsWithalue);
+    
+    // 1. Ursprüngliche Fragen laden (mit leerem excludeIds-Array)
+    let testQuestions = await this.loadDomainQuestions(domains, []);
+
+    // Aktuelle IDs für den Ausschluss sammeln
+    let excludeIds = testQuestions.map(question => question._id.toString());
+    console.log("Exclude Ids after Pass 1: ", excludeIds);
+    
+    // 2. Ersten Durchgang auffüllen (falls durch Abrunden zu wenig da sind)
+    const fillUp = countQuestions - testQuestions.length;
+    console.log("Remaining rest number of questions to fill: ", fillUp);
+    
+    if (fillUp > 0 && domains.length > 0) {
+        const fillUpCountPerDomain = Math.floor(fillUp / domains.length);
+        console.log("Test questions will be filled up with ", fillUpCountPerDomain, " per domain!");
+        
+        if (fillUpCountPerDomain >= 1) {
+            const fillUpDomains = domains.map(domain => {
+                return {
+                    domain: domain.domain,
+                    count: fillUpCountPerDomain,
+                    onlyWrong: onlyCountWrong
+                }
+            });
+
+            const fillUpQuestions = await this.loadDomainQuestions(fillUpDomains, excludeIds);
+            testQuestions = [...testQuestions, ...fillUpQuestions];
+            
+            // excludeIds für den letzten Schritt aktualisieren
+            excludeIds = testQuestions.map(question => question._id.toString());
+        }
+    }
+
+    // 3. Den allerletzten Rest (durch Rundungsreste z. B. 1-2 Fragen) zufällig auffüllen
+    let remainingFillUp = countQuestions - testQuestions.length;
+    
+    if (remainingFillUp > 0 && domains.length > 0) {
+        console.log("Filling up absolute rest of: ", remainingFillUp);
+        
+        for (let i = 0; i < remainingFillUp; i++) {
+            const randomDomain = domains[i % domains.length];
+            
+            const singleQuestion = await this.loadDomainQuestions([{
+                domain: randomDomain.domain,
+                questionLimit: 1,
+                onlyWrong: onlyCountWrong
+            }], excludeIds);
+            
+            testQuestions = [...testQuestions, ...singleQuestion];
+            
+            // excludeIds laufend erweitern
+            excludeIds = testQuestions.map(question => question._id.toString());
+        }
+    }
+    
+    console.log("Final testQuestions length: ", testQuestions.length, " (Target: ", countQuestions, ")");
+
+    // Prepare test data
+    await storeValue('title', title, false);
+    await storeValue('nrquestions', parseInt(countQuestions), false);
+    await storeValue('mins', parseInt(time), false);
+    await storeValue("domains", rawDomainNames, false);
+
+    await storeValue("currentQuestions", testQuestions, false);
+    await storeValue("currentIndex", 0);
+
+    if (!onlyCountWrong) {
+        await storeValue('nature', 'user');
+    } else {
+        await storeValue('nature', "error_training");
+    }
+
+    await navigateTo("Execution", {}, 'SAME_WINDOW');
+},
+
+loadDomainQuestions: async (domains, excludeIds = []) => {
+    let testQuestions = [];
+        
+    for (const domain of domains) {
+        if (domain.count <= 0 && domain.questionLimit <= 0) continue;
+        
+        const limit = domain.count !== undefined ? domain.count : domain.questionLimit;
+        
+        const domainQuestions = await GetQuestions.run({
+            domain: domain.label || domain.domain,
+            questionLimit: limit,
+            onlyWrong: domain.onlyWrong,
+            excludeIds: excludeIds
+        });
+        
+        if (domainQuestions && Array.isArray(domainQuestions)) {
+            testQuestions = [...testQuestions, ...domainQuestions];
+        }
+    }
+    
+    return testQuestions;
+}
 		
 }

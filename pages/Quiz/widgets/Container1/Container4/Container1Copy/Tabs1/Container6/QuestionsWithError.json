@@ -1,0 +1,55 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignWidget": "LEFT",
+  "animateLoading": true,
+  "bottomRow": 16,
+  "boxShadow": "none",
+  "defaultSwitchState": false,
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [
+    {
+      "key": "isDisabled"
+    },
+    {
+      "key": "onChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "isDisabled": "",
+  "isLoading": false,
+  "isVisible": true,
+  "key": "406ds1rizy",
+  "label": "Nur Fragen, die mindestens 1x fehlerhaft beantwortet wurden!",
+  "labelPosition": "Left",
+  "leftColumn": 1,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 80,
+  "mobileLeftColumn": 2,
+  "mobileRightColumn": 14,
+  "mobileTopRow": 76,
+  "needsErrorInfo": false,
+  "onChange": "{{QuizConfig.countAvailableQuestions()}}",
+  "originalBottomRow": 8,
+  "originalTopRow": 4,
+  "parentColumnSpace": 32.6875,
+  "parentId": "yyzkxgz8y9",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 35,
+  "topRow": 12,
+  "type": "SWITCH_WIDGET",
+  "version": 1,
+  "widgetId": "26fuzv6ev4",
+  "widgetName": "QuestionsWithError"
+}
