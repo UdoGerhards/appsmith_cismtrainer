@@ -23,25 +23,6 @@ export default {
 getTestChartOptions: () => {
     // 1. Daten aus der Query holen
     const rawData = FindReports.data || [];
-
-		// 2. Dokumente nach 'finsihed' AUFSTEIGEND (ältestes zuerst) sortieren
-	/*
-    const sortedDocs = [...rawData].sort((a, b) => {
-      // Hilfsfunktion, um "DD.MM.YYYY HH:mm" in ein Date-Objekt umzuwandeln
-      const parseDateStr = (dateStr) => {
-        if (!dateStr) return 0;
-        // Erwartet z.B. "05.09.2026 13:19"
-        const [datePart, timePart] = dateStr.split(' ');
-        const [day, month, year] = datePart.split('.');
-        const [hour, minute] = timePart.split(':');
-        // Monat ist in JS 0-basiert (0 = Januar, 8 = September)
-        return new Date(year, month - 1, day, hour, minute).getTime();
-      };
-
-      return parseDateStr(a.finished) - parseDateStr(b.finished);
-    });
-		
-		*/
 	
 	const sortedDocs = [...rawData]
   // 1. Sortieren (absteigend: neueste zuerst)

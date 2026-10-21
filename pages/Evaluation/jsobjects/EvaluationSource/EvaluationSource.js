@@ -40,6 +40,9 @@ export default {
 			report.timeLeft = -1;
 			report.averageDurationPerQuestion = -1;
 		}
+		
+		report.finished = new Date();
+		
 		await storeValue('report', report, false);
 		//console.log(report);
 	},
@@ -380,80 +383,6 @@ export default {
 		return this.prepareDomainTestChart(dom);
 	},
 
-	/*
-	prepareDomainTestChart: (selectedDomain) => {
-		const report = appsmith.store.report;
-
-		// Sicherheitscheck für den Store (Liefert leeres Objekt, falls noch nicht geladen)
-		if (!report || !report.questions) {
-			return {};
-		}
-
-		console.log("======================================================================");
-		console.log("Evaluating report", "info");
-
-		// Fragen nach Domain filtern (wenn eine ausgewählt ist und nicht "Alle" o.ä.)
-		const questions = report.questions;
-		const filteredQuestions = questions.filter(q => (q.domain || "").toLowerCase() === selectedDomain.toLowerCase());
-		console.log(selectedDomain);
-		console.log(questions);
-		console.log(filteredQuestions);
-
-		// Korrekte und inkorrekte Antworten für die gefilterten Fragen berechnen
-		let correctCount = 0;
-		let incorrectCount = 0;
-
-		filteredQuestions.forEach(q => {
-			if (q.userAnswer !== "" && q.correct !== "") {
-				if (q.correct === q.userAnswer) {
-					correctCount++;
-				} else {
-					incorrectCount++;
-				}
-			} else {
-				// Falls nicht beantwortet, als falsch werten (optional, je nach Logik)
-				incorrectCount++;
-			}
-		});
-
-	console.log("======================================================================");
-
-		// Apache E-Charts Struktur zurückgeben
-		return {
-			title: {
-				text: selectedDomain,
-				left: 'center'
-			},
-			tooltip: {
-				trigger: 'item'
-			},
-			legend: {
-				orient: 'horizontal', // 'horizontal' sieht unten meist besser aus, 'vertical' geht aber auch
-				left: 'left',       // Richtet die Legende am linken Rand aus
-				bottom: 'bottom'    // Platziert die Legende am unteren Rand
-			},
-			series: [
-				{
-					name: 'Antworten',
-					type: 'pie',
-					radius: '50%',
-					color: ['#22C55E', '#EF4444'],
-					data: [
-						{ value: correctCount, name: 'Korrekte Antworten' },
-						{ value: incorrectCount, name: 'Inkorrekte Antworten' }
-					],
-					emphasis: {
-						itemStyle: {
-							shadowBlur: 10,
-							shadowOffsetX: 0,
-							shadowColor: 'rgba(0, 0, 0, 0.5)'
-						}
-					}
-				}
-			]
-		};
-	},
-	*/
 	prepareDomainTestChart: (selectedDomain) => {
 		const report = appsmith.store.report;
 
