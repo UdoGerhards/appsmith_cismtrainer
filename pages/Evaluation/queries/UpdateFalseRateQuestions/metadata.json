@@ -16,7 +16,7 @@
           }
         },
         "body": {
-          "data": "{\n  \"update\": \"question\",\n  \"updates\": [\n    {\n      \"q\": { \n        \"_id\": { \n          \"$in\": {{ this.params.ids.map(id => ({ \"$oid\": id })) }} \n        } \n      },\n      \"u\": { \n        \"$inc\": { \"countWrong\": 1 },\n      },\n      \"multi\": true\n    }\n  ]\n}\n"
+          "data": "{\n  \"update\": \"{{ this.params.collection }}\",\n  \"updates\": [\n    {\n      \"q\": { \n        \"_id\": { \n          \"$in\": {{ this.params.ids.map(id => ({ \"$oid\": id })) }} \n        } \n      },\n      \"u\": { \n        \"$inc\": { \"countWrong\": 1 },\n\t\t\t\t\"$set\": { \"updatedAt\": \"{{ new Date().toISOString() }}\" }\n      },\n      \"multi\": true\n    }\n  ]\n}\n"
         },
         "collection": {
           "data": ""

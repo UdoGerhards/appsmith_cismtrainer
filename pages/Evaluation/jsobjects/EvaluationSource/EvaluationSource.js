@@ -652,6 +652,7 @@ export default {
 		}
 	},
 
+	/*
 	saveReportToMongo: async() => {
 		// 1. Prüfen, ob das Objekt überhaupt im Store existiert
 		if (!appsmith.store.report) {
@@ -661,8 +662,14 @@ export default {
 
 		const report = appsmith.store.report;
 		const { questions, ...reportMetadata } = report;
+		
+		// Nimm das ursprüngliche Datum oder "jetzt" und rechne 2 Stunden (in Millisekunden) drauf
+		const berlinDate = new Date(report.finished ? new Date(report.finished).getTime() + (2 * 60 * 60 * 1000) : Date.now() + (2 * 60 * 60 * 1000));
+		
 		const reportToSave = {
 			...reportMetadata,
+			// Wichtig: MongoDB versteht dieses Format beim Insert als echtes ISODate()
+      finished: { "$date": berlinDate.toString() },
 			questions: questions.map(({ userAnswer, isCorrect, _id }) => ({
 				userAnswer,
 				isCorrect,
@@ -689,19 +696,151 @@ export default {
 			showAlert("Fehler beim Speichern in MongoDB: " + error.message, "error");
 		}
 	},
+	*/
+	saveReportToMongo: async() => {
+		// 1. Prüfen, ob das Objekt überhaupt im Store existiert
+		if (!appsmith.store.report) {
+			showAlert("Kein Report-Objekt im Store gefunden!", "warning");
+			return;
+		}
 
-	updateWrongQuestionCount: async(questions)  => {
+		const report = appsmith.store.report;
+		const { questions, ...reportMetadata } = report;
+		
+		// --- ROBUSTE DATUMS-ERKENNUNG & BERLINER ZEITZONE ---
+		let targetDate = new Date();
+		
+		if (report.finished) {
+			if (typeof report.finished === 'string' && report.finished.includes('.')) {
+				// Falls das Format z.B. "23.10.2026 15:55" ist
+				const [datePart, timePart = "00:00"] = report.finished.split(" ");
+				const [day, month, year] = datePart.split(".");
+				const [hour, minute] = timePart.split(":");
+				targetDate = new Date(`${year}-${month}-${day}T${hour}:${minute}:00.000Z`);
+			} else {
+				// Standard ISO-String oder bereits ein Datum
+				targetDate = new Date(report.finished);
+			}
+		}
+		
+		// Fallback, falls das Parsen fehlschlägt
+		if (isNaN(targetDate.getTime())) {
+			targetDate = new Date();
+		}
+		
+        const berlinFormatter = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Europe/Berlin',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+        
+        const parts = berlinFormatter.formatToParts(targetDate);
+        const getPart = (type) => parts.find(p => p.type === type).value;
+        
+        const year = getPart('year');
+        const month = getPart('month');
+        const day = getPart('day');
+        const hour = getPart('hour');
+        const minute = getPart('minute');
+        const second = getPart('second');
+        
+        const finishedDateLocal = `${year}-${month}-${day}T${hour}:${minute}:${second}.000Z`;
+		// ------------------------------------------------
+		
+		const reportToSave = {
+			...reportMetadata,
+			// MongoDB Extended JSON für echtes ISODate mit Berliner Ortszeit
+			finished: { "$date": finishedDateLocal },
+			questions: questions.map(({ userAnswer, isCorect, _id, isCorrect }) => ({
+				userAnswer,
+				isCorrect: isCorrect !== undefined ? isCorrect : isCorect,
+				_id
+			}))
+		};
+
+		await this.updateWrongQuestionCount(reportToSave.questions);
+
+		await storeValue('reportToSave', reportToSave, false);
 
 		try {
-			const ids = questions
-			.filter(q => q.isCorrect === false) // 1. Nur die falschen Fragen behalten
-			.map(q => q._id);                     // 2. Aus diesen Fragen nur die _id herausziehen
+			// 2. Die MongoDB-Query triggern und auf den Erfolg warten
+			await InsertTestResults.run({ reportData: reportToSave });
 
-			await UpdateFalseRateQuestions.run({ids: ids});
+			// 3. Erfolgsmeldung für den Nutzer
+			showAlert("Report erfolgreich in MongoDB gespeichert!", "success");
+
+			// 4. (Optional) Den Store nach dem Speichern leeren
+			// await removeValue("report");
+
+		} catch (error) {
+			// Fehler abfangen, falls die DB-Verbindung hakt
+			showAlert("Fehler beim Speichern in MongoDB: " + error.message, "error");
+		}
+	},
+
+	/*
+	updateWrongQuestionCount: async(questions)  => {
+		
+		const falseAnswers = {};
+
+		try {
+			//const ids = questions
+			questions
+			.filter(q => q.isCorrect === false) // 1. Nur die falschen Fragen behalten
+			.map(q => {
+				if (!q.origin) {
+					falseAnswers['question'] = q._id
+				} else  {
+					falseAnswers[q.origin] = q._id;
+				}
+			});
+			//.map(q => q._id);                     // 2. Aus diesen Fragen nur die _id herausziehen
+
+			for (const [collection, idsArray] of Object.entries(falseAnswers)) {
+				await UpdateFalseRateQuestions.run({
+					collection: collection,
+					ids: idsArray});
+				};
 		} catch (error) {
 			//console.error(error);
 		}
 	},
+	*/
+	updateWrongQuestionCount: async (questions) => {
+    const falseAnswers = {};
+
+    try {
+        // 1. Nur falsche Fragen filtern und nach Collection gruppieren
+        questions
+            .filter(q => q.isCorrect === false)
+            .forEach(q => {
+                const collectionName = q.origin ? q.origin : 'question';
+                
+                // Falls für diese Collection noch kein Array existiert, erstelle eins
+                if (!falseAnswers[collectionName]) {
+                    falseAnswers[collectionName] = [];
+                }
+                
+                // ID zum Array der jeweiligen Collection hinzufügen
+                falseAnswers[collectionName].push(q._id);
+            });
+
+        // 2. Für jede Collection die Query ausführen
+        for (const [collection, idsArray] of Object.entries(falseAnswers)) {
+            await UpdateFalseRateQuestions.run({
+                collection: collection,
+                ids: idsArray // Jetzt ist es ein echtes Array von IDs!
+            });
+        }
+    } catch (error) {
+        console.error("Fehler beim Aktualisieren der falschen Fragen:", error);
+    }
+},
 
 	getResultAsPercent: () => {
 		// KORREKTUR: Punkt statt Komma bei .questioncount

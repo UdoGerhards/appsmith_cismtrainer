@@ -68,7 +68,7 @@ getAllTests: () => {
 				return {
 					"id": doc._id?.$oid || doc._id?.toString() || "",
 					"Wiederholung": doc.nature,
-					"Durchgeführt": doc.finsihed,
+					"Durchgeführt": doc.finished,
 					"Test": doc.name || "Unbenannt",
 					"Minuten": doc.minutes || 0,
 					"Anzahl Fragen": questionCount,
