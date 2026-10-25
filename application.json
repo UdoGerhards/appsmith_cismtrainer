@@ -65,6 +65,14 @@
     {
       "id": "Test old",
       "isDefault": false
+    },
+    {
+      "id": "Execution old",
+      "isDefault": false
+    },
+    {
+      "id": "Evaluation old",
+      "isDefault": false
     }
   ],
   "unpublishedAppLayout": {

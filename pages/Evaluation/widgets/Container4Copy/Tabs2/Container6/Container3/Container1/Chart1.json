@@ -51,7 +51,7 @@
   "mobileTopRow": 2,
   "needsErrorInfo": true,
   "parentColumnSpace": 16.1875,
-  "parentId": "z3q7dspuc8",
+  "parentId": "azl06puxie",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -60,7 +60,7 @@
   "topRow": 4,
   "type": "CHART_WIDGET",
   "version": 1,
-  "widgetId": "in61olosdx",
+  "widgetId": "yi5lo8jt8m",
   "widgetName": "Chart1",
   "xAxisName": "Product Line",
   "yAxisName": "Revenue($)"

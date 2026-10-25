@@ -11,6 +11,7 @@
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicPropertyPathList": [],
   "dynamicTriggerPathList": [],
   "isDisabled": false,
   "isLoading": false,
@@ -26,10 +27,11 @@
   "mobileRightColumn": 55,
   "mobileTopRow": 7,
   "needsErrorInfo": false,
-  "originalBottomRow": 5,
-  "originalTopRow": 1,
+  "onChange": "{{}}",
+  "originalBottomRow": 12,
+  "originalTopRow": 8,
   "parentColumnSpace": 30.416015625,
-  "parentId": "fb09uq8l60",
+  "parentId": "6qdywi8hlf",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -37,6 +39,6 @@
   "topRow": 8,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "ekybdsr2eh",
+  "widgetId": "irnec9zcwu",
   "widgetName": "bookmarksonly"
 }

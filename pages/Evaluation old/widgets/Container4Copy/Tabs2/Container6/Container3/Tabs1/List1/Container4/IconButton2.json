@@ -1,0 +1,51 @@
+{
+  "animateLoading": true,
+  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "bottomRow": 26,
+  "boxShadow": "none",
+  "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+  "buttonVariant": "PRIMARY",
+  "dynamicBindingPathList": [
+    {
+      "key": "buttonColor"
+    },
+    {
+      "key": "borderRadius"
+    }
+  ],
+  "dynamicHeight": "FIXED",
+  "dynamicPropertyPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onClick"
+    }
+  ],
+  "iconName": "sim-card",
+  "isDisabled": false,
+  "isLoading": false,
+  "isVisible": true,
+  "key": "iugk9tyvo2",
+  "leftColumn": 61,
+  "minWidth": 50,
+  "mobileBottomRow": 26,
+  "mobileLeftColumn": 60,
+  "mobileRightColumn": 64,
+  "mobileTopRow": 22,
+  "needsErrorInfo": false,
+  "onClick": "{{ EvaluationSource.processGeminiExplain(currentIndex) }}",
+  "parentColumnSpace": 40.64453125,
+  "parentId": "m5kqjodfs3",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "hug",
+  "rightColumn": 64,
+  "topRow": 22,
+  "type": "ICON_BUTTON_WIDGET",
+  "version": 1,
+  "widgetId": "mcxy6vsk5h",
+  "widgetName": "IconButton2"
+}

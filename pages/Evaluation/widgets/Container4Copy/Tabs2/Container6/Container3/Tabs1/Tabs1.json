@@ -5,7 +5,7 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
   "borderWidth": 1,
-  "bottomRow": 438,
+  "bottomRow": 400,
   "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
   "children": [
     {
@@ -40,7 +40,7 @@
       "mobileTopRow": 0,
       "needsErrorInfo": false,
       "parentColumnSpace": 1,
-      "parentId": "668znpv4cr",
+      "parentId": "n6saseksho",
       "parentRowSpace": 1,
       "renderMode": "CANVAS",
       "responsiveBehavior": "fill",
@@ -51,7 +51,7 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "9f5r03vyqy",
+      "widgetId": "y850ka0inr",
       "widgetName": "Canvas7"
     },
     {
@@ -86,7 +86,7 @@
       "mobileTopRow": 0,
       "needsErrorInfo": false,
       "parentColumnSpace": 1,
-      "parentId": "668znpv4cr",
+      "parentId": "n6saseksho",
       "parentRowSpace": 1,
       "renderMode": "CANVAS",
       "responsiveBehavior": "fill",
@@ -97,7 +97,7 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "5iopzwu6kv",
+      "widgetId": "prfsg0cjl2",
       "widgetName": "Canvas8"
     },
     {
@@ -132,7 +132,7 @@
       "mobileTopRow": 1,
       "needsErrorInfo": false,
       "parentColumnSpace": 1,
-      "parentId": "668znpv4cr",
+      "parentId": "n6saseksho",
       "parentRowSpace": 1,
       "renderMode": "CANVAS",
       "responsiveBehavior": "fill",
@@ -142,7 +142,7 @@
       "topRow": 1,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "dvlff09m2s",
+      "widgetId": "v30rw7c8ac",
       "widgetName": "Canvas17"
     }
   ],
@@ -182,7 +182,7 @@
   "originalBottomRow": 400,
   "originalTopRow": 121,
   "parentColumnSpace": 43.984375,
-  "parentId": "v7y6s8afbc",
+  "parentId": "mbpez3om3i",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -196,14 +196,14 @@
       "isVisible": true,
       "label": "Falsche Antworten",
       "positioning": "vertical",
-      "widgetId": "9f5r03vyqy"
+      "widgetId": "y850ka0inr"
     },
     "tab1jo5llqdyt": {
       "id": "tab1jo5llqdyt",
       "index": 2,
       "isVisible": true,
       "label": "Gemini Auswertung",
-      "widgetId": "dvlff09m2s"
+      "widgetId": "v30rw7c8ac"
     },
     "tab2": {
       "id": "tab2",
@@ -211,12 +211,12 @@
       "isVisible": true,
       "label": "Fragenkatalog",
       "positioning": "vertical",
-      "widgetId": "5iopzwu6kv"
+      "widgetId": "prfsg0cjl2"
     }
   },
-  "topRow": 159,
+  "topRow": 121,
   "type": "TABS_WIDGET",
   "version": 3,
-  "widgetId": "668znpv4cr",
+  "widgetId": "n6saseksho",
   "widgetName": "Tabs1"
 }

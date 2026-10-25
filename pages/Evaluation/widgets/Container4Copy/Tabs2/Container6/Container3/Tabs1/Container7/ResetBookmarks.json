@@ -33,7 +33,7 @@
   "needsErrorInfo": false,
   "onClick": "{{EvaluationSource.resetBookmarksForReport();}}",
   "parentColumnSpace": 30.416015625,
-  "parentId": "fb09uq8l60",
+  "parentId": "6qdywi8hlf",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "hug",
@@ -41,6 +41,6 @@
   "topRow": 6,
   "type": "ICON_BUTTON_WIDGET",
   "version": 1,
-  "widgetId": "s0voydvhmr",
+  "widgetId": "qvk1ftdtx2",
   "widgetName": "ResetBookmarks"
 }

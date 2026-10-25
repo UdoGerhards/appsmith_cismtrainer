@@ -3,11 +3,11 @@
   "backgroundColor": "#FFFFFF",
   "borderColor": "#E0DEDE",
   "borderWidth": "1",
-  "bottomRow": 440,
+  "bottomRow": 402,
   "boxShadow": "NONE",
   "children": [
     {
-      "bottomRow": 4400,
+      "bottomRow": 4020,
       "canExtend": false,
       "containerStyle": "none",
       "detachFromLayout": true,
@@ -16,7 +16,7 @@
       "leftColumn": 0,
       "minHeight": 6333.75,
       "parentColumnSpace": 1,
-      "parentId": "6ur8381nhc",
+      "parentId": "ontgsymtws",
       "parentRowSpace": 1,
       "props": {
         "canExtend": false,
@@ -29,7 +29,7 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "v7y6s8afbc",
+      "widgetId": "mbpez3om3i",
       "widgetName": "Canvas4"
     }
   ],
@@ -59,7 +59,7 @@
   "originalBottomRow": 402,
   "originalTopRow": 0,
   "parentColumnSpace": 12.486328125,
-  "parentId": "nut2daazwl",
+  "parentId": "p6zjn4eorl",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -78,6 +78,6 @@
   "topRow": 0,
   "type": "CONTAINER_WIDGET",
   "version": 1,
-  "widgetId": "6ur8381nhc",
+  "widgetId": "ontgsymtws",
   "widgetName": "Container3"
 }

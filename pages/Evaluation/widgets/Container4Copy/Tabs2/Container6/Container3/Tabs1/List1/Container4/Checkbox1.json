@@ -1,10 +1,10 @@
 {
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "RIGHT",
-  "animateLoading": true,
+  "animateLoading": false,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 26,
-  "defaultCheckedState": "{{ currentItem.Bookmark }}",
+  "bottomRow": 5,
+  "defaultCheckedState": "{{ currentItem.hasBookmark }}",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
@@ -36,8 +36,8 @@
   "isVisible": true,
   "key": "fowu4c5h02",
   "label": "Bookmark:",
-  "labelPosition": "Left",
-  "leftColumn": 55,
+  "labelPosition": "Right",
+  "leftColumn": 1,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "minWidth": 450,
@@ -48,14 +48,14 @@
   "needsErrorInfo": false,
   "onCheckChange": "{{ EvaluationSource.toggleBookmark(currentItem, currentView.Checkbox1) }}",
   "parentColumnSpace": 40.64453125,
-  "parentId": "m5kqjodfs3",
+  "parentId": "ke18cxstji",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 59,
-  "topRow": 22,
+  "rightColumn": 5,
+  "topRow": 1,
   "type": "CHECKBOX_WIDGET",
   "version": 1,
-  "widgetId": "15xrvjy19d",
+  "widgetId": "ql2msv54o9",
   "widgetName": "Checkbox1"
 }

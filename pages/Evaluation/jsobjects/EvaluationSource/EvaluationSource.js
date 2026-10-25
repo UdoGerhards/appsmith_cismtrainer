@@ -15,12 +15,6 @@ export default {
 
 		//console.log("Report ", report);
 
-		const questions = appsmith.store.report.questions;
-		//console.log("Initial questions: ", questions);
-		const questionsWithMeta = await this.getQuestionMeta(questions);
-
-		report.questions = questionsWithMeta;
-
 		const secondsLeft = Number(appsmith.store.timeLeft);
 		const totalSeconds = Number(report.minutes) * 60;
 
@@ -74,45 +68,11 @@ export default {
 		}
 	},
 
-	getQuestionMeta: async(questions) =>{
-		const ids = questions.map(item => item._id);
-
-		try {
-			const metadata = await BookmarkCommentLookup.run({ ids: ids });
-
-			//console.log("Erfolgreich geladen:", metadata);
-
-			const questionsWithMeta = questions.map(q => {
-				// 1. Passenden Eintrag in den Metadaten suchen
-				const meta = metadata.find(m => m._id?.toString() === q._id?.toString());
-
-				// 2. Werte berechnen (Ja/Nein-Werte)
-				const isBookmarked = meta?.hasBookmark === true;
-				const hasComment = meta?.commentText && meta?.commentText.trim().length > 0;
-
-				// 3. WICHTIG: Das neue Objekt zurückgeben!
-				return {
-					...q,                       // Kopiert alle alten Felder der Frage (z.B. Text, Kategorie)
-					isBookmarked: isBookmarked, // Fügt das neue Lesezeichen-Feld hinzu
-					hasComment: hasComment,     // Fügt das neue Kommentar-Feld hinzu
-					commentText: meta?.commentText || "" // Optional: Den Text des Kommentars direkt mitgeben
-				};
-			});
-
-			//console.log("Enriched questions: ", questionsWithMeta);
-			return questionsWithMeta;
-
-		} catch (error) {
-			// Fehler abfangen, falls die Query fehlschlägt
-			//console.error("Fehler beim Laden der Fragen:", error);
-			return questions;
-		}
-	},
 	getTableData: () => {
 		const questions = appsmith.store.report.questions || [];
 
 		// 2. Hole die bereits geladenen Daten aus deiner Query
-		const metadata = BookmarkCommentLookup.data || [];
+		const metadata = old_BookmarkCommentLookup.data || [];
 
 		// 3. Fragen nach Domain sortieren, damit sie gruppiert erscheinen
 		const sortedQuestions = [...questions].sort((a, b) => {
@@ -145,9 +105,7 @@ export default {
 				"Richtige Antwort": correctAnswer.text,
 				"User Antwort": userAnswer,
 				"isCorrect": isCorrect ? "✅" : "❌",
-				// Werte aus der Query verwenden
 				"Bookmark": meta?.hasBookmark ? "⭐" : "",
-				"Kommentare": meta?.commentText || "",
 				"id": q._id
 			};
 		});
@@ -190,7 +148,7 @@ export default {
 		const onlybookmarked = bookmarksonly.isSwitchedOn;
 		if (onlybookmarked) {
 			filteredQuestions = filteredQuestions.filter(q => {
-				return Boolean(q.isBookmarked);
+				return q.hasBookmark;
 			});
 		} 
 
@@ -235,80 +193,55 @@ export default {
 				"Frage": q.question,
 				"Richtige Antwort": correctAnswer,
 				"User Antwort": userAnswer,
-				"Kommentar": q?.commentText || "",
-				"Bookmark": q.isBookmarked,
 				"id": q._id,
-				"isCorrect": q.isCorrect
+				"isCorrect": q.isCorrect,
+				"hasBookmark": q.hasBookmark
 			};
 		})
 
-		//console.log("Questions to show:", questionsToShow);
+		console.log("Questions to show:", questionsToShow);
 
 		return questionsToShow;
 	},
-
-
-	// ... Ihre bisherigen Funktionen (getWrongAnswers, etc.) ...
-
+	
 	toggleBookmark: async (currentQuestion, chckBx) => {
-		// //console.log(chckBx);
-		const isChecked = chckBx.isChecked;
+			const isChecked = chckBx.isChecked;
 
-		// Die ID der aktuellen Frage aus der Liste holen
-		const qId = currentQuestion.id; // Falls Ihr Feld anders heißt, z.B. q.questionId, hier anpassen
+			// ID sicher ermitteln (unterstützt _id als ObjectId/String sowie .id)
+			const qId = currentQuestion._id ? currentQuestion._id.toString() : currentQuestion.id;
 
-		if (isChecked) {
-			// 1. Wenn die Checkbox AKTIVIERT wurde -> Insert ausführen
-			await InsertBookmark.run({ qId: qId });
-		} else {
-			// 2. Wenn die Checkbox DEAKTIVIERT wurde -> Delete ausführen
-			await DeleteBookmark.run({ qId: qId });
-		}
-
-		//await EvaluationSource.refreshData();
-
-		// 3. WICHTIG: Die Liste neu laden, damit die Änderungen sofort sichtbar sind
-		//await EvaluationSource.getWrongAnswers();
-	},
-
-	saveComment: async (currentQuestion, newCommentTextObj) => {
-		const newCommentText = newCommentTextObj.text;
-		// //console.log(newCommentText);
-
-		const qId = currentQuestion.id; // Nutze .id oder ._id je nach Datenstruktur
-		const cleanComment = (newCommentText || "").trim();
-
-		// 1. Zuerst prüfen, ob bereits ein Eintrag in MongoDB existiert
-		const existingComments = await FindComment.run({ qId: qId });
-		const hasExistingEntry = existingComments && existingComments.length > 0;
-
-		// Logik-Weichen abfahren
-		if (cleanComment.length > 0) {
-			if (!hasExistingEntry) {
-				// VORGABE 1: Kein Wert in Collection + Text da -> Neu anlegen
-				await InsertComment.run({
-					qId: qId,
-					comment: cleanComment
-				});
-				showAlert("Kommentar erfolgreich erstellt!", "success");
+			// 1. Datenbank-Operationen ausführen
+			if (isChecked && !currentQuestion.hasBookmark) {
+				const result = await InsertBookmark.run({ qId: qId });
+				showAlert("Saving bookmark!"+qId, "info");
+				console.log("Result from setting bookmark ", result);
+			} else if (!isChecked && currentQuestion.hasBookmark) {
+				const result = await DeleteBookmark.run({ qId: qId });
+				showAlert("Deleting bookmark: "+qId, "info");
+				console.log("Result from setting bookmark ", result);
 			} else {
-				// VORGABE 2: Wert existiert + Text da -> Update ausführen
-				await UpdateComment.run({
-					qId: qId,
-					comment: cleanComment
-				});
-				showAlert("Kommentar erfolgreich aktualisiert!", "success");
+				return;
 			}
-		} else {
-			// VORGABE 3: CleanComment ist leer -> Eintrag löschen (falls einer existiert)
-			if (hasExistingEntry) {
-				await DeleteComment.run({
-					qId: qId
-				});
-				showAlert("Kommentar gelöscht.", "info");
-			}
-		}
-	},
+
+			const report = appsmith.store.report || {};
+			const questionsList = report.questions || [];
+			const updatedQuestions = questionsList.map(q => {
+				const currentQId = q._id ? q._id.toString() : q.id;
+				if (currentQId === qId) {
+					return {
+						...q,
+						hasBookmark: isChecked // Setzt den neuen Bookmark-Status
+					};
+				}
+				return q;
+			});
+
+			const updatedReport = {
+				...report,
+				questions: updatedQuestions // Falls es bei dir anders heißt (z.B. currentQuestions), hier anpassen
+			};
+			await storeValue("report", updatedReport, false);
+		},
 
 	/*
    * Helper function: Create PIEChart
@@ -489,7 +422,8 @@ export default {
 
 		const questions = appsmith.store.report.questions;
 		const currentData = this.getWrongAnswers()[index];
-
+		await storeValue("explanationQuestionID", currentData.id);
+										 
 		//this.clearChat();
 
 
@@ -582,65 +516,10 @@ export default {
 
 		console.log("question id:", String(question._id));
 
-		// 2. Führe die MongoDB-Query aus und übergebe die ID als Parameter
-		const tagResult = await FindTags.run({ 
-			questionId: String(question._id) 
-		});
-
-		console.log("tags: ", tagResult);
-
-		await storeValue("tagsId", question._id, false);
-		if (tagResult && tagResult.lenght > 0) {
-			await storeValue("tagsList",tagResult[0].tags, false);
-			console.log("appsmith.store.tagsList", appsmith.store.tagsList);
-		} else {
-			removeValue("tagsList");
-		}
-
 		resetWidget("InputUserMsg");
 		showModal(Modal_Explanation.name);
 
 		return question;
-	},
-
-	updateTags: async () => {
-
-		//showAlert("Udpate tags triggert!");
-
-		// 1. Hole die questionId (als String)
-		const idString = String(appsmith.store.tagsId || "");
-
-		// 2. Validierung vorab
-		if (!idString || idString === "undefined" || idString === "null") {
-			//showAlert("Keine gültige questionId gefunden!", "error");
-			return;
-		}
-
-		// 3. Hole die Tags primär aus dem Model des Custom Widgets (Name deines Widgets anpassen: tagsInput oder Custom1?)
-		// Achtung im Code oben hast du 'tagsInput.model', weiter unten im Projekt hieß es oft 'Custom1.model'. 
-		// Nutze hier den exakten Namen deines Custom Widgets!
-		let tagsToSave = tagsInput.model ? tagsInput.model.tags : (appsmith.store.tagsList || []);
-		//await storeValue("tagsList", tagsToSave,false);
-
-		try {
-			// Fall A: Keine Tags mehr übrig -> Sollen wir den Eintrag komplett löschen?
-			if (!tagsToSave || (Array.isArray(tagsToSave) && tagsToSave.length === 0)) {
-				// Falls du den Datensatz bei 0 Tags komplett löschen willst:
-				await DeleteTags.run({ questionId: idString });
-				//await storeValue('tagsList', []);
-				return;
-			}
-
-			// Fall B: Tags vorhanden -> Normales Update / Upsert ausführen
-			const result = await UpdateTags.run({ 
-				questionId: idString,
-				tags: tagsToSave 
-			});
-
-			return result;
-		} catch (error) {
-			showAlert("Fehler beim Speichern: " + error.message, "error");
-		}
 	},
 
 	handleSaveAndNavigate: async() => {
@@ -652,51 +531,6 @@ export default {
 		}
 	},
 
-	/*
-	saveReportToMongo: async() => {
-		// 1. Prüfen, ob das Objekt überhaupt im Store existiert
-		if (!appsmith.store.report) {
-			showAlert("Kein Report-Objekt im Store gefunden!", "warning");
-			return;
-		}
-
-		const report = appsmith.store.report;
-		const { questions, ...reportMetadata } = report;
-		
-		// Nimm das ursprüngliche Datum oder "jetzt" und rechne 2 Stunden (in Millisekunden) drauf
-		const berlinDate = new Date(report.finished ? new Date(report.finished).getTime() + (2 * 60 * 60 * 1000) : Date.now() + (2 * 60 * 60 * 1000));
-		
-		const reportToSave = {
-			...reportMetadata,
-			// Wichtig: MongoDB versteht dieses Format beim Insert als echtes ISODate()
-      finished: { "$date": berlinDate.toString() },
-			questions: questions.map(({ userAnswer, isCorrect, _id }) => ({
-				userAnswer,
-				isCorrect,
-				_id
-			}))
-		};
-
-		await this.updateWrongQuestionCount(reportToSave.questions);
-
-		await storeValue('reportToSave', reportToSave, false);
-
-		try {
-			// 2. Die MongoDB-Query triggern und auf den Erfolg warten
-			await InsertTestResults.run({ reportData: reportToSave });
-
-			// 3. Erfolgsmeldung für den Nutzer
-			showAlert("Report erfolgreich in MongoDB gespeichert!", "success");
-
-			// 4. (Optional) Den Store nach dem Speichern leeren
-			// await removeValue("report");
-
-		} catch (error) {
-			// Fehler abfangen, falls die DB-Verbindung hakt
-			showAlert("Fehler beim Speichern in MongoDB: " + error.message, "error");
-		}
-	},
-	*/
 	saveReportToMongo: async() => {
 		// 1. Prüfen, ob das Objekt überhaupt im Store existiert
 		if (!appsmith.store.report) {
@@ -783,34 +617,6 @@ export default {
 		}
 	},
 
-	/*
-	updateWrongQuestionCount: async(questions)  => {
-		
-		const falseAnswers = {};
-
-		try {
-			//const ids = questions
-			questions
-			.filter(q => q.isCorrect === false) // 1. Nur die falschen Fragen behalten
-			.map(q => {
-				if (!q.origin) {
-					falseAnswers['question'] = q._id
-				} else  {
-					falseAnswers[q.origin] = q._id;
-				}
-			});
-			//.map(q => q._id);                     // 2. Aus diesen Fragen nur die _id herausziehen
-
-			for (const [collection, idsArray] of Object.entries(falseAnswers)) {
-				await UpdateFalseRateQuestions.run({
-					collection: collection,
-					ids: idsArray});
-				};
-		} catch (error) {
-			//console.error(error);
-		}
-	},
-	*/
 	updateWrongQuestionCount: async (questions) => {
     const falseAnswers = {};
 
@@ -978,6 +784,14 @@ export default {
 		if (!appsmith.store.gemini_chat_key) {
 			await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
 			await this.initChat();
+		}
+		
+		// Chat initialisieren, wenn ein neues Thema angefangen wurde
+		const explanationQuestionID = appsmith.store.explanationQuestionID
+	  const KIChatQuestionId = appsmith.store.KIQuestionId;
+		if (!KIChatQuestionId || explanationQuestionID !== KIChatQuestionId) {
+			await this.initChat();
+			storeValue("KIChatQuestionId", explanationQuestionID, false);
 		}
 
 		let history = appsmith.store.geminiChatHistory || [];
@@ -1235,6 +1049,7 @@ export default {
 			return q._id;
 		});
 
+		// TODO: Review
 		const questionsResult = await GetQuestionsForTest.run({qIds: qIds});
 
 		const questions = questionsResult.reduce((acc, item) => {
@@ -1446,7 +1261,7 @@ Struktur des geforderten JSON-Objekts:
 
 		if (ids.length > 0){
 			report.questions = newQuestions;
-			DeleteManyBookmarks.run({ questionIds: ids });
+			old_DeleteManyBookmarks.run({ questionIds: ids });
 		}
 		
 		showAlert("Alle Bookmarks in diesem Report wurden zurückgesetzt!!!", "info");

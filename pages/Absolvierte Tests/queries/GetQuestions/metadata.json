@@ -16,7 +16,7 @@
           }
         },
         "body": {
-          "data": "{\n  \"aggregate\": \"question\",\n  \"pipeline\": [\n    {\n      \"$addFields\": {\n        \"converted_param_ids\": {\n          \"$map\": {\n            \"input\": {{ this.params.ids || [] }},\n            \"as\": \"id\",\n            \"in\": { \"$toObjectId\": \"$$id\" }\n          }\n        }\n      }\n    },\n    {\n      \"$match\": {\n        \"$expr\": {\n          \"$in\": [ \"$_id\", \"$converted_param_ids\" ]\n        }\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"answer\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"answers\"\n      }\n    },\n    {\n      \"$project\": {\n        \"converted_param_ids\": 0\n      }\n    }\n  ],\n  \"cursor\": {\n    \"batchSize\": 10000\n  }\n}\n"
+          "data": "{\n  \"aggregate\": \"master_question\",\n  \"pipeline\": [\n    {\n      \"$addFields\": {\n        \"converted_param_ids\": {\n          \"$map\": {\n            \"input\": {{ this.params.ids || [] }},\n            \"as\": \"id\",\n            \"in\": { \"$toObjectId\": \"$$id\" }\n          }\n        }\n      }\n    },\n    {\n      \"$match\": {\n        \"$expr\": {\n          \"$in\": [ \"$_id\", \"$converted_param_ids\" ]\n        }\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"master_answer\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"answers\"\n      }\n    },\n    {\n      \"$project\": {\n        \"converted_param_ids\": 0\n      }\n    }\n  ],\n  \"cursor\": {\n    \"batchSize\": 10000\n  }\n}\n"
         },
         "collection": {
           "data": ""

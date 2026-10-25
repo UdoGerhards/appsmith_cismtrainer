@@ -15,11 +15,14 @@
             "data": "1000"
           }
         },
+        "body": {
+          "data": "{\n  \"aggregate\": \"master_question\",\n  \"pipeline\": [\n    {\n      \"$match\": {\n        \"domain\": { \"$ne\": null }\n      }\n    },\n    {\n      \"$group\": {\n        \"_id\": \"$domain\"\n      }\n    },\n    {\n      \"$addFields\": {\n        \"domainNumber\": {\n          \"$toInt\": {\n            \"$arrayElemAt\": [\n              {\n                \"$split\": [\n                  \"$_id\",\n                  \" \"\n                ]\n              },\n              1\n            ]\n          }\n        }\n      }\n    },\n    {\n      \"$sort\": {\n        \"domainNumber\": 1\n      }\n    },\n    {\n      \"$project\": {\n        \"domainNumber\": 0\n      }\n    }\n  ],\n  \"cursor\": {}\n}"
+        },
         "collection": {
           "data": "question"
         },
         "command": {
-          "data": "AGGREGATE"
+          "data": "RAW"
         },
         "count": {
           "query": {

@@ -3,7 +3,7 @@
   "alignWidget": "LEFT",
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 11,
+  "bottomRow": 10,
   "defaultCheckedState": false,
   "dynamicBindingPathList": [
     {
@@ -44,17 +44,17 @@
   "mobileTopRow": 6,
   "needsErrorInfo": false,
   "onCheckChange": "{{TestSource.saveUserAnswer(answerA)}}",
-  "originalBottomRow": 11,
+  "originalBottomRow": 10,
   "originalTopRow": 6,
   "parentColumnSpace": 31.65625,
-  "parentId": "wl2u4o54zu",
+  "parentId": "x8ojmz3798",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
   "rightColumn": 62,
-  "topRow": 7,
+  "topRow": 6,
   "type": "CHECKBOX_WIDGET",
   "version": 1,
-  "widgetId": "ukmku7qsam",
+  "widgetId": "fj19qkyuol",
   "widgetName": "answerA"
 }

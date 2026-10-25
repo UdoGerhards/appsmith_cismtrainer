@@ -1,5 +1,5 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_debdfb6a-c089-4d29-951a-49020910f9a5",
+  "gitSyncId": "6a784e96054143865d8dd557_818b0a99-d248-4ad3-bf9b-41e67915eeba",
   "id": "Evaluation_InsertBookmark",
   "pluginId": "mongo-plugin",
   "pluginType": "DB",
@@ -61,12 +61,12 @@
         },
         "insert": {
           "documents": {
-            "data": "{\n      \"questionId\": \"{{ this.params.qId }}\",\n      \"userId\": \"{{ appsmith.store.user}}\",\n      \"createdAt\": \"{{ new Date() }}\"\n}"
+            "data": "{\n      \"questionId\": \"{{ this.params.id }}\",\n      \"userId\": \"{{ appsmith.store.user}}\",\n      \"createdAt\": \"{{ new Date() }}\"\n}"
           }
         },
         "misc": {
           "formToNativeQuery": {
-            "data": "{\n  \"insert\": \"bookmark\",\n  \"documents\": {\n      \"questionId\": \"{{ this.params.qId }}\",\n      \"userId\": \"{{ appsmith.store.user}}\",\n      \"createdAt\": \"{{ new Date() }}\"\n}\n}\n",
+            "data": "{\n  \"insert\": \"bookmark\",\n  \"documents\": {\n      \"questionId\": \"{{ this.params.id }}\",\n      \"userId\": \"{{ appsmith.store.user}}\",\n      \"createdAt\": \"{{ new Date() }}\"\n}\n}\n",
             "status": "SUCCESS"
           }
         },

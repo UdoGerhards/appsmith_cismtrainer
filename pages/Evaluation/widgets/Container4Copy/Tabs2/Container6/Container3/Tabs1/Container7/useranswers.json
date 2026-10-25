@@ -26,10 +26,10 @@
   "mobileRightColumn": 57,
   "mobileTopRow": 2,
   "needsErrorInfo": false,
-  "originalBottomRow": 43,
+  "originalBottomRow": 12,
   "originalTopRow": 8,
   "parentColumnSpace": 30.416015625,
-  "parentId": "fb09uq8l60",
+  "parentId": "6qdywi8hlf",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -37,6 +37,6 @@
   "topRow": 8,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "3poyhofjku",
+  "widgetId": "j4sbw1hloq",
   "widgetName": "useranswers"
 }

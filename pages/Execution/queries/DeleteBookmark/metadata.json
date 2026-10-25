@@ -1,5 +1,5 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_f43fc7a3-57b2-406b-9542-83d0af90ec26",
+  "gitSyncId": "6a784e96054143865d8dd557_c9def3dc-35f0-4d07-b0f4-c68a38e77fa6",
   "id": "Execution_DeleteBookmark",
   "pluginId": "mongo-plugin",
   "pluginType": "DB",
@@ -31,7 +31,7 @@
             "data": "SINGLE"
           },
           "query": {
-            "data": "{\n  \"questionId\": \"{{ this.params.qId }}\",\n  \"userId\": \"{{ appsmith.store.user }}\"\n}"
+            "data": "{\n  \"questionId\": \"{{ this.params.id }}\",\n  \"userId\": \"{{ appsmith.store.user }}\"\n}"
           }
         },
         "distinct": {
@@ -66,7 +66,7 @@
         },
         "misc": {
           "formToNativeQuery": {
-            "data": "{\n  \"delete\": \"bookmark\",\n  \"deletes\": [{\n    \"q\": {\n  \"questionId\": \"{{ this.params.qId }}\",\n  \"userId\": \"{{ appsmith.store.user }}\"\n},\n    \"limit\": 1,\n  }]\n}\n",
+            "data": "{\n  \"delete\": \"bookmark\",\n  \"deletes\": [{\n    \"q\": {\n  \"questionId\": \"{{ this.params.id }}\",\n  \"userId\": \"{{ appsmith.store.user }}\"\n},\n    \"limit\": 1,\n  }]\n}\n",
             "status": "SUCCESS"
           }
         },

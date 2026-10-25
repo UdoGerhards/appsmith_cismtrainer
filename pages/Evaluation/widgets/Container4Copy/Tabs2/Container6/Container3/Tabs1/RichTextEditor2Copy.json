@@ -40,7 +40,7 @@
   "mobileTopRow": 2,
   "needsErrorInfo": false,
   "parentColumnSpace": 31.8642578125,
-  "parentId": "dvlff09m2s",
+  "parentId": "v30rw7c8ac",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
@@ -48,6 +48,6 @@
   "topRow": 4,
   "type": "RICH_TEXT_EDITOR_WIDGET",
   "version": 1,
-  "widgetId": "vl4git9th2",
+  "widgetId": "rr4r6p7qfx",
   "widgetName": "RichTextEditor2Copy"
 }

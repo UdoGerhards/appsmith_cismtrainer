@@ -3,11 +3,11 @@
   "backgroundColor": "#FFFFFF",
   "borderColor": "#E0DEDE",
   "borderWidth": "1",
-  "bottomRow": 497,
+  "bottomRow": 433,
   "boxShadow": "NONE",
   "children": [
     {
-      "bottomRow": 4970,
+      "bottomRow": 4330,
       "canExtend": false,
       "containerStyle": "none",
       "detachFromLayout": true,
@@ -16,7 +16,7 @@
       "leftColumn": 0,
       "minHeight": 1803.359375,
       "parentColumnSpace": 1,
-      "parentId": "cl0celwiqq",
+      "parentId": "r1ncpksbjg",
       "parentRowSpace": 1,
       "props": {
         "canExtend": false,
@@ -29,7 +29,7 @@
       "topRow": 0,
       "type": "CANVAS_WIDGET",
       "version": 1,
-      "widgetId": "irei5cfcqn",
+      "widgetId": "5uu6j3xj3o",
       "widgetName": "Canvas4Copy"
     }
   ],
@@ -78,6 +78,6 @@
   "topRow": 0,
   "type": "CONTAINER_WIDGET",
   "version": 1,
-  "widgetId": "cl0celwiqq",
+  "widgetId": "r1ncpksbjg",
   "widgetName": "Container4Copy"
 }

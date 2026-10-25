@@ -83,7 +83,7 @@ getAllTests: () => {
 		return tableData;
 	},
 
-	
+	/*
 	async handleSelection() {
 		// 1. Führe den Query GetTest aus und warte auf das Ergebnis
 		const result = await GetTest.run();
@@ -111,6 +111,9 @@ getAllTests: () => {
 					questionsMap.set(item._id.toString(), item);
 				});
 				
+				const allQuestionIds = questionsMap.keys();
+				const result = await GetQuestions.run(allQuestionIds);
+				
 				const updatedQuestions = document.questions.map(q => {
 					const detail = questionsMap.get(q._id.toString()) || {};
 
@@ -130,6 +133,73 @@ getAllTests: () => {
 			console.log('Report: ', document);
 			
 			// 3. Speichere das Dokument plus das neue Feld im Store
+			await storeValue("report", {
+				...document,
+				synthetic: true
+			});
+			
+			console.log(appsmith.store.report);
+			
+			await navigateTo('Evaluation', {}, 'SAME_WINDOW');
+
+			showAlert("Report wurde geladen und gespeichert!", "success");
+		} else {
+			showAlert("Dokument konnte nicht gefunden werden", "error");
+		}
+	},
+	*/
+	async handleSelection() {
+		// 1. Führe den Query GetTest aus und warte auf das Ergebnis
+		const result = await GetTest.run();
+
+		// 2. Überprüfe, ob ein Dokument gefunden wurde (result ist bei Find meist ein Array)
+		if (result && result.length > 0) {
+			const document = result[0];
+			
+			const selectedIds = document.questions.map(question => question._id);
+			
+			// 3. Frage-Details UND Bookmarks parallel/nacheinander laden
+			await GetQuestions.run({ ids: selectedIds });
+			
+			// Holt alle Bookmarks für diese Frage-IDs (Passe 'ids' an, falls dein Parameter in GetBookmarks anders heißt, z.B. 'questionIds')
+			const bookmarkResult = await GetBookmarks.run({ ids: selectedIds }); 
+			
+			const questions = GetQuestions.data?.cursor?.firstBatch 
+												|| GetQuestions.data 
+												|| [];
+			
+			console.log("Fragen: ", questions);
+			
+			if (questions.length > 0 ) {
+				
+				// Ein Set aus allen gebookmarkten questionIds für extrem schnellen Lookup erstellen
+				const bookmarkedIdsSet = new Set((bookmarkResult || []).map(b => b.questionId));
+				
+				const questionsMap = new Map();
+				questions.forEach(item => {
+					questionsMap.set(item._id.toString(), item);
+				});
+				
+				const updatedQuestions = document.questions.map(q => {
+					const detail = questionsMap.get(q._id.toString()) || {};
+					const qIdStr = q._id.toString();
+
+					return {
+						...q, // Behält userAnswer und isCorrect bei
+						question: detail.question || "", // Text der Frage aus der DB
+						correct: detail.correct || "",   // Die korrekte Antwort aus der DB
+						domain: detail.domain || "",     // Domain der Frage
+						answers: detail.answers || [],   // Die Antwortmöglichkeiten
+						hasBookmark: bookmarkedIdsSet.has(qIdStr) // ✨ Hier wird hasBookmark gesetzt (true/false)
+					};
+				});
+				
+				document.questions = updatedQuestions;
+			}
+
+			console.log('Report: ', document);
+			
+			// 4. Speichere das Dokument plus das neue Feld im Store
 			await storeValue("report", {
 				...document,
 				synthetic: true
