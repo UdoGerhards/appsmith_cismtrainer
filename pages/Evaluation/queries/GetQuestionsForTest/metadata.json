@@ -15,11 +15,14 @@
             "data": "150"
           }
         },
+        "body": {
+          "data": "{\n  \"aggregate\": \"master_question\",\n  \"pipeline\": [\n    {\n      \"$match\": {\n        \"_id\": {\n          \"$in\": {{ (this.params?.qIds || []).map(id => ({ \"$oid\": id.toString().trim() })) }}\n        }\n      }\n    },\n    {\n      \"$lookup\": {\n        \"from\": \"master_answer\",\n        \"localField\": \"_id\",\n        \"foreignField\": \"question_id\",\n        \"as\": \"answers\"\n      }\n    }\n  ],\n  \"cursor\": {\n    \"batchSize\": 200\n  }\n}"
+        },
         "collection": {
           "data": "question"
         },
         "command": {
-          "data": "AGGREGATE"
+          "data": "RAW"
         },
         "count": {
           "query": {
@@ -98,6 +101,9 @@
     "dynamicBindingPathList": [
       {
         "key": "formData.aggregate.arrayPipelines.data"
+      },
+      {
+        "key": "formData.body.data"
       }
     ],
     "name": "GetQuestionsForTest",

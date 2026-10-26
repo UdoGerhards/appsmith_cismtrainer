@@ -2,10 +2,10 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "animateLoading": true,
   "borderColor": "#E0DEDE",
-  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+  "borderRadius": "0.375rem",
   "borderWidth": "1",
   "bottomRow": 109,
-  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "boxShadow": "none",
   "cachedTableData": {},
   "canFreezeColumn": true,
   "childStylesheet": {
@@ -36,11 +36,10 @@
     "Frage",
     "User_Antwort",
     "Richtige_Antwort",
-    "Bookmark",
     "id",
     "Domain"
   ],
-  "columnUpdatedAt": 1792939883118,
+  "columnUpdatedAt": 1793032800086,
   "columnWidthMap": {
     "Domain": 82,
     "Frage": 1047,
@@ -62,12 +61,6 @@
       "key": "accentColor"
     },
     {
-      "key": "borderRadius"
-    },
-    {
-      "key": "boxShadow"
-    },
-    {
       "key": "tableData"
     },
     {
@@ -84,9 +77,6 @@
     },
     {
       "key": "primaryColumns.isCorrect.computedValue"
-    },
-    {
-      "key": "primaryColumns.Bookmark.computedValue"
     },
     {
       "key": "primaryColumns.id.computedValue"
@@ -134,40 +124,6 @@
   "parentId": "prfsg0cjl2",
   "parentRowSpace": 10,
   "primaryColumns": {
-    "Bookmark": {
-      "alias": "Bookmark",
-      "allowCellWrapping": false,
-      "allowSameOptionsInNewRow": true,
-      "cellBackground": "",
-      "columnType": "text",
-      "computedValue": "{{(() => { const tableData = Table1.processedTableData || []; return tableData.length > 0 ? tableData.map((currentRow, currentIndex) => (currentRow[\"Bookmark\"])) : Bookmark })()}}",
-      "currencyCode": "USD",
-      "decimals": 0,
-      "enableFilter": true,
-      "enableSort": true,
-      "fontStyle": "",
-      "horizontalAlignment": "LEFT",
-      "id": "Bookmark",
-      "index": 5,
-      "isCellEditable": false,
-      "isCellVisible": true,
-      "isDerived": false,
-      "isDisabled": false,
-      "isDiscardVisible": true,
-      "isEditable": false,
-      "isSaveVisible": true,
-      "isVisible": true,
-      "label": "Bookmark",
-      "notation": "standard",
-      "originalId": "Bookmark",
-      "sticky": "",
-      "textColor": "",
-      "textSize": "0.7rem\n",
-      "thousandSeparator": true,
-      "validation": {},
-      "verticalAlignment": "CENTER",
-      "width": 150
-    },
     "Domain": {
       "alias": "Domain",
       "allowCellWrapping": false,

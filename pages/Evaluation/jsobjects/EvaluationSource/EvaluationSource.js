@@ -70,11 +70,7 @@ export default {
 
 	getTableData: () => {
 		const questions = appsmith.store.report.questions || [];
-
-		// 2. Hole die bereits geladenen Daten aus deiner Query
-		const metadata = old_BookmarkCommentLookup.data || [];
-
-		// 3. Fragen nach Domain sortieren, damit sie gruppiert erscheinen
+		
 		const sortedQuestions = [...questions].sort((a, b) => {
 			const domainA = (a.domain || "").toLowerCase();
 			const domainB = (b.domain || "").toLowerCase();
@@ -89,9 +85,6 @@ export default {
 			const answers = q.answers;
 			const correctAnswer = answers.filter(item => item.type.trim() === q.correct.trim())[0];
 
-			// Finde die passenden Metadaten für die aktuelle Frage aus der Query
-			const meta = metadata.find(m => m._id?.toString() === q._id?.toString());
-
 			let userAnswer = null;
 			let isCorrect = false;
 			if (q.userAnswer !== undefined) {
@@ -105,7 +98,6 @@ export default {
 				"Richtige Antwort": correctAnswer.text,
 				"User Antwort": userAnswer,
 				"isCorrect": isCorrect ? "✅" : "❌",
-				"Bookmark": meta?.hasBookmark ? "⭐" : "",
 				"id": q._id
 			};
 		});

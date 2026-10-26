@@ -1,6 +1,6 @@
 {
   "gitSyncId": "6a784e96054143865d8dd557_178c6faa-f11b-42ec-b821-d4bce1baaf1c",
-  "id": "Evaluation_GetWrongAnswersSorted",
+  "id": "Evaluation_old_GetWrongAnswersSorted",
   "pluginId": "mongo-plugin",
   "pluginType": "DB",
   "unpublishedAction": {
@@ -99,7 +99,7 @@
       "pluginId": "mongo-plugin"
     },
     "dynamicBindingPathList": [],
-    "name": "GetWrongAnswersSorted",
+    "name": "old_GetWrongAnswersSorted",
     "pageId": "Evaluation",
     "runBehaviour": "AUTOMATIC",
     "userSetOnLoad": true
