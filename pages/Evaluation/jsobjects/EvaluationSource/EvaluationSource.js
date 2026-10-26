@@ -416,8 +416,6 @@ export default {
 		const currentData = this.getWrongAnswers()[index];
 		await storeValue("explanationQuestionID", currentData.id);
 										 
-		//this.clearChat();
-
 
 		if (!currentData) return;
 
@@ -775,13 +773,13 @@ export default {
 		// Prüfen, ob der aktive Chat-Key im Store existiert.
 		if (!appsmith.store.gemini_chat_key) {
 			await storeValue("gemini_chat_key", appsmith.store.gemini_key_free);
-			await this.initChat();
 		}
 		
 		// Chat initialisieren, wenn ein neues Thema angefangen wurde
 		const explanationQuestionID = appsmith.store.explanationQuestionID
-	  const KIChatQuestionId = appsmith.store.KIQuestionId;
+	  	const KIChatQuestionId = appsmith.store.KIChatQuestionId;
 		if (!KIChatQuestionId || explanationQuestionID !== KIChatQuestionId) {
+			showAlert("Chat will be initilized!"+JSON.stringify(explanationQuestionID)+JSON.stringify(KIChatQuestionId))
 			await this.initChat();
 			storeValue("KIChatQuestionId", explanationQuestionID, false);
 		}
@@ -951,6 +949,9 @@ export default {
 		const scoreAnalysis = data.scoreAnalysisHtml || "";
 		const thematicAnalysis = data.thematicAnalysisHtml || "";
 		const revisionPlan = data.revisionPlanHtml || "";
+		//const thematicAnalysis = `<h4>Analyse der Fehlerschwerpunkte!!!!!!!!</h4><p>Aus der Auswertung Ihrer falsch beantworteten Fragen lassen sich folgende zentrale Denkmuster und Unsicherheiten identifizieren:</p><ul>${data.thematicAnalysis.map(item => `<li>${item}</li>`).join('')}</ul>`;	
+		//const revisionPlan = `<h4>Priorisierter Revisionsplan</h4><p>Fokussieren Sie Ihre finale Wiederholung auf folgende Kernbereiche, um Ihr Ergebnis weiter abzusichern:</p><ul>${data.revisionPlan.map(item => `<li>${item}</li>`).join('')}</ul>`;
+
 
 		// Fallback, falls Gemini alles in ein einziges Feld geschrieben hat
 		const singleReport = data.reportMarkdown || data.reportHtml || "";
@@ -1031,9 +1032,32 @@ export default {
 
 		const geminiOpinion = appsmith.store.report.geminiEvaluation;
 
+		function extractListItems(htmlString) {
+			if (!htmlString) return [];
+			
+			// HTML in ein temporäres Dokument parsen
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(htmlString, 'text/html');
+			
+			// Alle <li>-Elemente finden und den reinen Text (ohne Tags) extrahieren
+			const items = Array.from(doc.querySelectorAll('ul li')).map(li => li.textContent.trim());
+			
+			return items;
+		}
+
 		if (geminiOpinion) {
 			return;
 		}
+
+		//const thematicAnalysis = extractListItems(geminiOpinion.thematicAnalysisHtml);
+		//geminiOpinion.thematicAnalysis = thematicAnalysis;
+		//console.log("Thematic analysis", thematicAnalysis);
+
+		//const revisionPlan = extractListItems(geminiOpinion.revisionPlanHtml);
+		//geminiOpinion.revisionPlan = revisionPlan;
+		//&console.log("Revision plan: ", revisionPlan);
+	
+		//console.log("Gemini opinion: ",geminiOpinion);
 
 		const report = appsmith.store.report;
 
@@ -1119,11 +1143,19 @@ export default {
 				// Wir übergeben das geparste JSON-Objekt an unser HTML-Template
 				finalHtml = this.buildHtmlReport(parsedJson);
 
+				/*
+				await SaveEvaluation.run({ 
+					evaluationData: finalHtml 
+					});
+				*/
+
 			} catch (e) {
 				console.error("Fehler beim Parsen der Gemini-Antwort:", e);
 				// Fallback, falls die API unerwartet reinen Text statt JSON lieferte
 				finalHtml = `<div style="padding: 20px; font-family: sans-serif;">${responseText.replace(/\n/g, '<br>')}</div>`;
 			}
+
+			console.log(finalHtml);
 
 			// Das finale, gestaltete HTML im Store ablegen
 			await storeValue('geminiEvaluationResult', finalHtml);
@@ -1253,7 +1285,7 @@ Struktur des geforderten JSON-Objekts:
 
 		if (ids.length > 0){
 			report.questions = newQuestions;
-			old_DeleteManyBookmarks.run({ questionIds: ids });
+			//old_DeleteManyBookmarks.run({ questionIds: ids });
 		}
 		
 		showAlert("Alle Bookmarks in diesem Report wurden zurückgesetzt!!!", "info");

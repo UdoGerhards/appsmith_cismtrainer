@@ -3,11 +3,11 @@
   "backgroundColor": "#FFFFFF",
   "borderColor": "#E0DEDE",
   "borderWidth": "1",
-  "bottomRow": 402,
+  "bottomRow": 323,
   "boxShadow": "NONE",
   "children": [
     {
-      "bottomRow": 4020,
+      "bottomRow": 3230,
       "canExtend": false,
       "containerStyle": "none",
       "detachFromLayout": true,
@@ -56,7 +56,7 @@
     "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
     "selectionColorCSSVar": "--on-canvas-ui-widget-focus"
   },
-  "originalBottomRow": 443,
+  "originalBottomRow": 323,
   "originalTopRow": 0,
   "parentColumnSpace": 12.486328125,
   "parentId": "p6zjn4eorl",
