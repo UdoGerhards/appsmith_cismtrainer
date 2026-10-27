@@ -947,8 +947,25 @@ export default {
 
 		// Unterstützung sowohl für separate HTML-Felder als auch für ein einzelnes reportMarkdown/reportHtml Feld
 		const scoreAnalysis = data.scoreAnalysisHtml || "";
-		const thematicAnalysis = data.thematicAnalysisHtml || "";
-		const revisionPlan = data.revisionPlanHtml || "";
+		//const thematicAnalysis = data.thematicAnalysisHtml || "";
+		//const revisionPlan = data.revisionPlanHtml || "";
+
+		let section = {
+			header: 'Häufige Fehlermuster &amp; ISACA Mindset-Abweichungen',
+			description: 'Aus der Auswertung Ihrer falsch beantworteten Fragen lassen sich folgende zentrale Denkmuster und Unsicherheiten identifizieren:',
+			items: data.thematicAnalysis
+		}
+
+		const thematicAnalysis = this.generateCompleteHtml(section);
+
+		section = {
+			header: 'Priorisierter Lernplan',
+			description: 'Fokussieren Sie Ihre finale Wiederholung auf folgende Kernbereiche, um Ihr Ergebnis weiter abzusichern:',
+			items: data.revisionPlan
+		}
+
+		const revisionPlan = this.generateCompleteHtml(section);
+
 		//const thematicAnalysis = `<h4>Analyse der Fehlerschwerpunkte!!!!!!!!</h4><p>Aus der Auswertung Ihrer falsch beantworteten Fragen lassen sich folgende zentrale Denkmuster und Unsicherheiten identifizieren:</p><ul>${data.thematicAnalysis.map(item => `<li>${item}</li>`).join('')}</ul>`;	
 		//const revisionPlan = `<h4>Priorisierter Revisionsplan</h4><p>Fokussieren Sie Ihre finale Wiederholung auf folgende Kernbereiche, um Ihr Ergebnis weiter abzusichern:</p><ul>${data.revisionPlan.map(item => `<li>${item}</li>`).join('')}</ul>`;
 
@@ -1032,32 +1049,10 @@ export default {
 
 		const geminiOpinion = appsmith.store.report.geminiEvaluation;
 
-		function extractListItems(htmlString) {
-			if (!htmlString) return [];
-			
-			// HTML in ein temporäres Dokument parsen
-			const parser = new DOMParser();
-			const doc = parser.parseFromString(htmlString, 'text/html');
-			
-			// Alle <li>-Elemente finden und den reinen Text (ohne Tags) extrahieren
-			const items = Array.from(doc.querySelectorAll('ul li')).map(li => li.textContent.trim());
-			
-			return items;
-		}
-
 		if (geminiOpinion) {
+			console.log("Gemini opinion: ",geminiOpinion);
 			return;
 		}
-
-		//const thematicAnalysis = extractListItems(geminiOpinion.thematicAnalysisHtml);
-		//geminiOpinion.thematicAnalysis = thematicAnalysis;
-		//console.log("Thematic analysis", thematicAnalysis);
-
-		//const revisionPlan = extractListItems(geminiOpinion.revisionPlanHtml);
-		//geminiOpinion.revisionPlan = revisionPlan;
-		//&console.log("Revision plan: ", revisionPlan);
-	
-		//console.log("Gemini opinion: ",geminiOpinion);
 
 		const report = appsmith.store.report;
 
@@ -1126,7 +1121,20 @@ export default {
 
 			try {
 				// Da Gemini ein JSON-Objekt zurückliefert, parsen wir es hier direkt
+				console.log("------------------------------------------------------------------------------------------------------------------");
 				const parsedJson = JSON.parse(responseText);
+
+				const thematicAnalysis = this.parseHtmlToList(parsedJson.thematicAnalysisHtml);
+				const revisionPlan = this.parseHtmlToList(parsedJson.revisionPlanHtml);
+				console.log("Parsed JSON: ", parsedJson);
+
+				delete parsedJson.thematicAnalysisHtml;
+				delete parsedJson.revisionPlanHtml;
+
+				parsedJson.thematicAnalysis = thematicAnalysis;
+				parsedJson.revisionPlan = revisionPlan;
+				console.log("Parsed JSON: ", parsedJson);
+
 
 				const report = appsmith.store.report;
 				const updatedReport = {
@@ -1138,10 +1146,13 @@ export default {
 				console.log("report in store ", appsmith.store.report);
 
 				//const raw = parsedJson. scoreAnalysisHtml + parsedJson.revisionPlanHtml + parsedJson.scoreAnalysisHtml;
-				console.log(parsedJson);
 
 				// Wir übergeben das geparste JSON-Objekt an unser HTML-Template
 				finalHtml = this.buildHtmlReport(parsedJson);
+
+				console.log(finalHtml);
+				console.log("------------------------------------------------------------------------------------------------------------------");
+
 
 				/*
 				await SaveEvaluation.run({ 
@@ -1161,6 +1172,50 @@ export default {
 			await storeValue('geminiEvaluationResult', finalHtml);
 		}
 	},
+
+
+	parseHtmlToList: (htmlString) => {
+		if (!htmlString) return [];
+		
+		const regex = /<li>\s*<strong>(.*?)<\/strong>(.*?)<\/li>/gs;
+		const result = [];
+		let match;
+
+		while ((match = regex.exec(htmlString)) !== null) {
+		const tag = match[1].replace(/<[^>]*>/g, '').trim();
+		const review = match[2].replace(/<[^>]*>/g, '').trim();
+		
+		result.push({ tag, review });
+		}
+
+		return result;
+	},
+
+	generateCompleteHtml: (data) => {
+		// Prüfen, ob Daten und Items vorhanden sind
+		if (!data || !data.items || !Array.isArray(data.items) || data.items.length === 0) return '';
+		
+		// 1. Listenelemente generieren
+		const listItems = data.items.map(item => {
+			return `  <li><strong>${item.tag}</strong> ${item.review}</li>`;
+			}).join('\n');
+		
+		// 2. HTML-Bausteine zusammensetzen
+		let html = '';
+		
+		if (data.header) {
+		html += `<h4>${data.header}</h4>\n`;
+		}
+		
+		if (data.description) {
+		html += `<p>${data.description}</p>\n`;
+		}
+		
+		html += `<ul>\n${listItems}\n</ul>`;
+		
+		return html;
+	},
+	
 
 	/**
 	 * Hilfsfunktion: Fügt vor Markdown-Steuerzeichen echte Zeilenumbrüche ein,
