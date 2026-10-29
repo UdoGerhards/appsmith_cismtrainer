@@ -1053,129 +1053,136 @@ export default {
 		showAlert("Evaluation Test with Gemini!", "info");
 
 		const geminiOpinion = appsmith.store.report.geminiEvaluation;
+    let finalHtml = "";
 
-		if (geminiOpinion) {
+		if (false && geminiOpinion) {
+
 			console.log("Gemini opinion: ",geminiOpinion);
-			return;
-		}
+      finalHtml = this.buildHtmlReport(geminiOpinion);
 
-		const report = appsmith.store.report;
+		} else {
 
-		const qIds = report.questions.map(q => {
-			return q._id;
-		});
+      const report = appsmith.store.report;
 
-		// TODO: Review
-		const questionsResult = await GetQuestionsForTest.run({qIds: qIds});
+      const qIds = report.questions.map(q => {
+        return q._id;
+      });
 
-		const questions = questionsResult.reduce((acc, item) => {
-			const idStr = typeof item._id === 'object' ? item._id.$oid : item._id.toString();
-			acc[idStr] = item;
-			return acc;
-		}, {});
+      // TODO: Review
+      const questionsResult = await GetQuestionsForTest.run({qIds: qIds});
 
-		const domainResult = {};
-		const wrongQuestions = [];
+      const questions = questionsResult.reduce((acc, item) => {
+        const idStr = typeof item._id === 'object' ? item._id.$oid : item._id.toString();
+        acc[idStr] = item;
+        return acc;
+      }, {});
 
-		report.questions.map(q => {
-			const _id = q._id;
-			questions[_id].userAnswer = q.userAnswer;
+      const domainResult = {};
+      const wrongQuestions = [];
 
-			const domain = questions[_id].domain;
+      report.questions.map(q => {
+        const _id = q._id;
+        questions[_id].userAnswer = q.userAnswer;
 
-			if (!domainResult[domain]) {
-				domainResult[domain] = {
-					correctCount: 0,
-					falseCount: 0 
-				};
-			}
+        const domain = questions[_id].domain;
 
-			if (q.isCorrect) {
-				domainResult[domain].correctCount += 1;
-			} else {
-				domainResult[domain].falseCount += 1;
-				const wrongQuestion = {
-					"Questions-ID": questions[_id].ID,
-					Domain: questions[_id].domain,
-					Frage: questions[_id].question
-				};
+        if (!domainResult[domain]) {
+          domainResult[domain] = {
+            correctCount: 0,
+            falseCount: 0 
+          };
+        }
 
-				let userAnswer = "";
-				let correctAnswer = "";
-				questions[_id].answers.map(a => {
-					if (a.type === questions[_id].correct) {
-						correctAnswer = a.text;
-					} else if (a.type === q.userAnswer) {
-						userAnswer = a.text;
-					}
-				});
+        if (q.isCorrect) {
+          domainResult[domain].correctCount += 1;
+        } else {
+          domainResult[domain].falseCount += 1;
+          const wrongQuestion = {
+            "Questions-ID": questions[_id].ID,
+            Domain: questions[_id].domain,
+            Frage: questions[_id].question
+          };
 
-				wrongQuestion["Meine Antwort"] = userAnswer;
-				wrongQuestion["Richtige Antwort"] = correctAnswer;
+          let userAnswer = "";
+          let correctAnswer = "";
+          questions[_id].answers.map(a => {
+            if (a.type === questions[_id].correct) {
+              correctAnswer = a.text;
+            } else if (a.type === q.userAnswer) {
+              userAnswer = a.text;
+            }
+          });
 
-				wrongQuestions.push(wrongQuestion);
-			}
-		});
+          wrongQuestion["Meine Antwort"] = userAnswer;
+          wrongQuestion["Richtige Antwort"] = correctAnswer;
 
-		const prompt = this.buildPrompt(domainResult, wrongQuestions);
-		const geminiEvaluation = await GeminiAPITestEvaluation.run({systemContext: prompt});
-		const responseText = geminiEvaluation?.candidates?.[0]?.content?.parts?.[0]?.text;
+          wrongQuestions.push(wrongQuestion);
+        }
+      });
 
-		if (responseText) {
-			let finalHtml = "";
+      const prompt = this.buildPrompt(domainResult, wrongQuestions);
+      const geminiEvaluation = await GeminiAPITestEvaluation.run({systemContext: prompt});
+      const responseText = geminiEvaluation?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-			try {
-				// Da Gemini ein JSON-Objekt zurückliefert, parsen wir es hier direkt
-				console.log("------------------------------------------------------------------------------------------------------------------");
-				const parsedJson = JSON.parse(responseText);
+      if (responseText) {
 
-				const thematicAnalysis = this.parseHtmlToList(parsedJson.thematicAnalysisHtml);
-				const revisionPlan = this.parseHtmlToList(parsedJson.revisionPlanHtml);
-				console.log("Parsed JSON: ", parsedJson);
+        try {
+          // Da Gemini ein JSON-Objekt zurückliefert, parsen wir es hier direkt
+          console.log("------------------------------------------------------------------------------------------------------------------");
+          const parsedJson = JSON.parse(responseText);
 
-				delete parsedJson.thematicAnalysisHtml;
-				delete parsedJson.revisionPlanHtml;
+          const thematicAnalysis = this.parseHtmlToList(parsedJson.thematicAnalysisHtml);
+          const revisionPlan = this.parseHtmlToList(parsedJson.revisionPlanHtml);
+          console.log("Parsed JSON: ", parsedJson);
 
-				parsedJson.thematicAnalysis = thematicAnalysis;
-				parsedJson.revisionPlan = revisionPlan;
-				console.log("Parsed JSON: ", parsedJson);
+          delete parsedJson.thematicAnalysisHtml;
+          delete parsedJson.revisionPlanHtml;
 
-
-				const report = appsmith.store.report;
-				const updatedReport = {
-					...report,
-					geminiEvaluation: parsedJson
-				}
-				await storeValue("report", updatedReport);
-
-				console.log("report in store ", appsmith.store.report);
-
-				//const raw = parsedJson. scoreAnalysisHtml + parsedJson.revisionPlanHtml + parsedJson.scoreAnalysisHtml;
-
-				// Wir übergeben das geparste JSON-Objekt an unser HTML-Template
-				finalHtml = this.buildHtmlReport(parsedJson);
-
-				console.log(finalHtml);
-				console.log("------------------------------------------------------------------------------------------------------------------");
+          parsedJson.thematicAnalysis = thematicAnalysis;
+          parsedJson.revisionPlan = revisionPlan;
+          console.log("Parsed JSON: ", parsedJson);
 
 
-				/*
-				await SaveEvaluation.run({ 
-					evaluationData: finalHtml 
-					});
-				*/
+          const report = appsmith.store.report;
+          const updatedReport = {
+            ...report,
+            geminiEvaluation: parsedJson
+          }
+          await storeValue("report", updatedReport);
 
-			} catch (e) {
-				console.error("Fehler beim Parsen der Gemini-Antwort:", e);
-				// Fallback, falls die API unerwartet reinen Text statt JSON lieferte
-				finalHtml = `<div style="padding: 20px; font-family: sans-serif;">${responseText.replace(/\n/g, '<br>')}</div>`;
-			}
+          console.log("report in store ", appsmith.store.report);
 
-			console.log(finalHtml);
+          //const raw = parsedJson. scoreAnalysisHtml + parsedJson.revisionPlanHtml + parsedJson.scoreAnalysisHtml;
 
-			// Das finale, gestaltete HTML im Store ablegen
-			await storeValue('geminiEvaluationResult', finalHtml);
-		}
+          // Wir übergeben das geparste JSON-Objekt an unser HTML-Template
+          finalHtml = this.buildHtmlReport(parsedJson);
+
+          console.log(finalHtml);
+          console.log("------------------------------------------------------------------------------------------------------------------");
+
+
+          try {
+            await SaveGeminiEvaluation.run({
+              id: report._id.toString(),
+              evaluationData: parsedJson
+            });
+
+            showAlert("Gemini-Auswertung gespeichert!", "info");
+          } catch(e) {
+            showAlert("Fehler beim Speichern der Gemini-Auswertung", "warning");
+            console.error("Fehler beim Speichern der Test-Ausweitung!!!!", e);
+          }
+
+        } catch (e) {
+          console.error("Fehler beim Parsen der Gemini-Antwort:", e);
+          // Fallback, falls die API unerwartet reinen Text statt JSON lieferte
+          finalHtml = `<div style="padding: 20px; font-family: sans-serif;">${responseText.replace(/\n/g, '<br>')}</div>`;
+        }
+
+        console.log(finalHtml);
+      }
+    }
+    await storeValue('geminiEvaluationResult', finalHtml);
 	},
 
 
