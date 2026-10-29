@@ -1055,7 +1055,7 @@ export default {
 		const geminiOpinion = appsmith.store.report.geminiEvaluation;
     let finalHtml = "";
 
-		if (false && geminiOpinion) {
+		if (geminiOpinion) {
 
 			console.log("Gemini opinion: ",geminiOpinion);
       finalHtml = this.buildHtmlReport(geminiOpinion);
