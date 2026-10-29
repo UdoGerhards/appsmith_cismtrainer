@@ -12,6 +12,7 @@ export default {
 		await GetDomain.run();
 
 		const report = appsmith.store.report;
+		console.log("Loaded report: ", report);
 
 		//console.log("Report ", report);
 
@@ -102,10 +103,10 @@ export default {
 			};
 		});
 	},
-
-	// NEUE FUNKTION HIER EINZUFÜGEN:
-	onAllQuestionsChange: async () => {
-		// Diese Zeile zwingt Appsmith, die Daten neu zu berechnen
+	
+	getAnswerSet: async() => {
+		const set = AnswerSet.selectedOptionValue
+		showAlert("Choosen set: "+set, "info");
 		await EvaluationSource.getWrongAnswers();
 	},
 
@@ -120,19 +121,23 @@ export default {
 			if (domainA > domainB) return 1;
 			return 0;
 		});
-
-		//console.log("Sorted questions: ", sortedQuestions);
-
-		const allAktiv = all_questions.isSwitchedOn;
+		
 		let filteredQuestions = sortedQuestions;
-
-		if (!allAktiv){
-			// Falsche Antworten ODER markierte/kommentierte Fragen herausfiltern
-			filteredQuestions = sortedQuestions.filter(q => {
-				const isIncorrect = (q.userAnswer === undefined) || (q.correct.trim() !== q.userAnswer.trim());
-				return isIncorrect;
+		const answerSet = AnswerSet.selectedOptionValue;
+		if (answerSet === "wrong") {
+			// Get all wrong answered, default
+				filteredQuestions = sortedQuestions.filter(q => {
+					const isIncorrect = (q.userAnswer === undefined) || (q.correct.trim() !== q.userAnswer.trim());
+					return isIncorrect;
 			});
-		} else {
+		} else if (answerSet === "correct") {
+			  // Get all correct answered
+				filteredQuestions = sortedQuestions.filter(q => {
+					const isCorrect = (q.userAnswer === undefined) || (q.correct.trim() === q.userAnswer.trim());
+					return isCorrect;
+			});
+		} else  {
+			// All answers from the report
 			filteredQuestions = sortedQuestions;
 		}
 

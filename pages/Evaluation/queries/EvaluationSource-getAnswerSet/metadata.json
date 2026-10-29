@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_071961cb-b0b6-45cb-b528-7ade02d0dacc",
-  "id": "Evaluation_EvaluationSource.onAllQuestionsChange",
+  "gitSyncId": "6a784e96054143865d8dd557_24b3e7dd-6a50-4cc3-a00c-6d52f5f61d0b",
+  "id": "Evaluation_EvaluationSource.getAnswerSet",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "EvaluationSource.onAllQuestionsChange",
-    "name": "onAllQuestionsChange",
+    "fullyQualifiedName": "EvaluationSource.getAnswerSet",
+    "name": "getAnswerSet",
     "pageId": "Evaluation",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

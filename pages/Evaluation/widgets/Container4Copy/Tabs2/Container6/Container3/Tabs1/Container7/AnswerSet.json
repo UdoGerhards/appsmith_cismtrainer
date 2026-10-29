@@ -1,0 +1,66 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "alignment": "left",
+  "animateLoading": true,
+  "bottomRow": 12,
+  "boxShadow": "none",
+  "defaultOptionValue": "wrong",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    }
+  ],
+  "dynamicHeight": "AUTO_HEIGHT",
+  "dynamicTriggerPathList": [
+    {
+      "key": "onSelectionChange"
+    }
+  ],
+  "flexVerticalAlignment": "start",
+  "isDisabled": false,
+  "isInline": true,
+  "isLoading": false,
+  "isRequired": false,
+  "isVisible": true,
+  "key": "q98p67luz8",
+  "label": "Amtworten: ",
+  "labelAlignment": "left",
+  "labelPosition": "Left",
+  "labelTextSize": "0.875rem",
+  "labelWidth": "3",
+  "leftColumn": 1,
+  "maxDynamicHeight": 9000,
+  "minDynamicHeight": 4,
+  "mobileBottomRow": 13,
+  "mobileLeftColumn": 26,
+  "mobileRightColumn": 46,
+  "mobileTopRow": 7,
+  "needsErrorInfo": false,
+  "onSelectionChange": "{{EvaluationSource.getAnswerSet();}}",
+  "options": [
+    {
+      "label": "Alle",
+      "value": "all"
+    },
+    {
+      "label": "Richtige",
+      "value": "correct"
+    },
+    {
+      "label": "Falsche",
+      "value": "wrong"
+    }
+  ],
+  "originalBottomRow": 12,
+  "originalTopRow": 8,
+  "parentColumnSpace": 30.416015625,
+  "parentId": "6qdywi8hlf",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "rightColumn": 14,
+  "topRow": 8,
+  "type": "RADIO_GROUP_WIDGET",
+  "version": 1,
+  "widgetId": "49vykcq6sp",
+  "widgetName": "AnswerSet"
+}
