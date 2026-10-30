@@ -6,7 +6,7 @@ export default {
 				selectedDomainsWithValue = QuizConfig.getSelectedDomains();
 				}
 			
-			console.log(selectedDomainsWithValue);
+			//console.log(selectedDomainsWithValue);
 
 			// Sauberer Filter für die Domains
 			const domains = selectedDomainsWithValue

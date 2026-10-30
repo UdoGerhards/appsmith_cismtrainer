@@ -38,7 +38,7 @@
   "mobileRightColumn": 14,
   "mobileTopRow": 76,
   "needsErrorInfo": false,
-  "onChange": "{{QuizConfig.countAvailableQuestions()}}",
+  "onChange": "{{QuizDataManagement.countAvailableQuestions()}}",
   "originalBottomRow": 8,
   "originalTopRow": 4,
   "parentColumnSpace": 32.6875,
