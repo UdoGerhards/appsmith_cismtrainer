@@ -56,6 +56,8 @@
   "onOptionChange": "{{QuizDataManagement.countAvailableQuestions();}}",
   "optionLabel": "label",
   "optionValue": "id",
+  "originalBottomRow": 9,
+  "originalTopRow": 5,
   "parentColumnSpace": 28.313990473747253,
   "parentId": "yyzkxgz8y9",
   "parentRowSpace": 10,

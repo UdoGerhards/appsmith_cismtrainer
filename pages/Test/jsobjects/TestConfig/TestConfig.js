@@ -367,7 +367,7 @@ export default {
 		await storeValue("domains", rawDomainNames, false);
 
 		await storeValue("currentQuestions", testQuestions, false);
-		await storeValue("currentIndex", 0);
+		await storeValue("currentIndex", 0, false);
 
 		if (!onlyCountWrong) {
 			await storeValue('nature', 'user');

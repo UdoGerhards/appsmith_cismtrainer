@@ -90,7 +90,8 @@ export default {
 
 			this.initChat();
 		} else {
-				await navigateTo("_Quiz results", {}, 'SAME_WINDOW');
+				await this.getResults();
+				await navigateTo("Evaluation", {}, 'SAME_WINDOW');
 			}
 	},
 
@@ -243,14 +244,6 @@ export default {
 			throw new Error(apiErrorMsg);
 		}
 
-		// Bot-Antwort an die Historie anhängen
-		/*
-		history.push({
-			role: "model",
-			parts: [{ text: botReply }]
-		});
-		*/
-
 		//await storeValue("geminiChatHistory", history);
 
 		// --- NEU: Prüfen, ob Gemini die finale ISACA-Auswertung (Schritt 3) geliefert hat ---
@@ -340,15 +333,15 @@ export default {
 			return obj;
 		});
 
-		console.log("Answers ", answers);
-		console.log("Correct answer ", correctAnswer);
+		//console.log("Answers ", answers);
+		//console.log("Correct answer ", correctAnswer);
 
 		const options = answers.map(answer => {
 			return answer.position + ". "+answer.text;
 		});
 
-		console.log("Options ", options);
-
+		//console.log("Options ", options);
+		
 		const cismCoachPrompt = `
 				Du bist ein erfahrener ISACA CISM (Certified Information Security Manager) Fachexperte und Prüfungscoach. Deine Aufgabe ist es, mich bei der Prüfungsvorbereitung durch ein interaktives Verfahren zu unterstützen.
 
@@ -365,7 +358,7 @@ export default {
 				- Falls Begründungen fehlen: Weise mich kurz darauf hin, welche Option noch fehlt, und warte auf meine Ergänzung. Gib noch KEINE Auswertung ab.
 
 				3. ABLAUF – SCHRITT 3 (Detaillierte Evaluierung & ISACA-Erklärung):
-				Erst wenn alle Optionen (A–D) vollständig begründet wurden, erstellst du die Auswertung. Gib die Antwort genau in den folgenden 4 Abschnitten aus.
+				Erst wenn alle Optionen (A–D) vollständig begründet wurden, erstellst du die Auswertung. Gib die Antwort genau in den folgenden Abschnitten aus.
 
 				WICHTIGE FORMATIERUNGSREGELN FÜR SCHRITT 3:
 				- Jede Section MUSS durch eine Leerzeile von der vorherigen getrennt sein.
@@ -382,8 +375,14 @@ export default {
 
 				**Offizielle ISACA Erklärung:**
 				==ISACA_START==
-				Erläutere hier die offizielle ISACA-Erklärung, bestätige die richtige Lösung und vertiefe die zugrundeliegenden ISACA-Konzepte.
+				Erläutere hier die offizielle ISACA-Erklärung und vertiefe die zugrundeliegenden ISACA-Konzepte.
 				==ISACA_END==
+
+				**Korrekte Antwort:**
+				==KORREKT_START==
+				A
+				==KORREKT_END==
+				(Gib innerhalb dieser Tags ausschließlich den Buchstaben der korrekten Antwort an, z.B. A, B, C oder D).
 
 				**CISM-Tags:**
 				==TAGS_START==
@@ -394,7 +393,7 @@ export default {
 				==AUSWERTUNG_START==
 				korrekt
 				==AUSWERTUNG_END==
-				(Gib innerhalb der Tags ausschließlich das Wort "korrekt" oder "falsch" an, je nachdem ob meine Begründungen und die gewählte Antwort inhaltlich richtig waren.)
+				(Gib innerhalb der Tags ausschließlich das Wort "korrekt" oder "falsch" an, je nachdem ob deine Begründungen und die gewählte Antwort inhaltlich richtig waren.)
 
 				4. ABLAUF – SCHRITT 4 (Vertiefender Dialog):
 				Nach Schritt 3 bleibt der Chat für meine Ergänzungs- und Vertiefungsfragen geöffnet, die du weiterhin streng aus ISACA-CISM-Perspektive beantwortest.
@@ -405,7 +404,7 @@ export default {
 				${questionText}
 
 				Optionen:
-				${options}
+				${options.join('\n')}
 
 				Korrekte Antwort:
 				${correctAnswer}
@@ -424,7 +423,7 @@ export default {
 			const match = geminiResponseText.match(regex);
 			return match ? match[1].trim() : null;
 		};
-
+		
 		const textArr = [];
 
 		// Feedback
@@ -461,9 +460,17 @@ export default {
 		let evaluation = extractBlock('==AUSWERTUNG_START==', '==AUSWERTUNG_END==');
 
 		let color = "#FF0000";
+		let evaluationResult = false;
 		if (evaluation === "korrekt") {
 			color = "#008000";
+			evaluationResult = true;
 		}
+		
+		let korrektAnswer = extractBlock('==KORREKT_START==', '==KORREKT_END==');
+		console.log("Evaluation result: ", evaluationResult);
+		console.log("Korrekte Antwort: ", korrektAnswer);
+		await this.saveEvalutationResultToQuestion(evaluationResult, korrektAnswer);
+		
 		showAlert(evaluation, "info");
 		evaluation = evaluation.toUpperCase();
 		evaluation = `<span style="color: ${color};">${evaluation}</span>`;
@@ -643,4 +650,56 @@ export default {
 			result: updateResult
 		};
 	},
+	
+	saveEvalutationResultToQuestion: async (result, answer) => {
+	
+		const questions = appsmith.store.currentQuestions;
+		//console.log("Questions: ", questions);
+		const idx = appsmith.store.currentIndex;
+		//console.log("idx: ", idx);
+		
+		questions[idx].isCorrect = result;
+		questions[idx].userAnswer = answer;
+
+		//console.log("Result: ", result);
+		//console.log("Correct answers: ", result);
+		
+		await storeValue("currentQuestions", questions, false);
+	},
+	
+	getResults: async () => {
+		const questions = appsmith.store.currentQuestions || [];
+
+		console.log(questions);
+
+		// 1. Zähle die korrekten Antworten (Feld 'correct' ist true)
+		const correctCount = questions.filter(q => q.isCorrect === true).length;
+
+		// 2. Zähle den Rest (Feld 'correct' ist false ODER existiert nicht)
+		const incorrectCount = questions.filter(q => q.isCorrect !== true).length;
+
+		const questioncount = appsmith.store.nrquestions;
+		
+		const start = appsmith.store.start;
+		const end = new Date();
+		
+		const differenzMs = end - start; // Subtraktion zweier Date-Objekte liefert Millisekunden
+		const minutes = Math.floor(differenzMs / (1000 * 60));
+
+		const report = {
+			"questions": questions,
+			"correct": correctCount,
+			"incorrect": incorrectCount,
+			"name": appsmith.store.title,
+			"test_executed_by": appsmith.store.user,
+			"finsihed": moment().format("DD.MM.YYYY HH:mm"),
+			"nature": appsmith.store.nature,
+			"questioncount": questioncount,
+			"minutes": minutes,
+			"domains": appsmith.store.domains
+		};
+
+		storeValue('report', report, false);
+		console.log(report);
+	}
 }

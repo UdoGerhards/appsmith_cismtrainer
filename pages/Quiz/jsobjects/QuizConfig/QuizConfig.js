@@ -90,6 +90,10 @@ export default {
 		return Source.selectedOptionValues;
 	},
 	
+	getBookmarksOnly: () => {
+		return BookmarkedQuestions.isSwitchedOn;
+	},
+	
 	selectExamSet: async() => {
 		const selected = Number(ExamStyle.selectedOptionValue);
 		console.log("Exam style selected: ", selected);
@@ -273,15 +277,19 @@ export default {
 			}
 
 			console.log("Final testQuestions length: ", testQuestions.length, " (Target: ", countQuestions, ")");
+			
+			const start = new Date();
 
 			// Prepare test data
 			await storeValue('title', title, false);
 			await storeValue('nrquestions', parseInt(countQuestions), false);
-			await storeValue('mins', parseInt(time), false);
+			//await storeValue('mins', parseInt(time), false);
+			await storeValue("start", start, false);
 			await storeValue("domains", rawDomainNames, false);
+			await storeValue('nature', 'KI');
 
 			await storeValue("currentQuestions", testQuestions, false);
-			await storeValue("currentIndex", 0);
+			await storeValue("currentIndex", 0, false);
 
 			if (!onlyCountWrong) {
 					await storeValue('nature', 'user');

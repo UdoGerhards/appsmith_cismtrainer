@@ -19,7 +19,8 @@ export default {
 			const result = await AvailableQuestions.run({
 					domains: domains,
 					onlyWrong: onlyCountWrong,
-				  origins: QuizConfig.getSourceSelected()
+				  origins: QuizConfig.getSourceSelected(),
+				  bookmarksOnly: QuizConfig.getBookmarksOnly()
 			});
 
 			console.log("Result ", result);  
@@ -47,7 +48,8 @@ export default {
 							domain: domain.label || domain.domain,
 							questionLimit: limit,
 							onlyWrong: domain.onlyWrong,
-							excludeIds: excludeIds
+							excludeIds: excludeIds,
+							bookmarksOnly: QuizConfig.getBookmarksOnly()
 					});
 
 					if (domainQuestions && Array.isArray(domainQuestions)) {
