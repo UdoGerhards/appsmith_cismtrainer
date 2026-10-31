@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_af4a775a-7a39-4470-8e0a-b27dcde7d7b8",
-  "id": "Home_HomeSource.getTestChartOptions",
+  "gitSyncId": "6a784e96054143865d8dd557_5cd4674c-4abf-4e9e-b6dd-bf71acfe343d",
+  "id": "Home_HomeSource.getKITestResults",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "HomeSource.getTestChartOptions",
-    "name": "getTestChartOptions",
+    "fullyQualifiedName": "HomeSource.getKITestResults",
+    "name": "getKITestResults",
     "pageId": "Home",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

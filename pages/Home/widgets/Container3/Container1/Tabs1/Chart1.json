@@ -3,8 +3,8 @@
   "allowScroll": false,
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 55,
-  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+  "bottomRow": 57,
+  "boxShadow": "none",
   "chartData": {
     "h9j5oncama": {
       "data": "// 1. Daten aus der Query holen\n// Wir gehen davon aus, dass DeinQuery so konfiguriert ist, dass er \n// die 5 aktuellsten Dokumente sortiert nach savedAt liefert.\nconst rawData = {{ FindReports.data }} || [];\n\n// 2. Umkehren, damit das älteste Dokument der 5 links steht\nconst recentDocs = [...rawData].reverse();\n\n// 3. Achsen-Daten vorbereiten\nconst categories = recentDocs.map(doc => doc.finsihed || 'Test');\n\n// 4. Serien-Daten vorbereiten\nconst correctData = recentDocs.map(doc => doc.correct);\nconst incorrectData = recentDocs.map(doc => doc.incorrect);\n\n// 5. ECharts Konfiguration\nreturn {\n  tooltip: {\n    trigger: 'axis',\n    axisPointer: {\n      type: 'shadow'\n    }\n  },\n  legend: {\n    data: ['Korrekt', 'Inkorrekt'],\n    bottom: 0\n  },\n  grid: {\n    top: 30,\n    bottom: 50,\n    left: 40,\n    right: 20,\n    containLabel: true\n  },\n  xAxis: {\n    type: 'category',\n    data: categories,\n    axisLabel: {\n      interval: 0,\n      rotate: 15,\n      fontSize: 10\n    }\n  },\n  yAxis: {\n    type: 'value',\n    name: 'Anzahl Fragen'\n  },\n  series: [\n    {\n      name: 'Korrekt',\n      type: 'bar',\n      stack: 'total',\n      data: correctData,\n      itemStyle: {\n        color: '#22c55e' // Grün\n      },\n      label: {\n        show: true,\n        position: 'inside'\n      }\n    },\n    {\n      name: 'Inkorrekt',\n      type: 'bar',\n      stack: 'total',\n      data: incorrectData,\n      itemStyle: {\n        color: '#ef4444' // Rot\n      },\n      label: {\n        show: true,\n        position: 'inside'\n      }\n    }\n  ]\n};",
@@ -13,7 +13,7 @@
   },
   "chartName": "Sales Report",
   "chartType": "CUSTOM_ECHART",
-  "customEChartConfig": "{{ ((chartType) => (  HomeSource.getTestChartOptions() ))(Chart1.chartType) }}",
+  "customEChartConfig": "{{ ((chartType) => (  HomeSource.getCISMTestResults() ))(Chart1.chartType) }}",
   "customFusionChartConfig": {
     "dataSource": {
       "chart": {
@@ -66,9 +66,6 @@
       "key": "borderRadius"
     },
     {
-      "key": "boxShadow"
-    },
-    {
       "key": "accentColor"
     },
     {
@@ -97,7 +94,7 @@
   "isVisible": true,
   "key": "yrignoq80w",
   "labelOrientation": "auto",
-  "leftColumn": 1,
+  "leftColumn": 0,
   "minWidth": 450,
   "mobileBottomRow": 40,
   "mobileLeftColumn": 1,
@@ -105,19 +102,19 @@
   "mobileTopRow": 8,
   "needsErrorInfo": true,
   "onDataPointClick": "{{\n /* showAlert(JSON.stringify(Chart1.selectedDataPoint), 'info')*/\nHomeSource.handleChartClick(Chart1.selectedDataPoint)\n}}",
-  "originalBottomRow": 55,
-  "originalTopRow": 8,
+  "originalBottomRow": 71,
+  "originalTopRow": 24,
   "parentColumnSpace": 15.494384765625,
-  "parentId": "zhqni90fhf",
+  "parentId": "2ak7wemq4k",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
-  "rightColumn": 63,
+  "rightColumn": 64,
   "showDataPointLabel": false,
-  "topRow": 8,
+  "topRow": 0,
   "type": "CHART_WIDGET",
   "version": 1,
-  "widgetId": "porjirmq7r",
+  "widgetId": "hg3iujhe1p",
   "widgetName": "Chart1",
   "xAxisName": "Product Line",
   "yAxisName": "Revenue($)"

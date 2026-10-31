@@ -292,9 +292,9 @@ export default {
 			await storeValue("currentIndex", 0, false);
 
 			if (!onlyCountWrong) {
-					await storeValue('nature', 'user');
+					await storeValue('wrongOnly', false, false);
 			} else {
-					await storeValue('nature', "error_training");
+					await storeValue('wrongOnly', true, false);
 			}
 
 			await navigateTo("_Quiz execution", {}, 'SAME_WINDOW');

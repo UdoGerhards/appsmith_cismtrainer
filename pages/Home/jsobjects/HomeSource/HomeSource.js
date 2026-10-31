@@ -4,6 +4,8 @@ export default {
 		await clearStore();
 
 		await FindCurrentUser.run();
+		//await FindKIReports.run();
+		
 		const user = FindCurrentUser.data?.[0] || FindCurrentUser.data?.response?.[0] || null;
 
 		if (user && user._id) {
@@ -21,523 +23,8 @@ export default {
 
 	},
 
-/*
-getTestChartOptions: () => {
-    // 1. Daten aus der Query holen
-    const rawData = FindReports.data || [];
 	
-	const sortedDocs = [...rawData]
-  // 1. Sortieren (absteigend: neueste zuerst)
-  .sort((a, b) => new Date(b.finished) - new Date(a.finished))
-  // 2. finished als formatierten String ausgeben
-  .map(doc => {
-    const formatDate = (dateValue) => {
-      if (!dateValue) return '';
-      const d = new Date(dateValue);
-      if (isNaN(d)) return dateValue; // Falls es bereits ein String war
-
-      const pad = (num) => String(num).padStart(2, '0');
-      const day = pad(d.getDate());
-      const month = pad(d.getMonth() + 1); // Monate sind 0-basiert
-      const year = d.getFullYear();
-      const hours = pad(d.getHours());
-      const minutes = pad(d.getMinutes());
-
-      return `${day}.${month}.${year} ${hours}:${minutes}`;
-    };
-
-    return {
-			...doc,
-      finished: formatDate(doc.finished)
-    };
-  });
-
-    // Da sortedDocs jetzt schon AUFSTEIGEND ist (ältestes links), 
-    // brauchen wir .reverse() hier NICHT mehr!
-    const recentDocs = sortedDocs;
-
-    // 3. Achsen- und Seriendaten vorbereiten
-    const categories = recentDocs.map(doc => doc.finished || 'Test');
-    
-    // HIER DIE ANPASSUNG: Statt nur doc.correct ein Objekt mit value und id zurückgeben
-    const correctData = recentDocs.map(doc => ({
-      value: doc.correct,
-      id: doc._id // <--- Wichtig für das onDataPointClick-Event
-    }));
-
-    const incorrectData = recentDocs.map(doc => ({
-      value: doc.incorrect,
-      id: doc._id // <--- Wichtig für das onDataPointClick-Event
-    }));
-    
-    // Trenddaten ebenfalls mit ID versehen
-    const trendData = recentDocs.map(doc => ({
-      value: doc.correct,
-      id: doc._id // <--- Wichtig für das onDataPointClick-Event
-    }));
-
-    // 4. Vollständige ECharts Konfiguration zurückgeben
-    return {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        }
-      },
-      legend: {
-        data: ['Korrekt', 'Inkorrekt', 'Trend (Korrekt)'],
-        bottom: 0
-      },
-      grid: {
-        top: 30,
-        bottom: 50,
-        left: 40,
-        right: 20,
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        data: categories,
-        axisLabel: {
-          interval: 0,
-          rotate: 15,
-          fontSize: 10
-        }
-      },
-      yAxis: {
-        type: 'value',
-        name: 'Anzahl Fragen'
-      },
-      visualMap: {
-        show: false,
-        dimension: 1,
-        seriesIndex: [2],
-        pieces: [
-          {
-            lte: 3.5,
-            color: 'rgba(239, 68, 68, 0.4)'
-          },
-          {
-            gt: 3.5,
-            lte: 5,
-            color: 'rgba(34, 197, 94, 0.4)'
-          }
-        ]
-      },
-      series: [
-        {
-          name: 'Korrekt',
-          type: 'bar',
-          stack: 'total',
-          data: correctData, // Nutzt jetzt das neue Objekt-Array
-          itemStyle: {
-            color: '#22c55e'
-          },
-          label: {
-            show: true,
-            position: 'inside'
-          }
-        },
-        {
-          name: 'Inkorrekt',
-          type: 'bar',
-          stack: 'total',
-          data: incorrectData, // Nutzt jetzt das neue Objekt-Array
-          itemStyle: {
-            color: '#ef4444'
-          },
-          label: {
-            show: true,
-            position: 'inside'
-          }
-        },
-        {
-          name: 'Trend (Korrekt)',
-          type: 'line',
-          data: trendData, // Nutzt jetzt das neue Objekt-Array
-          smooth: true,
-          areaStyle: {
-            opacity: 0.6
-          },
-          itemStyle: {
-            color: '#1e40af'
-          },
-          lineStyle: {
-            width: 3
-          },
-          symbol: 'circle',
-          symbolSize: 8
-        }
-      ]
-    };
-  },
-
-	
-getTestChartOptions: () => {
-    // 1. Daten aus der Query holen
-    const rawData = FindReports.data || [];
-    
-    const sortedDocs = [...rawData]
-      // 1. Sortieren (absteigend: neueste zuerst)
-      .sort((a, b) => new Date(b.finished) - new Date(a.finished))
-      // 2. finished als formatierten String ausgeben
-      .map(doc => {
-        const formatDate = (dateValue) => {
-          if (!dateValue) return '';
-          const d = new Date(dateValue);
-          if (isNaN(d)) return dateValue; // Falls es bereits ein String war
-
-          const pad = (num) => String(num).padStart(2, '0');
-          const day = pad(d.getDate());
-          const month = pad(d.getMonth() + 1); // Monate sind 0-basiert
-          const year = d.getFullYear();
-          const hours = pad(d.getHours());
-          const minutes = pad(d.getMinutes());
-
-          return `${day}.${month}.${year} ${hours}:${minutes}`;
-        };
-
-        return {
-            ...doc,
-            finished: formatDate(doc.finished)
-        };
-      });
-
-    const recentDocs = sortedDocs;
-
-    // 3. Achsen- und Seriendaten vorbereiten
-    const categories = recentDocs.map(doc => doc.finished || 'Test');
-    
-    const correctData = recentDocs.map(doc => ({
-      value: doc.correct,
-      id: doc._id
-    }));
-
-    const incorrectData = recentDocs.map(doc => ({
-      value: doc.incorrect,
-      id: doc._id
-    }));
-    
-    // NEU: Trenddaten als Prozentwert (0 - 100%) berechnen
-    const trendData = recentDocs.map(doc => {
-      const correct = doc.correct || 0;
-      const incorrect = doc.incorrect || 0;
-      const total = correct + incorrect;
-      
-      // Prozentwert berechnen (auf 1 Dezimalstelle gerundet)
-      const percentage = total > 0 ? Number(((correct / total) * 100).toFixed(1)) : 0;
-
-      return {
-        value: percentage,
-        id: doc._id // Wichtig für das onDataPointClick-Event
-      };
-    });
-
-    // 4. Vollständige ECharts Konfiguration zurückgeben
-    return {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        },
-        formatter: function (params) {
-          let result = `${params[0].axisValue}<br/>`;
-          params.forEach(param => {
-            let val = param.value;
-            // Falls es die Trend-Serie ist, füge ein "%" Zeichen hinzu
-            if (param.seriesName.includes('Trend')) {
-              val = val + ' %';
-            }
-            result += `${param.marker} ${param.seriesName}: <b>${val}</b><br/>`;
-          });
-          return result;
-        }
-      },
-      legend: {
-        data: ['Korrekt', 'Inkorrekt', 'Trend (Erfolgsquote)'],
-        bottom: 0
-      },
-      grid: {
-        top: 30,
-        bottom: 50,
-        left: 40,
-        right: 50, // Etwas Platz für die rechte Y-Achse machen
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        data: categories,
-        axisLabel: {
-          interval: 0,
-          rotate: 15,
-          fontSize: 10
-        }
-      },
-      // NEU: Zwei Y-Achsen (Index 0 für Balken, Index 1 für Prozent)
-      yAxis: [
-        {
-          type: 'value',
-          name: 'Anzahl Fragen',
-          position: 'left'
-        },
-        {
-          type: 'value',
-          name: 'Erfolgsquote',
-          min: 0,
-          max: 100,
-          position: 'right',
-          splitLine: {
-            show: false // Verhindert doppelte, überlappende Linien im Grid
-          },
-          axisLabel: {
-            formatter: '{value} %'
-          }
-        }
-      ],
-      // NEU: VisualMap an Prozentwerte (0-100) angepasst
-      visualMap: {
-        show: false,
-        dimension: 1,
-        seriesIndex: [2], // Gilt nur für die Trend-Linie
-        pieces: [
-          {
-            lte: 60, // Alles unter oder gleich 60%
-            color: 'rgba(239, 68, 68, 0.4)' // Rot
-          },
-          {
-            gt: 60,
-            lte: 80, // Zwischen 60% und 80%
-            color: 'rgba(234, 179, 8, 0.4)'  // Gelb
-          },
-          {
-            gt: 80,  // Alles über 80%
-            color: 'rgba(34, 197, 94, 0.4)'  // Grün
-          }
-        ]
-      },
-      series: [
-        {
-          name: 'Korrekt',
-          type: 'bar',
-          stack: 'total',
-          data: correctData,
-          itemStyle: {
-            color: '#22c55e'
-          },
-          label: {
-            show: true,
-            position: 'inside'
-          }
-        },
-        {
-          name: 'Inkorrekt',
-          type: 'bar',
-          stack: 'total',
-          data: incorrectData,
-          itemStyle: {
-            color: '#ef4444'
-          },
-          label: {
-            show: true,
-            position: 'inside'
-          }
-        },
-        {
-          name: 'Trend (Erfolgsquote)',
-          type: 'line',
-          yAxisIndex: 1, // <--- WICHTIG: Verwendet die rechte Prozent-Achse!
-          data: trendData,
-          smooth: true,
-          areaStyle: {
-            opacity: 0.5 // Erzeugt die gewünschte Trendfläche
-          },
-          itemStyle: {
-            color: '#1e40af'
-          },
-          lineStyle: {
-            width: 3
-          },
-          symbol: 'circle',
-          symbolSize: 8
-        }
-      ]
-    };
-  },
-	
-
-	
-getTestChartOptions: () => {
-    // 1. Daten aus der Query holen
-    const rawData = FindReports.data || [];
-    
-    const sortedDocs = [...rawData]
-      // 1. Sortieren (absteigend: neueste zuerst)
-      .sort((a, b) => new Date(b.finished) - new Date(a.finished))
-      // 2. finished als formatierten String ausgeben
-      .map(doc => {
-        const formatDate = (dateValue) => {
-          if (!dateValue) return '';
-          const d = new Date(dateValue);
-          if (isNaN(d)) return dateValue; // Falls es bereits ein String war
-
-          const pad = (num) => String(num).padStart(2, '0');
-          const day = pad(d.getDate());
-          const month = pad(d.getMonth() + 1); // Monate sind 0-basiert
-          const year = d.getFullYear();
-          const hours = pad(d.getHours());
-          const minutes = pad(d.getMinutes());
-
-          return `${day}.${month}.${year} ${hours}:${minutes}`;
-        };
-
-        return {
-            ...doc,
-            finished: formatDate(doc.finished)
-        };
-      });
-
-    const recentDocs = sortedDocs;
-
-    // 3. Achsen- und Seriendaten vorbereiten
-    const categories = recentDocs.map(doc => doc.finished || 'Test');
-    
-    const correctData = recentDocs.map(doc => ({
-      value: doc.correct,
-      id: doc._id
-    }));
-
-    const incorrectData = recentDocs.map(doc => ({
-      value: doc.incorrect,
-      id: doc._id
-    }));
-    
-    // Trenddaten als Prozentwert (0 - 100%) berechnen
-    const trendData = recentDocs.map(doc => {
-      const correct = doc.correct || 0;
-      const incorrect = doc.incorrect || 0;
-      const total = correct + incorrect;
-      
-      const percentage = total > 0 ? Number(((correct / total) * 100).toFixed(1)) : 0;
-
-      return {
-        value: percentage,
-        id: doc._id
-      };
-    });
-
-    // 4. Vollständige ECharts Konfiguration zurückgeben
-    return {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        },
-        formatter: function (params) {
-          let result = `${params[0].axisValue}<br/>`;
-          params.forEach(param => {
-            let val = param.value;
-            if (param.seriesName.includes('Trend')) {
-              val = val + ' %';
-            }
-            result += `${param.marker} ${param.seriesName}: <b>${val}</b><br/>`;
-          });
-          return result;
-        }
-      },
-      legend: {
-        data: ['Korrekt', 'Inkorrekt', 'Trend (Erfolgsquote)'],
-        bottom: 0
-      },
-      grid: {
-        top: 30,
-        bottom: 50,
-        left: 40,
-        right: 50,
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        data: categories,
-        axisLabel: {
-          interval: 0,
-          rotate: 15,
-          fontSize: 10
-        }
-      },
-      yAxis: [
-        {
-          type: 'value',
-          name: 'Anzahl Fragen',
-          position: 'left'
-        },
-        {
-          type: 'value',
-          name: 'Erfolgsquote',
-          min: 0,
-          max: 100,
-          position: 'right',
-          splitLine: {
-            show: false
-          },
-          axisLabel: {
-            formatter: '{value} %'
-          }
-        }
-      ],
-      series: [
-        {
-          name: 'Korrekt',
-          type: 'bar',
-          stack: 'total',
-          data: correctData,
-          itemStyle: {
-            color: '#22c55e'
-          },
-          label: {
-            show: true,
-            position: 'inside'
-          }
-        },
-        {
-          name: 'Inkorrekt',
-          type: 'bar',
-          stack: 'total',
-          data: incorrectData,
-          itemStyle: {
-            color: '#ef4444'
-          },
-          label: {
-            show: true,
-            position: 'inside'
-          }
-        },
-        {
-          name: 'Trend (Erfolgsquote)',
-          type: 'line',
-          yAxisIndex: 1, // Nutzt die rechte Prozent-Achse
-          data: trendData,
-          smooth: true,
-          areaStyle: {
-            opacity: 0.3,
-            color: '#22c55e' // Schwachgrüne Trendfläche
-          },
-          itemStyle: {
-            color: '#16a34a' // Kräftigeres Grün für die Linie/Punkte selbst (oder passe es an)
-          },
-          lineStyle: {
-            width: 3,
-            color: '#16a34a'
-          },
-          symbol: 'circle',
-          symbolSize: 8
-        }
-      ]
-    };
-  },
-	
-
-	
-	getTestChartOptions: () => {
+getCISMTestResults: () => {
     // 1. Daten aus der Query holen
     const rawData = FindReports.data || [];
     
@@ -653,12 +140,12 @@ getTestChartOptions: () => {
         }
       ],
       series: [
-        // 1. Trend-Serie steht HIER ganz oben im Array und hat z: 1 (liegt im Hintergrund)
+        // 1. Trend-Serie mit dünnerer Linie (width: 1.5) im Hintergrund (z: 1)
         {
           name: 'Trend (Erfolgsquote)',
           type: 'line',
           yAxisIndex: 1,
-          z: 1, // Niedriger z-Index = im Hintergrund
+          z: 1,
           data: trendData,
           smooth: true,
           areaStyle: {
@@ -669,13 +156,13 @@ getTestChartOptions: () => {
             color: '#16a34a'
           },
           lineStyle: {
-            width: 3,
+            width: 1, // <--- HIER GEÄNDERT (vorher 3)
             color: '#16a34a'
           },
           symbol: 'circle',
-          symbolSize: 8
+          symbolSize: 6 // Optional: Auch die Datenpunkte etwas dezentur machen (z.B. 6 statt 8)
         },
-        // 2. Korrekt-Balken (höherer z-Index = im Vordergrund)
+        // 2. Korrekt-Balken im Vordergrund (z: 2)
         {
           name: 'Korrekt',
           type: 'bar',
@@ -690,7 +177,7 @@ getTestChartOptions: () => {
             position: 'inside'
           }
         },
-        // 3. Inkorrekt-Balken (höherer z-Index = im Vordergrund)
+        // 3. Inkorrekt-Balken im Vordergrund (z: 2)
         {
           name: 'Inkorrekt',
           type: 'bar',
@@ -709,11 +196,9 @@ getTestChartOptions: () => {
     };
   },
 	
-			*/
-	
-getTestChartOptions: () => {
+getKITestResults: () => {
     // 1. Daten aus der Query holen
-    const rawData = FindReports.data || [];
+    const rawData = FindKIReports.data || [];
     
     const sortedDocs = [...rawData]
       .sort((a, b) => new Date(b.finished) - new Date(a.finished))

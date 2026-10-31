@@ -1,7 +1,7 @@
 {
   "animateLoading": true,
   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-  "bottomRow": 151,
+  "bottomRow": 10,
   "dynamicBindingPathList": [
     {
       "key": "truncateButtonColor"
@@ -33,7 +33,7 @@
   "mobileRightColumn": 17,
   "mobileTopRow": 1,
   "needsErrorInfo": false,
-  "originalBottomRow": 176,
+  "originalBottomRow": 151,
   "originalTopRow": 69,
   "overflow": "NONE",
   "parentColumnSpace": 33,
@@ -47,7 +47,7 @@
   "text": "{{appsmith.store.question.question}}",
   "textAlign": "LEFT",
   "textColor": "#231F20",
-  "topRow": 69,
+  "topRow": 6,
   "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
   "type": "TEXT_WIDGET",
   "version": 1,

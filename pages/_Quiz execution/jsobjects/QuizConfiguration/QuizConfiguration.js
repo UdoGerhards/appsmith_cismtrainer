@@ -103,7 +103,7 @@ export default {
 
 		const answers = answersRaw.map(answer => {
 			let obj = {
-				text: answer.text,
+				text: answer.type +". "+ answer.text,
 				position: answer.type,
 				isBold: answer.type === correct,
 			};	

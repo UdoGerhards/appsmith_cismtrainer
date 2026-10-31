@@ -64,6 +64,8 @@ getAllTests: () => {
 				const percentageCorrect = questionCount > 0
 					? Math.round((doc.correct / questionCount) * 100)
 					: 0;
+				
+				console.log("Nature: ", doc.nature);
 
 				return {
 					"id": doc._id?.$oid || doc._id?.toString() || "",
