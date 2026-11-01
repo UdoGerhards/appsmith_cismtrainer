@@ -890,7 +890,7 @@ export default {
 
         console.log("Nauture: ", appsmith.store.nature);
 
-        //await navigateTo("Execution", {}, 'SAME_WINDOW');
+        await navigateTo("Execution", {}, 'SAME_WINDOW');
     },
 
     loadDomainQuestions: async (domains, excludeIds = []) => {
