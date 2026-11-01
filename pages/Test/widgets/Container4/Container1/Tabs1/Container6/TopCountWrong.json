@@ -2,18 +2,24 @@
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "alignWidget": "LEFT",
   "animateLoading": true,
-  "bottomRow": 12,
+  "bottomRow": 16,
   "boxShadow": "none",
   "defaultSwitchState": false,
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicHeight": "AUTO_HEIGHT",
   "dynamicPropertyPathList": [
     {
       "key": "onChange"
+    },
+    {
+      "key": "isDisabled"
     }
   ],
   "dynamicTriggerPathList": [
@@ -21,13 +27,13 @@
       "key": "onChange"
     }
   ],
-  "isDisabled": false,
+  "isDisabled": "{{!QuestionsWithError.isSwitchedOn}}",
   "isLoading": false,
   "isVisible": true,
   "key": "b7y0ccdkit",
-  "label": "Sortierung umkehren (Fragen mit der höchsten Anzahl von Fehlern am Anfang)",
+  "label": "Absteigend nach Fehlerhäufigkeit (Gruppiert)",
   "labelPosition": "Left",
-  "leftColumn": 1,
+  "leftColumn": 2,
   "maxDynamicHeight": 9000,
   "minDynamicHeight": 4,
   "mobileBottomRow": 8,
@@ -35,18 +41,18 @@
   "mobileRightColumn": 49,
   "mobileTopRow": 4,
   "needsErrorInfo": false,
-  "onChange": "{{TestConfig.handleLimitToErrorAndBookmarked()}}",
-  "originalBottomRow": 13,
-  "originalTopRow": 8,
+  "onChange": "{{TestConfig.disableReverseOrder()}}",
+  "originalBottomRow": 16,
+  "originalTopRow": 12,
   "parentColumnSpace": 15.121749877929688,
   "parentId": "qc5dctkkas",
   "parentRowSpace": 10,
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
   "rightColumn": 35,
-  "topRow": 8,
+  "topRow": 12,
   "type": "SWITCH_WIDGET",
   "version": 1,
-  "widgetId": "iwazccknmg",
-  "widgetName": "ReverseSorting"
+  "widgetId": "ejxjedbp26",
+  "widgetName": "TopCountWrong"
 }

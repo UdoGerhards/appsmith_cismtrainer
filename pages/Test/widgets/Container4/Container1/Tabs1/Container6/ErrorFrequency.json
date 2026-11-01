@@ -1,0 +1,75 @@
+{
+  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+  "animateLoading": true,
+  "bottomRow": 22,
+  "bottomRowBeforeCollapse": 22,
+  "defaultOptionValue": "{{\n  [...appsmith.store.groupedErrorFrequency].reverse()[0]?.errorCount\n}}",
+  "dynamicBindingPathList": [
+    {
+      "key": "accentColor"
+    },
+    {
+      "key": "options"
+    },
+    {
+      "key": "isVisible"
+    },
+    {
+      "key": "defaultOptionValue"
+    }
+  ],
+  "dynamicPropertyPathList": [
+    {
+      "key": "options"
+    },
+    {
+      "key": "isDisabled"
+    },
+    {
+      "key": "isVisible"
+    },
+    {
+      "key": "onChange"
+    }
+  ],
+  "dynamicTriggerPathList": [
+    {
+      "key": "onChange"
+    }
+  ],
+  "isDisabled": "",
+  "isLoading": false,
+  "isVisible": "{{TopCountWrong.isSwitchedOn}}",
+  "key": "pm9e9hvvs3",
+  "labelAlignment": "left",
+  "labelPosition": "Left",
+  "labelText": "Fehlerhäufigkeit (gruppiert):",
+  "labelTextSize": "0.875rem",
+  "labelWidth": "7",
+  "leftColumn": 2,
+  "mobileBottomRow": 25,
+  "mobileLeftColumn": 1,
+  "mobileRightColumn": 41,
+  "mobileTopRow": 17,
+  "needsErrorInfo": false,
+  "onChange": "{{TestConfig.getErrorGroupedTestContent()}}",
+  "options": "{{\n  [...appsmith.store.groupedErrorFrequency]\n    .reverse()\n    .map(item => ({\n      label: String(item.errorCount)+ \" (\"+item.questionCount+\" Fragen )\",\n      value: item.errorCount\n    }))\n}}",
+  "originalBottomRow": 22,
+  "originalTopRow": 16,
+  "parentColumnSpace": 30.551116943359375,
+  "parentId": "qc5dctkkas",
+  "parentRowSpace": 10,
+  "renderMode": "CANVAS",
+  "responsiveBehavior": "fill",
+  "rightColumn": 35,
+  "shouldScroll": false,
+  "shouldTruncate": false,
+  "showMarksLabel": true,
+  "sliderSize": "s",
+  "topRow": 16,
+  "topRowBeforeCollapse": 16,
+  "type": "CATEGORY_SLIDER_WIDGET",
+  "version": 1,
+  "widgetId": "j1t5bidbyz",
+  "widgetName": "ErrorFrequency"
+}

@@ -19,6 +19,7 @@ export default {
 		await this.setTitle();
 
 		if (!appsmith.store.myDomains) {
+			showAlert("Resetting domains!", "info");
 			await storeValue('myDomains', [
 				{ id: 1, label: "Domain 1 - Information Security Governance", checked: false, value: null },
 				{ id: 2, label: "Domain 2 - Information Security Risk Management", checked: false, value: null },
@@ -105,6 +106,53 @@ export default {
 
 	getTitle: () => {
 		return Title.text;
+	},
+	
+	getSelectedGroupErrorFrequency: () => {
+		
+		console.log("Selected error frequency: ", ErrorFrequency.value)
+		
+		return ErrorFrequency.value;
+	},
+	
+	disableWrongFilters: async() => {
+		
+		showAlert(JSON.stringify(QuestionsWithError.isSwitchedOn), "info");
+		
+		if (!QuestionsWithError.isSwitchedOn) {
+			showAlert("Diabling error filters!!!", "info");
+			ReverseOrder.setValue(false);
+			ReverseOrder.setDisabled(true);
+			TopCountWrong.setValue(false);
+			TopCountWrong.setDisabled(true);
+		} else{
+			ReverseOrder.setDisabled(false);
+			TopCountWrong.setDisabled(false)
+		}
+		
+		await this.countAvailableQuestions();
+		
+	},
+	
+	disableReverseOrder: async () => {
+		
+		if (QuestionsWithError.isSwitchedOn && TopCountWrong.isSwitchedOn) {
+			ReverseOrder.setValue(false);
+		}
+		
+		await this.countAvailableQuestions();
+		await this.calculateCountGoupedByErrorFrequency();
+		//await showAlert(JSON.stringify(this.getSelectedGroupErrorFrequency()), "info");
+		
+	},
+	
+	disableTopCountWrong: async() => {
+		
+		if (QuestionsWithError.isSwitchedOn && ReverseOrder.isSwitchedOn) {
+			TopCountWrong.setValue(false);
+		}
+		
+		await this.countAvailableQuestions();
 	},
 
 	selectExamSet: async() => {
@@ -211,12 +259,14 @@ export default {
 		.filter(Boolean);
 
 		const questionSets = this.getQuestionSet();
+		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
 
 		// Query ausführen und Collection + Parameter übergeben
 		const result = await AvailableQuestions.run({
-			collection: "master_question", // <-- Wichtig: Collection-Name übergeben
-			domains: domains,        // <-- Array von Domains
-			origins: questionSets
+			collection: this.getCollection(), 
+			domains: domains, 
+			origins: questionSets,
+			onlyWrong: onlyCountWrong
 		});
 
 		console.log("Result ", result);  
@@ -233,14 +283,148 @@ export default {
 			CountQuestions.setValue(totalSum);
 		}
 	},
+	
+	calculateCountGoupedByErrorFrequency: async() => {
+		
+		showAlert("Grouping by errors!", "info");
+		
+		const selecteDomainsWithValue = this.getSelectedDomains();
+		const domains = selecteDomainsWithValue.map(domain => domain.label);
+		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+		const questionSets = this.getQuestionSet();
+		//const errorReverseOrder = ReverseOrder.isSwitchedOn;
+		
+		try {
+			const result = await GroupedByErrorCount.run({
+					collection: this.getCollection(), 
+					domains: domains,
+					onlyWrong: onlyCountWrong,
+					origins: questionSets
+			});
+			
+			await storeValue("groupedErrorFrequency", result, false);
 
-	calculateTestContent: async () => {
+			return result;
+		} catch(e){
+			console.error("Fehler beim Abfragen der gruppierten Fehlerhäufigkeit!");
+			return null;
+		}
+		
+	},
 
-		const title = this.getTitle();
+getErrorGroupedTestContent: async () => {
+
+    console.log("===============> getErrorGroupedTestContent");
+
+    const countQuestions = this.getCountQuestions();
+    const startErrorGroup = this.getSelectedGroupErrorFrequency();
+    const groupedErrorFrequency = appsmith.store.groupedErrorFrequency || [];
+
+    const selectedDomainsWithValue = this.getSelectedDomains();
+    const domains = selectedDomainsWithValue.map(domain => domain.label);
+
+    const questionSets = this.getQuestionSet();
+
+    // Nur die ausgewählten Fehlergruppen berücksichtigen
+    const errorGroupsUnsorted = groupedErrorFrequency.filter(
+        item => item.errorCount <= startErrorGroup
+    );
+	
+	 	const errorGroups = errorGroupsUnsorted.reverse();
+
+    let excludeIds = [];
+    let testQuestions = [];
+    let remainingQstCnt = countQuestions;
+
+    for (const errorGroup of errorGroups) {
+
+        // Abbrechen, sobald die gewünschte Anzahl erreicht ist
+        if (remainingQstCnt <= 0) break;
+
+        const errorGroupQuestionCount = Number(errorGroup.questionCount);
+
+        const neededQuestionCount = Math.min(
+            remainingQstCnt,
+            errorGroupQuestionCount
+        );
+
+			  console.log("DOMAINS: ", domains);
+			/*
+        const qstParams = [];
+					qstParams.push({
+            domain: domains,
+            count: neededQuestionCount,
+            onlyWrong: true,
+            errorGroup: errorGroup.errorCount,
+            origins: questionSets,
+            errorReverseOrder: false
+        });
+				*/
+			const qstParams = {
+					domain: domains,
+					count: neededQuestionCount,
+					onlyWrong: true,
+					errorGroup: errorGroup.errorCount,
+					origins: questionSets,
+					errorReverseOrder: false
+			};
+
+        console.log(
+            `=> getErrorGroupedTestContent: Loading ErrorGroup ${errorGroup.errorCount} / ${errorGroup.questionCount}, requested: ${neededQuestionCount}`
+        );
+
+        const groupQuestions = await this.loadDomainQuestions(
+            qstParams,
+            excludeIds
+        );
+
+        // Nur die tatsächlich noch benötigte Anzahl übernehmen
+        const acceptedQuestions = groupQuestions.slice(0, remainingQstCnt);
+
+        testQuestions.push(...acceptedQuestions);
+
+        // Bereits geladene Fragen ausschließen
+        excludeIds = testQuestions.map(
+            question => question._id.toString()
+        );
+
+        // Verbleibende Anzahl aktualisieren
+        remainingQstCnt = countQuestions - testQuestions.length;
+
+        console.log(
+            `=> getErrorGroupedTestContent: ErrorGroup ${errorGroup.errorCount}: ${groupQuestions.length} geladen, ${acceptedQuestions.length} übernommen.`
+        );
+
+        console.log("Remaining questions:", remainingQstCnt);
+    }
+
+    console.log("Total test questions:", testQuestions.length);
+    console.log("Target questions:", countQuestions);
+	
+		const domainsInQuestions = [];
+	  const countWrongInQuestions = [];
+	
+		testQuestions.map(question => {
+			domainsInQuestions.push(question.domain);
+			countWrongInQuestions.push(question.countWrong);
+		})
+
+		const domainsInQuestionsUnique = [...new Set(domainsInQuestions)];
+		console.log("Enthalten domains: ", domainsInQuestionsUnique);
+
+		const countWrongInQuestionsUnique = [...new Set(countWrongInQuestions)];
+		console.log("Enhaltenen Fehlergruppen: ", countWrongInQuestionsUnique);
+
+
+    return testQuestions;
+},
+/*
+getRegurlarTestContent: async () => {
+	  console.log("================> getRegularTestContent");
 		const countQuestions = this.getCountQuestions();
-		const time = this.getTimeTotal();
 		const selecteDomainsWithalue = this.getSelectedDomains();
 		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+		const errorReverseOrder = ReverseOrder.isSwitchedOn;
 
 		const totalPercentageValue = Number(this.getTotalValue());
 		let remainingPercentage = 0;
@@ -288,13 +472,28 @@ export default {
 			console.log("Test questions will be filled up with ", fillUpCountPerDomain, " per domain!");
 
 			if (fillUpCountPerDomain >= 1) {
+				/*
 				const fillUpDomains = domains.map(domain => {
 					return {
+						collection: collection,
 						domain: domain.domain,
 						count: fillUpCountPerDomain,
-						onlyWrong: onlyCountWrong
+						onlyWrong: onlyCountWrong,
+						origins: questionSets,
+						errorGroup: [],
+						errorReverseOrder: errorReverseOrder
 					}
-				});
+					});
+	
+				 const fillUpDomains = {
+					 	collection: collection,
+						domain: rawDomainNames,
+						count: fillUpCountPerDomain,
+						onlyWrong: onlyCountWrong,
+						origins: questionSets,
+						errorGroup: [],
+						errorReverseOrder: errorReverseOrder
+				 }
 
 				const fillUpQuestions = await this.loadDomainQuestions(fillUpDomains, excludeIds);
 				testQuestions = [...testQuestions, ...fillUpQuestions];
@@ -311,14 +510,16 @@ export default {
 			console.log("Filling up absolute rest of: ", remainingFillUp);
 
 			for (let i = 0; i < remainingFillUp; i++) {
-				const randomDomain = domains[i % domains.length];
+				const randomDomain = rawDomainNames[i % rawDomainNames.length];
 
 				const singleQuestion = await this.loadDomainQuestions([{
 					collection: collection,
-					domain: randomDomain.domain,
-					questionLimit: 1,
+					domain: [randomDomain],
+					count: 1,
 					onlyWrong: onlyCountWrong,
-					origins: questionSets
+					origins: questionSets,
+					errorGroup: [],
+					errorReverseOrder: errorReverseOrder
 				}], excludeIds);
 
 				testQuestions = [...testQuestions, ...singleQuestion];
@@ -359,12 +560,195 @@ export default {
 
 		testQuestions = shuffleQuestions(testQuestions);
 		console.log("Test questions: ", testQuestions);
+	
+		return testQuestions;
+	},
+*/
+	getRegurlarTestContent: async () => {
+			console.log("================> getRegularTestContent");
+
+			const countQuestions = this.getCountQuestions();
+			const selecteDomainsWithalue = this.getSelectedDomains();
+			const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+			const errorReverseOrder = ReverseOrder.isSwitchedOn;
+
+			const totalPercentageValue = Number(this.getTotalValue());
+
+			if (totalPercentageValue > 100) {
+					showAlert("Inkorrekte Prozentwerte (>100 %), " + totalPercentageValue, "warning");
+					return false;
+			} else if (totalPercentageValue < 100) {
+					showAlert("Inkorrekte Prozentwerte (<100 %), " + totalPercentageValue, "warning");
+					return false;
+			}
+
+			const rawDomainNames = [];
+			const domains = selecteDomainsWithalue.map(domain => {
+					const domainCount = Math.floor((countQuestions * domain.value) / 100);
+
+					console.log("Domain ", domain.label, ": ", domainCount, " (" + domain.value + ")");
+					rawDomainNames.push(domain.label);
+
+					return {
+							domain: domain.label,
+							count: domainCount,
+							onlyWrong: onlyCountWrong
+					};
+			});
+
+			console.log(selecteDomainsWithalue);
+
+			const collection = this.getCollection();
+			const questionSets = this.getQuestionSet();
+
+			// 1. Ursprüngliche Fragen laden: Prozentuale Verteilung pro Domain
+			let testQuestions = [];
+
+			for (const domain of domains) {
+					if (domain.count <= 0) continue;
+
+					const domainQuestions = await this.loadDomainQuestions({
+							domain: [domain.domain],
+							count: domain.count,
+							onlyWrong: domain.onlyWrong,
+							origins: questionSets,
+							errorGroup: [],
+							errorReverseOrder: errorReverseOrder
+					}, []);
+
+					testQuestions.push(...domainQuestions);
+			}
+
+			// Aktuelle IDs für den Ausschluss sammeln
+			let excludeIds = testQuestions.map(question => question._id.toString());
+			console.log("Exclude Ids after Pass 1: ", excludeIds);
+
+			// 2. Ersten Durchgang auffüllen (falls durch Abrunden zu wenig da sind)
+			const fillUp = countQuestions - testQuestions.length;
+			console.log("Remaining rest number of questions to fill: ", fillUp);
+
+			if (fillUp > 0 && domains.length > 0) {
+					const fillUpCountPerDomain = Math.floor(fillUp / domains.length);
+
+					console.log("Test questions will be filled up with ", fillUpCountPerDomain, " per domain!");
+
+					if (fillUpCountPerDomain >= 1) {
+							const fillUpDomains = {
+									collection: collection,
+									domain: rawDomainNames,
+									count: fillUpCountPerDomain,
+									onlyWrong: onlyCountWrong,
+									origins: questionSets,
+									errorGroup: [],
+									errorReverseOrder: errorReverseOrder
+							};
+
+							const fillUpQuestions = await this.loadDomainQuestions(fillUpDomains, excludeIds);
+							testQuestions = [...testQuestions, ...fillUpQuestions];
+
+							// excludeIds für den letzten Schritt aktualisieren
+							excludeIds = testQuestions.map(question => question._id.toString());
+					}
+			}
+
+			// 3. Den allerletzten Rest zufällig auffüllen
+			const remainingFillUp = countQuestions - testQuestions.length;
+
+			if (remainingFillUp > 0 && domains.length > 0) {
+					console.log("Filling up absolute rest of: ", remainingFillUp);
+
+					for (let i = 0; i < remainingFillUp; i++) {
+							const randomDomain = rawDomainNames[i % rawDomainNames.length];
+
+							const singleQuestion = await this.loadDomainQuestions({
+									collection: collection,
+									domain: [randomDomain],
+									count: 1,
+									onlyWrong: onlyCountWrong,
+									origins: questionSets,
+									errorGroup: [],
+									errorReverseOrder: errorReverseOrder
+							}, excludeIds);
+
+							testQuestions = [...testQuestions, ...singleQuestion];
+
+							// excludeIds laufend erweitern
+							excludeIds = testQuestions.map(question => question._id.toString());
+					}
+			}
+
+			console.log("Final testQuestions length: ", testQuestions.length, " (Target: ", countQuestions, ")");
+			console.log("All test questions: ", testQuestions);
+
+			const isUnique = {};
+
+			testQuestions.forEach(question => {
+					isUnique[question.origin] = 1;
+			});
+
+			console.log("Unique test: " + JSON.stringify(isUnique), "info");
+
+			testQuestions = await this.findBookmarks(testQuestions);
+			await this.updateSelectedUsage(testQuestions);
+
+			const shuffleQuestions = (array) => {
+					const arr = [...array];
+
+					for (let i = arr.length - 1; i > 0; i--) {
+							const j = Math.floor(Math.random() * (i + 1));
+							[arr[i], arr[j]] = [arr[j], arr[i]];
+					}
+
+					return arr;
+			};
+
+			testQuestions = shuffleQuestions(testQuestions);
+			console.log("Test questions: ", testQuestions);
+
+			return testQuestions;
+	},
+
+	calculateTestContent: async () => {
+		const title = this.getTitle();
+		const countQuestions = this.getCountQuestions();
+		const time = this.getTimeTotal();
+		const selectedDomainsWithalue = this.getSelectedDomains();
+		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+		let rawDomains = selectedDomainsWithalue.map(domain => domain.label);
+		
+		let testQuestions = TopCountWrong.isSwitchedOn ? await this.getErrorGroupedTestContent(): await this.getRegurlarTestContent();
+		
+		const shuffleQuestions = (array) => {
+			// Kopie des Arrays erstellen, um das Original nicht zu verändern
+			const arr = [...array];
+
+			// Fisher-Yates Algorithmus
+			for (let i = arr.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[arr[i], arr[j]] = [arr[j], arr[i]]; // Elemente tauschen
+			}
+
+			return arr;
+		};
+
+		testQuestions = shuffleQuestions(testQuestions);
+		console.log("Test questions: ", testQuestions);
+		
+		const allDomains = testQuestions.map(question => question.domain);
+		const uniqueDomains =  [...new Set(allDomains)];
+		console.log("Enthaltene Domains: ", uniqueDomains);
+		
+		const allErrorGroups = testQuestions.map(question => question.countWrong);
+		const uniqueErrorGroups = [...new Set(allErrorGroups)];
+		console.log("Enthaltene Fehlergruppen: ", uniqueErrorGroups);
+		
+
 		
 		// Prepare test data
 		await storeValue('title', title, false);
 		await storeValue('nrquestions', parseInt(countQuestions), false);
 		await storeValue('mins', parseInt(time), false);
-		await storeValue("domains", rawDomainNames, false);
+		await storeValue("domains", rawDomains, false);
 
 		await storeValue("currentQuestions", testQuestions, false);
 		await storeValue("currentIndex", 0, false);
@@ -372,41 +756,137 @@ export default {
 		if (!onlyCountWrong) {
 			await storeValue('nature', 'user');
 		} else {
-			await storeValue('nature', "error_training");
+			await storeValue('nature', "ET");
 		}
+		
+		console.log("Nauture: ", appsmith.store.nature);
 
-		await navigateTo("Execution", {}, 'SAME_WINDOW');
+		//await navigateTo("Execution", {}, 'SAME_WINDOW');
 	},
 
+	/*
 	loadDomainQuestions: async (domains, excludeIds = []) => {
+		console.log("================> loadDomainQuestions");
+		
 		let testQuestions = [];
 
 		for (const domain of domains) {
-			if (domain.count <= 0 && domain.questionLimit <= 0) continue;
-
-			const limit = domain.count !== undefined ? domain.count : domain.questionLimit;
-
-			const questionSets = this.getQuestionSet();
-
-			console.log("Selected question sets: ", questionSets);
+			console.log("Domain:", domains.domain);
+			console.log("ErrorGroup:", domains.errorGroup);
+			console.log("Requested:", domains.count);
+			
+			if (domain.count <= 0) continue;
 
 			const collection = this.getCollection();
 
 			const domainQuestions = await GetQuestions.run({
-				collection: collection, 
+				collection: collection,
 				domain: domain.label || domain.domain,
-				questionLimit: limit,
+				questionLimit: domain.count,
 				onlyWrong: domain.onlyWrong,
 				excludeIds: excludeIds,
-				origins: questionSets
+				origins: domain.origins,
+				errorGroup: domain.errorGroup,
+				errorReverseOrder: domain.errorReverseOrder
+			});
+			
+			console.log("GetQuestions params:", {
+					collection: collection,
+					domain: domain.label || domain.domain,
+					questionLimit: domain.count,
+					errorGroup: domain.errorGroup,
+					origins: domain.origins
+			});
+
+			console.log("GetQuestions result:", {
+					isArray: Array.isArray(domainQuestions),
+					length: domainQuestions?.length,
+					result: domainQuestions
 			});
 
 			if (domainQuestions && Array.isArray(domainQuestions)) {
 				testQuestions = [...testQuestions, ...domainQuestions];
 			}
+			
+			console.log("Domain: ", domain);
+			console.log("Returned:", domainQuestions?.length);
 		}
 
 		return testQuestions;
+	},
+	
+	loadDomainQuestions: async (domains, excludeIds = []) => {
+			console.log("================> loadDomainQuestions");
+
+			const domainArray = [...new Set(
+					(domains || [])
+							.flatMap(item => Array.isArray(item.domain)
+									? item.domain
+									: [item.label || item.domain]
+							)
+							.filter(Boolean)
+			)];
+
+			const questionLimit = Number(domains?.[0]?.count) || 0;
+
+			if (questionLimit <= 0 || domainArray.length === 0) {
+					return [];
+			}
+
+			const collection = this.getCollection();
+
+			const params = {
+					collection: collection,
+					domain: domainArray,
+					questionLimit: questionLimit,
+					onlyWrong: domains[0].onlyWrong,
+					excludeIds: excludeIds,
+					origins: domains[0].origins,
+					errorGroup: domains[0].errorGroup,
+					errorReverseOrder: domains[0].errorReverseOrder
+			};
+
+			console.log("GetQuestions params:", params);
+
+			const domainQuestions = await GetQuestions.run(params);
+
+			console.log("GetQuestions result:", {
+					domains: domainArray,
+					requested: questionLimit,
+					returned: domainQuestions?.length
+			});
+
+			return Array.isArray(domainQuestions) ? domainQuestions : [];
+	},
+		*/
+	
+	loadDomainQuestions: async (domains, excludeIds = []) => {
+			console.log("================> loadDomainQuestions");
+
+			const collection = this.getCollection();
+
+			const params = {
+					collection: collection,
+					domain: domains.domain,
+					questionLimit: domains.count,
+					onlyWrong: domains.onlyWrong,
+					excludeIds: excludeIds,
+					origins: domains.origins,
+					errorGroup: domains.errorGroup,
+					errorReverseOrder: domains.errorReverseOrder
+			};
+
+			console.log("GetQuestions params:", params);
+
+			const domainQuestions = await GetQuestions.run(params);
+
+			console.log("GetQuestions result:", {
+					domains: domains.domain,
+					requested: domains.count,
+					returned: domainQuestions?.length
+			});
+
+			return Array.isArray(domainQuestions) ? domainQuestions : [];
 	},
 
 	findBookmarks: async(questions) => {
