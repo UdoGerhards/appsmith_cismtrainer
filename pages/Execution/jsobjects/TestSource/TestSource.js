@@ -6,7 +6,11 @@ export default {
 		await this.loadAndSaveConfiguration();
 
 		const currentIndex = appsmith.store.currentIndex;
-		const question = appsmith.store.currentQuestions[currentIndex];
+		const questions = appsmith.store.currentQuestions;
+		const question = questions[currentIndex];
+		
+		const progStep = currentIndex+1;
+		this.updateProgress(progStep, questions.length);
 
 		this.shuffleAnswers(question.answers);
 
@@ -39,6 +43,12 @@ export default {
 			showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
 		}
 	},
+	
+	updateProgress: async (current, total) => {
+    const progress = Math.round((current / total) * 100);
+		showAlert("Current progress "+JSON.stringify(progress), "info");
+    await storeValue("testProgress", progress);
+	},
 
 	shuffleAnswers: async (answers) => {
 		const sortedAnswers = answers.sort(() => Math.random() - 0.5);
@@ -54,6 +64,7 @@ export default {
 
 		const currentIndex = appsmith.store.currentIndex;
 		const questions = [...appsmith.store.currentQuestions];
+		const progStep = currentIndex+1;
 
 		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
 		answerFields.forEach(field => {
@@ -61,6 +72,8 @@ export default {
 			removeValue(field+"_value");
 			resetWidget(field, false);
 		});
+		
+		this.updateProgress(progStep, questions.length);
 
 		// 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
 		if (currentIndex < questions.length - 1) {

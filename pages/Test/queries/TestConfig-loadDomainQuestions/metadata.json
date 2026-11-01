@@ -1,12 +1,20 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_0d9627dc-65a4-4f80-b01c-89fde7d70ca8",
-  "id": "Test_TestConfig.getRegurlarTestContent",
+  "gitSyncId": "6a784e96054143865d8dd557_d095a234-40d4-4abd-ae85-1ecc323c52a2",
+  "id": "Test_TestConfig.loadDomainQuestions",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
     "actionConfiguration": {
       "encodeParamsToggle": true,
-      "jsArguments": [],
+      "jsArguments": [
+        {
+          "name": "domains"
+        },
+        {
+          "name": "excludeIds",
+          "value": "{{[]}}"
+        }
+      ],
       "paginationType": "NONE",
       "timeoutInMillisecond": 10000
     },
@@ -22,8 +30,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "TestConfig.getRegurlarTestContent",
-    "name": "getRegurlarTestContent",
+    "fullyQualifiedName": "TestConfig.loadDomainQuestions",
+    "name": "loadDomainQuestions",
     "pageId": "Test",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

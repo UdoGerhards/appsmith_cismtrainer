@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_7bfabb3e-bbbb-4fe2-a49a-84a287e4a425",
-  "id": "Test_TestConfig.calculateTestContent",
+  "gitSyncId": "6a784e96054143865d8dd557_0de23dc4-4a0b-43b0-8a59-9c2f7575d63e",
+  "id": "Test_TestConfig.getSet",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "TestConfig.calculateTestContent",
-    "name": "calculateTestContent",
+    "fullyQualifiedName": "TestConfig.getSet",
+    "name": "getSet",
     "pageId": "Test",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

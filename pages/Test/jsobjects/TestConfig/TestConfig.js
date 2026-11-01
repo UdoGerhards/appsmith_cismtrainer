@@ -108,6 +108,10 @@ export default {
 		return Title.text;
 	},
 	
+	getSet: () => {
+		return ExamStyle.selectedOptionValue;
+	},
+	
 	getSelectedGroupErrorFrequency: () => {
 		
 		console.log("Selected error frequency: ", ErrorFrequency.value)
@@ -349,17 +353,7 @@ getErrorGroupedTestContent: async () => {
         );
 
 			  console.log("DOMAINS: ", domains);
-			/*
-        const qstParams = [];
-					qstParams.push({
-            domain: domains,
-            count: neededQuestionCount,
-            onlyWrong: true,
-            errorGroup: errorGroup.errorCount,
-            origins: questionSets,
-            errorReverseOrder: false
-        });
-				*/
+
 			const qstParams = {
 					domain: domains,
 					count: neededQuestionCount,
@@ -418,305 +412,234 @@ getErrorGroupedTestContent: async () => {
 
     return testQuestions;
 },
-/*
-getRegurlarTestContent: async () => {
-	  console.log("================> getRegularTestContent");
-		const countQuestions = this.getCountQuestions();
-		const selecteDomainsWithalue = this.getSelectedDomains();
-		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
-		const errorReverseOrder = ReverseOrder.isSwitchedOn;
-
-		const totalPercentageValue = Number(this.getTotalValue());
-		let remainingPercentage = 0;
-
-		if (totalPercentageValue > 100) {
-			showAlert("Inkorrekte Prozentwerte (>100 %), "+totalPercentageValue, "warning");
-			return false;
-		} else if (totalPercentageValue < 100) {
-			showAlert("Inkorrekte Prozentwerte (<100 %), "+totalPercentageValue, "warning");
-			return false;
-		} else {
-			remainingPercentage = 100 - totalPercentageValue;
-		}
-
-		const rawDomainNames = [];
-		const domains = selecteDomainsWithalue.map(domain => {
-			const domainCount = Math.floor((countQuestions * domain.value) / 100);
-			console.log("Domain ", domain.label, ": ", domainCount, " (" + domain.value + ")");
-			rawDomainNames.push(domain.label);
-			return {
-				domain: domain.label,
-				count: domainCount,
-				onlyWrong: onlyCountWrong
-			}
-		});
-
-		console.log(selecteDomainsWithalue);
-
-		// 1. Ursprüngliche Fragen laden (mit leerem excludeIds-Array)
-		let testQuestions = await this.loadDomainQuestions(domains, []);
-
-		// Aktuelle IDs für den Ausschluss sammeln
-		let excludeIds = testQuestions.map(question => question._id.toString());
-		console.log("Exclude Ids after Pass 1: ", excludeIds);
-
-		// 2. Ersten Durchgang auffüllen (falls durch Abrunden zu wenig da sind)
-		const fillUp = countQuestions - testQuestions.length;
-		console.log("Remaining rest number of questions to fill: ", fillUp);
-
-		const collection = this.getCollection();
-		const questionSets = this.getQuestionSet();
-
-		if (fillUp > 0 && domains.length > 0) {
-			const fillUpCountPerDomain = Math.floor(fillUp / domains.length);
-			console.log("Test questions will be filled up with ", fillUpCountPerDomain, " per domain!");
-
-			if (fillUpCountPerDomain >= 1) {
-				/*
-				const fillUpDomains = domains.map(domain => {
-					return {
-						collection: collection,
-						domain: domain.domain,
-						count: fillUpCountPerDomain,
-						onlyWrong: onlyCountWrong,
-						origins: questionSets,
-						errorGroup: [],
-						errorReverseOrder: errorReverseOrder
-					}
-					});
 	
-				 const fillUpDomains = {
-					 	collection: collection,
-						domain: rawDomainNames,
-						count: fillUpCountPerDomain,
-						onlyWrong: onlyCountWrong,
-						origins: questionSets,
-						errorGroup: [],
-						errorReverseOrder: errorReverseOrder
-				 }
-
-				const fillUpQuestions = await this.loadDomainQuestions(fillUpDomains, excludeIds);
-				testQuestions = [...testQuestions, ...fillUpQuestions];
-
-				// excludeIds für den letzten Schritt aktualisieren
-				excludeIds = testQuestions.map(question => question._id.toString());
-			}
-		}
-
-		// 3. Den allerletzten Rest (durch Rundungsreste z. B. 1-2 Fragen) zufällig auffüllen
-		let remainingFillUp = countQuestions - testQuestions.length;
-
-		if (remainingFillUp > 0 && domains.length > 0) {
-			console.log("Filling up absolute rest of: ", remainingFillUp);
-
-			for (let i = 0; i < remainingFillUp; i++) {
-				const randomDomain = rawDomainNames[i % rawDomainNames.length];
-
-				const singleQuestion = await this.loadDomainQuestions([{
-					collection: collection,
-					domain: [randomDomain],
-					count: 1,
-					onlyWrong: onlyCountWrong,
-					origins: questionSets,
-					errorGroup: [],
-					errorReverseOrder: errorReverseOrder
-				}], excludeIds);
-
-				testQuestions = [...testQuestions, ...singleQuestion];
-
-				// excludeIds laufend erweitern
-				excludeIds = testQuestions.map(question => question._id.toString());
-			}
-		}
-
-		console.log("Final testQuestions length: ", testQuestions.length, " (Target: ", countQuestions, ")");
-		console.log("All test questions: ", testQuestions);
-
-		const isUnique = {};
-
-		// .forEach ist hier die richtige Wahl für reine Aktionen
-		testQuestions.forEach(question => {
-			isUnique[question.origin] = 1;
-		});
-
-		// Nachricht und JSON mit "+" zusammenfügen (genau 2 Parameter für showAlert)
-		console.log("Unique test: " + JSON.stringify(isUnique), "info");
-
-		testQuestions = await this.findBookmarks(testQuestions);
-		await this.updateSelectedUsage(testQuestions);
-		
-		const shuffleQuestions = (array) => {
-			// Kopie des Arrays erstellen, um das Original nicht zu verändern
-			const arr = [...array];
-
-			// Fisher-Yates Algorithmus
-			for (let i = arr.length - 1; i > 0; i--) {
-				const j = Math.floor(Math.random() * (i + 1));
-				[arr[i], arr[j]] = [arr[j], arr[i]]; // Elemente tauschen
-			}
-
-			return arr;
-		};
-
-		testQuestions = shuffleQuestions(testQuestions);
-		console.log("Test questions: ", testQuestions);
-	
-		return testQuestions;
-	},
-*/
 	getRegurlarTestContent: async () => {
-			console.log("================> getRegularTestContent");
+    console.log("================> getRegularTestContent");
 
-			const countQuestions = this.getCountQuestions();
-			const selecteDomainsWithalue = this.getSelectedDomains();
-			const onlyCountWrong = QuestionsWithError.isSwitchedOn;
-			const errorReverseOrder = ReverseOrder.isSwitchedOn;
+    const countQuestions = this.getCountQuestions();
+    const selectedDomainsWithValue = this.getSelectedDomains();
+    const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+    const errorReverseOrder = ReverseOrder.isSwitchedOn;
+    const questionSets = this.getQuestionSet();
 
-			const totalPercentageValue = Number(this.getTotalValue());
+    const totalPercentageValue = Number(this.getTotalValue());
 
-			if (totalPercentageValue > 100) {
-					showAlert("Inkorrekte Prozentwerte (>100 %), " + totalPercentageValue, "warning");
-					return false;
-			} else if (totalPercentageValue < 100) {
-					showAlert("Inkorrekte Prozentwerte (<100 %), " + totalPercentageValue, "warning");
-					return false;
-			}
+    if (totalPercentageValue > 100) {
+        showAlert(
+            "Inkorrekte Prozentwerte (>100 %), " + totalPercentageValue,
+            "warning"
+        );
+        return false;
+    }
 
-			const rawDomainNames = [];
-			const domains = selecteDomainsWithalue.map(domain => {
-					const domainCount = Math.floor((countQuestions * domain.value) / 100);
+    if (totalPercentageValue < 100) {
+        showAlert(
+            "Inkorrekte Prozentwerte (<100 %), " + totalPercentageValue,
+            "warning"
+        );
+        return false;
+    }
 
-					console.log("Domain ", domain.label, ": ", domainCount, " (" + domain.value + ")");
-					rawDomainNames.push(domain.label);
+    if (!selectedDomainsWithValue.length) {
+        showAlert("Keine Domain ausgewählt!", "warning");
+        return false;
+    }
 
-					return {
-							domain: domain.label,
-							count: domainCount,
-							onlyWrong: onlyCountWrong
-					};
-			});
+    // 1. Anzahl der Fragen anhand des Prozentanteils berechnen
+    const domainConfig = selectedDomainsWithValue.map(domain => {
+        const percentage = Number(domain.value);
+        const domainCount = Math.floor(
+            (countQuestions * percentage) / 100
+        );
 
-			console.log(selecteDomainsWithalue);
+        console.log(
+            "Domain",
+            domain.label,
+            ":",
+            domainCount,
+            "(" + percentage + "%)"
+        );
 
-			const collection = this.getCollection();
-			const questionSets = this.getQuestionSet();
+        return {
+            domain: [domain.label],
+            percentage: percentage,
+            count: domainCount
+        };
+    });
 
-			// 1. Ursprüngliche Fragen laden: Prozentuale Verteilung pro Domain
-			let testQuestions = [];
+    let testQuestions = [];
+    let excludeIds = [];
 
-			for (const domain of domains) {
-					if (domain.count <= 0) continue;
+    // 2. Ursprüngliche Fragen pro Domain laden
+    for (const config of domainConfig) {
+        if (config.count <= 0) {
+            continue;
+        }
 
-					const domainQuestions = await this.loadDomainQuestions({
-							domain: [domain.domain],
-							count: domain.count,
-							onlyWrong: domain.onlyWrong,
-							origins: questionSets,
-							errorGroup: [],
-							errorReverseOrder: errorReverseOrder
-					}, []);
+        const domainQuestions = await this.loadDomainQuestions({
+            domain: config.domain,
+            count: config.count,
+            onlyWrong: onlyCountWrong,
+            origins: questionSets,
+            errorGroup: null,
+            errorReverseOrder: errorReverseOrder
+        }, excludeIds);
 
-					testQuestions.push(...domainQuestions);
-			}
+        testQuestions.push(...domainQuestions);
 
-			// Aktuelle IDs für den Ausschluss sammeln
-			let excludeIds = testQuestions.map(question => question._id.toString());
-			console.log("Exclude Ids after Pass 1: ", excludeIds);
+        excludeIds = testQuestions.map(question =>
+            question._id.toString()
+        );
 
-			// 2. Ersten Durchgang auffüllen (falls durch Abrunden zu wenig da sind)
-			const fillUp = countQuestions - testQuestions.length;
-			console.log("Remaining rest number of questions to fill: ", fillUp);
+        console.log(
+            "Loaded",
+            domainQuestions.length,
+            "questions from",
+            config.domain[0]
+        );
+    }
 
-			if (fillUp > 0 && domains.length > 0) {
-					const fillUpCountPerDomain = Math.floor(fillUp / domains.length);
+    console.log(
+        "Questions after first pass:",
+        testQuestions.length
+    );
 
-					console.log("Test questions will be filled up with ", fillUpCountPerDomain, " per domain!");
+    // 3. Fehlende Fragen proportional zu den Domain-Prozentanteilen auffüllen
+    let remainingFillUp = countQuestions - testQuestions.length;
 
-					if (fillUpCountPerDomain >= 1) {
-							const fillUpDomains = {
-									collection: collection,
-									domain: rawDomainNames,
-									count: fillUpCountPerDomain,
-									onlyWrong: onlyCountWrong,
-									origins: questionSets,
-									errorGroup: [],
-									errorReverseOrder: errorReverseOrder
-							};
+    while (remainingFillUp > 0) {
+        const totalPercentage = domainConfig.reduce(
+            (sum, config) => sum + config.percentage,
+            0
+        );
 
-							const fillUpQuestions = await this.loadDomainQuestions(fillUpDomains, excludeIds);
-							testQuestions = [...testQuestions, ...fillUpQuestions];
+        // Proportionale Verteilung mit Abrundung
+        const allocations = domainConfig.map(config => {
+            const exactCount =
+                (remainingFillUp * config.percentage) / totalPercentage;
 
-							// excludeIds für den letzten Schritt aktualisieren
-							excludeIds = testQuestions.map(question => question._id.toString());
-					}
-			}
+            return {
+                config: config,
+                count: Math.floor(exactCount),
+                remainder: exactCount - Math.floor(exactCount)
+            };
+        });
 
-			// 3. Den allerletzten Rest zufällig auffüllen
-			const remainingFillUp = countQuestions - testQuestions.length;
+        // Übrige Fragen anhand der größten Nachkommarestwerte verteilen
+        let allocatedCount = allocations.reduce(
+            (sum, allocation) => sum + allocation.count,
+            0
+        );
 
-			if (remainingFillUp > 0 && domains.length > 0) {
-					console.log("Filling up absolute rest of: ", remainingFillUp);
+        const sortedAllocations = [...allocations].sort(
+            (a, b) => b.remainder - a.remainder
+        );
 
-					for (let i = 0; i < remainingFillUp; i++) {
-							const randomDomain = rawDomainNames[i % rawDomainNames.length];
+        for (let i = 0; allocatedCount < remainingFillUp; i++) {
+            sortedAllocations[i % sortedAllocations.length].count++;
+            allocatedCount++;
+        }
 
-							const singleQuestion = await this.loadDomainQuestions({
-									collection: collection,
-									domain: [randomDomain],
-									count: 1,
-									onlyWrong: onlyCountWrong,
-									origins: questionSets,
-									errorGroup: [],
-									errorReverseOrder: errorReverseOrder
-							}, excludeIds);
+        let questionsAdded = 0;
 
-							testQuestions = [...testQuestions, ...singleQuestion];
+        for (const allocation of allocations) {
+            if (allocation.count <= 0) {
+                continue;
+            }
 
-							// excludeIds laufend erweitern
-							excludeIds = testQuestions.map(question => question._id.toString());
-					}
-			}
+            const domainQuestions = await this.loadDomainQuestions({
+                domain: allocation.config.domain,
+                count: allocation.count,
+                onlyWrong: onlyCountWrong,
+                origins: questionSets,
+                errorGroup: null,
+                errorReverseOrder: errorReverseOrder
+            }, excludeIds);
 
-			console.log("Final testQuestions length: ", testQuestions.length, " (Target: ", countQuestions, ")");
-			console.log("All test questions: ", testQuestions);
+            if (domainQuestions.length > 0) {
+                testQuestions.push(...domainQuestions);
+                questionsAdded += domainQuestions.length;
 
-			const isUnique = {};
+                excludeIds = testQuestions.map(question =>
+                    question._id.toString()
+                );
+            }
+        }
 
-			testQuestions.forEach(question => {
-					isUnique[question.origin] = 1;
-			});
+        console.log(
+            "Fill-up added:",
+            questionsAdded,
+            "Remaining:",
+            countQuestions - testQuestions.length
+        );
 
-			console.log("Unique test: " + JSON.stringify(isUnique), "info");
+        // Abbrechen, wenn keine weitere Frage verfügbar ist
+        if (questionsAdded === 0) {
+            break;
+        }
 
-			testQuestions = await this.findBookmarks(testQuestions);
-			await this.updateSelectedUsage(testQuestions);
+        remainingFillUp = countQuestions - testQuestions.length;
+    }
 
-			const shuffleQuestions = (array) => {
-					const arr = [...array];
+    // 4. Ergebnis kontrollieren
+    console.log(
+        "Final testQuestions length:",
+        testQuestions.length,
+        "(Target:",
+        countQuestions,
+        ")"
+    );
 
-					for (let i = arr.length - 1; i > 0; i--) {
-							const j = Math.floor(Math.random() * (i + 1));
-							[arr[i], arr[j]] = [arr[j], arr[i]];
-					}
+    console.log("All test questions:", testQuestions);
 
-					return arr;
-			};
+    const isUnique = {};
 
-			testQuestions = shuffleQuestions(testQuestions);
-			console.log("Test questions: ", testQuestions);
+    testQuestions.forEach(question => {
+        isUnique[question.origin] = 1;
+    });
 
-			return testQuestions;
-	},
+    console.log("Origins: " + JSON.stringify(isUnique));
+
+    // 5. Bookmarks und Usage aktualisieren
+    testQuestions = await this.findBookmarks(testQuestions);
+    await this.updateSelectedUsage(testQuestions);
+
+    // 6. Fragen mischen
+    const shuffleQuestions = (array) => {
+        const arr = [...array];
+
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+
+        return arr;
+    };
+
+    testQuestions = shuffleQuestions(testQuestions);
+
+    console.log("Test questions:", testQuestions);
+
+    return testQuestions;
+},
 
 	calculateTestContent: async () => {
-		const title = this.getTitle();
+
 		const countQuestions = this.getCountQuestions();
+		if(countQuestions <= 0) {
+			showAlert("Bitte wähle eine gewünschte Anzahl von Fragen!!", "error");
+			return;
+		}
+		
+		const title = this.getTitle();
 		const time = this.getTimeTotal();
 		const selectedDomainsWithalue = this.getSelectedDomains();
 		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
 		let rawDomains = selectedDomainsWithalue.map(domain => domain.label);
+		const exampleSet = this.getSet();
+		//showAlert("Gewähltes Set "+JSON.stringify(exampleSet), "info");
 		
-		let testQuestions = TopCountWrong.isSwitchedOn ? await this.getErrorGroupedTestContent(): await this.getRegurlarTestContent();
+		let testQuestions = (exampleSet === 3 && TopCountWrong.isSwitchedOn) ? await this.getErrorGroupedTestContent(): await this.getRegurlarTestContent();
 		
 		const shuffleQuestions = (array) => {
 			// Kopie des Arrays erstellen, um das Original nicht zu verändern
@@ -734,9 +657,25 @@ getRegurlarTestContent: async () => {
 		testQuestions = shuffleQuestions(testQuestions);
 		console.log("Test questions: ", testQuestions);
 		
-		const allDomains = testQuestions.map(question => question.domain);
-		const uniqueDomains =  [...new Set(allDomains)];
-		console.log("Enthaltene Domains: ", uniqueDomains);
+		const totalQuestions = testQuestions.length;
+		let allDomains = {};
+
+		testQuestions.forEach(question => {
+				const domain = question.domain;
+
+				allDomains[domain] = (allDomains[domain] || 0) + 1;
+		});
+
+		Object.keys(allDomains).forEach(domain => {
+				const count = allDomains[domain];
+
+				allDomains[domain] = {
+						count: count,
+						percentage: Number(((count / totalQuestions) * 100).toFixed(2))
+				};
+		});
+
+		console.log("Enthaltene Domains:", allDomains);
 		
 		const allErrorGroups = testQuestions.map(question => question.countWrong);
 		const uniqueErrorGroups = [...new Set(allErrorGroups)];
@@ -761,104 +700,8 @@ getRegurlarTestContent: async () => {
 		
 		console.log("Nauture: ", appsmith.store.nature);
 
-		//await navigateTo("Execution", {}, 'SAME_WINDOW');
+		await navigateTo("Execution", {}, 'SAME_WINDOW');
 	},
-
-	/*
-	loadDomainQuestions: async (domains, excludeIds = []) => {
-		console.log("================> loadDomainQuestions");
-		
-		let testQuestions = [];
-
-		for (const domain of domains) {
-			console.log("Domain:", domains.domain);
-			console.log("ErrorGroup:", domains.errorGroup);
-			console.log("Requested:", domains.count);
-			
-			if (domain.count <= 0) continue;
-
-			const collection = this.getCollection();
-
-			const domainQuestions = await GetQuestions.run({
-				collection: collection,
-				domain: domain.label || domain.domain,
-				questionLimit: domain.count,
-				onlyWrong: domain.onlyWrong,
-				excludeIds: excludeIds,
-				origins: domain.origins,
-				errorGroup: domain.errorGroup,
-				errorReverseOrder: domain.errorReverseOrder
-			});
-			
-			console.log("GetQuestions params:", {
-					collection: collection,
-					domain: domain.label || domain.domain,
-					questionLimit: domain.count,
-					errorGroup: domain.errorGroup,
-					origins: domain.origins
-			});
-
-			console.log("GetQuestions result:", {
-					isArray: Array.isArray(domainQuestions),
-					length: domainQuestions?.length,
-					result: domainQuestions
-			});
-
-			if (domainQuestions && Array.isArray(domainQuestions)) {
-				testQuestions = [...testQuestions, ...domainQuestions];
-			}
-			
-			console.log("Domain: ", domain);
-			console.log("Returned:", domainQuestions?.length);
-		}
-
-		return testQuestions;
-	},
-	
-	loadDomainQuestions: async (domains, excludeIds = []) => {
-			console.log("================> loadDomainQuestions");
-
-			const domainArray = [...new Set(
-					(domains || [])
-							.flatMap(item => Array.isArray(item.domain)
-									? item.domain
-									: [item.label || item.domain]
-							)
-							.filter(Boolean)
-			)];
-
-			const questionLimit = Number(domains?.[0]?.count) || 0;
-
-			if (questionLimit <= 0 || domainArray.length === 0) {
-					return [];
-			}
-
-			const collection = this.getCollection();
-
-			const params = {
-					collection: collection,
-					domain: domainArray,
-					questionLimit: questionLimit,
-					onlyWrong: domains[0].onlyWrong,
-					excludeIds: excludeIds,
-					origins: domains[0].origins,
-					errorGroup: domains[0].errorGroup,
-					errorReverseOrder: domains[0].errorReverseOrder
-			};
-
-			console.log("GetQuestions params:", params);
-
-			const domainQuestions = await GetQuestions.run(params);
-
-			console.log("GetQuestions result:", {
-					domains: domainArray,
-					requested: questionLimit,
-					returned: domainQuestions?.length
-			});
-
-			return Array.isArray(domainQuestions) ? domainQuestions : [];
-	},
-		*/
 	
 	loadDomainQuestions: async (domains, excludeIds = []) => {
 			console.log("================> loadDomainQuestions");
