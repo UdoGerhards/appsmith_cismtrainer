@@ -1,6 +1,6 @@
 {
-  "gitSyncId": "6a784e96054143865d8dd557_ae8311d1-7e89-42dd-b0c9-04096334d5d6",
-  "id": "Test_TestConfig.getErrorGroupedTestContent",
+  "gitSyncId": "6a784e96054143865d8dd557_dfced545-d368-4492-af5c-ce1f112b5bf1",
+  "id": "Test_TestConfig.getSelectedTab",
   "pluginId": "js-plugin",
   "pluginType": "JS",
   "unpublishedAction": {
@@ -22,8 +22,8 @@
         "key": "body"
       }
     ],
-    "fullyQualifiedName": "TestConfig.getErrorGroupedTestContent",
-    "name": "getErrorGroupedTestContent",
+    "fullyQualifiedName": "TestConfig.getSelectedTab",
+    "name": "getSelectedTab",
     "pageId": "Test",
     "runBehaviour": "MANUAL",
     "userSetOnLoad": false

@@ -5,12 +5,12 @@
   "borderColor": "#E0DEDE",
   "borderRadius": "0px",
   "borderWidth": "0\n",
-  "bottomRow": 47,
+  "bottomRow": 59,
   "boxShadow": "none",
   "children": [
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 290,
+      "bottomRow": 400,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -56,7 +56,7 @@
     },
     {
       "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-      "bottomRow": 280,
+      "bottomRow": 400,
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "canExtend": true,
       "detachFromLayout": true,
@@ -144,7 +144,7 @@
   "mobileRightColumn": 25,
   "mobileTopRow": 19,
   "needsErrorInfo": false,
-  "onTabSelected": "",
+  "onTabSelected": "{{TestConfig.getSelectedTab()}}",
   "originalBottomRow": 47,
   "originalTopRow": 15,
   "parentColumnSpace": 32.6875,
@@ -179,5 +179,5 @@
   "type": "TABS_WIDGET",
   "version": 3,
   "widgetId": "bjotav9yd8",
-  "widgetName": "Tabs1"
+  "widgetName": "Tabs"
 }

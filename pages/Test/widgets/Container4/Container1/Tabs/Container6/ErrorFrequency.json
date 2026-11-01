@@ -3,7 +3,7 @@
   "animateLoading": true,
   "bottomRow": 22,
   "bottomRowBeforeCollapse": 22,
-  "defaultOptionValue": "{{\n  [...appsmith.store.groupedErrorFrequency].reverse()[0]?.errorCount\n}}",
+  "defaultOptionValue": "{{\n    Math.max(     ...appsmith.store.groupedErrorFrequency.map(item => item.errorCount)\n    )\n}}",
   "dynamicBindingPathList": [
     {
       "key": "accentColor"
@@ -52,8 +52,8 @@
   "mobileRightColumn": 41,
   "mobileTopRow": 17,
   "needsErrorInfo": false,
-  "onChange": "{{TestConfig.getErrorGroupedTestContent()}}",
-  "options": "{{\n  [...appsmith.store.groupedErrorFrequency]\n    .reverse()\n    .map(item => ({\n      label: String(item.errorCount)+ \" (\"+item.questionCount+\" Fragen )\",\n      value: item.errorCount\n    }))\n}}",
+  "onChange": "",
+  "options": "{{\n  [...appsmith.store.groupedErrorFrequency]\n    .map(item => ({\n      label: String(item.errorCount)+ \" (\"+item.questionCount+\" Fragen )\",\n      value: item.errorCount\n    }))\n}}",
   "originalBottomRow": 22,
   "originalTopRow": 16,
   "parentColumnSpace": 30.551116943359375,
