@@ -264,5 +264,19 @@ getAllTests: () => {
     } catch (e) {
       showAlert("Fehler beim Löschen: " + (e.message || e), "error");
     }
-  }
+  },
+	
+	getTestType: (item) => {
+		console.log("TestType: ", item);
+		
+		if (item === "user") {
+			return "🧑‍💼 Regulärer Test"
+		} else if (item === "KI") {
+			return "🤖 Quiz"
+		} else if (item === "ET") {
+			return "🎓 Vertiefung";
+		} else if (item === "synthetic"){
+			return "🔄 Wiederholung"
+		}
+	}
 }
