@@ -13,6 +13,20 @@ export default {
 		this.updateProgress(progStep, questions.length);
 
 		this.shuffleAnswers(question.answers);
+		
+		const testBackup = appsmith.store.testBackup;
+		if (typeof testBackup !== "undefined") {			
+			const timeLeft = appsmith.store.testBackup.timeLeft;
+			console.log(timeLeft);
+			await storeValue("timeLeft", timeLeft, false);
+			const timerInterval = appsmith.store.testBackup.timerInterval;
+			await storeValue("timerInterval", timerInterval, false);
+			console.log(timerInterval);
+			const testProgress = appsmith.store.testBackup.testProgress;
+			await storeValue("testProgress", testProgress, false);
+			console.log(testProgress);
+			showAlert("Test backup set!!!");
+		}
 
 		await this.startTimer();
 	}, 

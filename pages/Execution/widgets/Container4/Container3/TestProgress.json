@@ -34,7 +34,7 @@
   "renderMode": "CANVAS",
   "responsiveBehavior": "fill",
   "rightColumn": 56,
-  "showResult": false,
+  "showResult": true,
   "steps": 1,
   "topRow": 2,
   "type": "PROGRESS_WIDGET",

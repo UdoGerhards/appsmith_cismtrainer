@@ -58,5 +58,47 @@ export default {
 			}
 
 			return testQuestions;
-	}
+	},
+	
+importUpload: async () => {
+  if (!Upload.files || Upload.files.length === 0) {
+    showAlert("Bitte wähle zuerst eine Datei aus!", "warning");
+    return;
+  }
+
+  try {
+    let fileData = Upload.files[0].data;
+    let jsonObject = {};
+
+    console.log("Original fileData: ", fileData);
+
+    // 1. Schritt: Wenn es ein String ist, das erste Mal parsen
+    if (typeof fileData === "string") {
+      jsonObject = JSON.parse(fileData);
+    } else {
+      jsonObject = fileData;
+    }
+
+    // 2. Schritt: Falls das Ergebnis IMMER NOCH ein String ist (doppelte Maskierung), nochmals parsen
+    if (typeof jsonObject === "string") {
+      jsonObject = JSON.parse(jsonObject);
+    }
+
+    // Jetzt ist es ein echtes Objekt!
+    console.log("Finales Objekt: ", jsonObject);
+    console.log("Typ von jsonObject: ", typeof jsonObject);
+    
+    // Beispiel-Zugriff auf deine Daten:
+    if (jsonObject.myDomains) {
+      console.log("Domains gefunden: ", jsonObject.myDomains);
+      // Hier kannst du es jetzt in den Store schreiben:
+      await storeValue("myDomains", jsonObject.myDomains);
+      showAlert("Domains erfolgreich importiert!", "success");
+    }
+
+  } catch (error) {
+    showAlert("Fehler beim Parsen der JSON-Datei: " + error.message, "error");
+  }
+}
+
 }
