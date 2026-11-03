@@ -1,7 +1,7 @@
 {
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "animateLoading": true,
-  "bottomRow": 22,
+  "bottomRow": 16,
   "bottomRowBeforeCollapse": 22,
   "defaultOptionValue": "{{\n    Math.max(     ...appsmith.store.groupedErrorFrequency.map(item => item.errorCount)\n    )\n}}",
   "dynamicBindingPathList": [

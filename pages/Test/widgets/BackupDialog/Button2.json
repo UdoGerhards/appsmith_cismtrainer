@@ -32,7 +32,7 @@
   "mobileRightColumn": 47,
   "mobileTopRow": 18,
   "needsErrorInfo": false,
-  "onClick": "{{closeModal(BackupDialog.name);}}",
+  "onClick": "{{TestConfig.onCancelKlick();}}",
   "originalBottomRow": 15,
   "originalTopRow": 11,
   "parentId": "cmdlo4pp8g",

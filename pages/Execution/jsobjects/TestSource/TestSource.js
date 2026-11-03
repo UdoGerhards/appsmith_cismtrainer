@@ -1,312 +1,299 @@
 export default {
-	// Speichert den aktuellen Status der Checkboxen
-	selectedOptions: [],
+    // Speichert den aktuellen Status der Checkboxen
+    selectedOptions: [],
 
-	init: async() => {
-		await this.loadAndSaveConfiguration();
-		const currentIndex = appsmith.store.currentIndex;
+    init: async () => {
+        await this.loadAndSaveConfiguration();
+        const currentIndex = appsmith.store.currentIndex;
 
-		const questions = appsmith.store.currentQuestions;
-		const question = questions[currentIndex];
-		
-		const progStep = currentIndex+1;
-		this.updateProgress(progStep, questions.length);
+        const questions = appsmith.store.currentQuestions;
+        const question = questions[currentIndex];
 
-		this.shuffleAnswers(question.answers);
-		
-		const testBackup = appsmith.store.testBackup;
-		if (typeof testBackup !== "undefined") {			
-			const timeLeft = appsmith.store.testBackup.timeLeft;
-			console.log(timeLeft);
-			await storeValue("timeLeft", timeLeft, false);
-			const timerInterval = appsmith.store.testBackup.timerInterval;
-			await storeValue("timerInterval", timerInterval, false);
-			console.log(timerInterval);
-			const testProgress = appsmith.store.testBackup.testProgress;
-			await storeValue("testProgress", testProgress, false);
-			console.log(testProgress);
-			showAlert("Test backup set!!!");
-	
-			const cuIndex = appsmith.store.testBackup.currentIndex;
-			await storeValue("currentIndex", cuIndex, false);
-			showAlert("Curent index: "+JSON.stringify(appsmith.store.currentIndex));
-		}
-		
-		const testQuestions = appsmith.store.currentQuestions;
-		const uniqueIds = new Set(testQuestions.map(q => q._id));
-		if (uniqueIds.size == testQuestions.length) {
-			console.log(uniqueIds);
-			await showAlert("Unique "+ uniqueIds.size, "info");
-		} else {
-			await showAlert("Not unique " + uniqueIds.size, "info");
-		} 
+        const progStep = currentIndex + 1;
+        this.updateProgress(progStep, questions.length);
 
-		await this.startTimer();
-	}, 
+        this.shuffleAnswers(question.answers);
 
-	loadAndSaveConfiguration: async () => {
-		try {
-			// 1. MongoDB-Query ausführen (ersetze 'findConfiguration' mit dem tatsächlichen Namen deiner Query)
-			const data = await loadConfiguration.run();
+        const testBackup = appsmith.store.testBackup;
+        if (typeof testBackup !== "undefined") {
+            const timeLeft = appsmith.store.testBackup.timeLeft;
+            console.log(timeLeft);
+            await storeValue("timeLeft", timeLeft, false);
+            const timerInterval = appsmith.store.testBackup.timerInterval;
+            await storeValue("timerInterval", timerInterval, false);
+            console.log(timerInterval);
+            const testProgress = appsmith.store.testBackup.testProgress;
+            await storeValue("testProgress", testProgress, false);
+            console.log(testProgress);
+            //showAlert("Test backup set!!!");
 
-			// Prüfen, ob Daten vorhanden sind
-			if (!data || !Array.isArray(data)) {
-				showAlert("Keine Konfigurationsdaten gefunden.", "warning");
-				return;
-			}
+            const cuIndex = appsmith.store.testBackup.currentIndex;
+            await storeValue("currentIndex", cuIndex, false);
+            //showAlert("Curent index: " + JSON.stringify(appsmith.store.currentIndex));
+        }
 
-			// 2. Durch das Array iterieren und jeden Wert in den Store schreiben
-			// Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
-			for (const item of data) {
-				if (item.name) {
-					showAlert("Configuration - saving '"+item.name+"'", "success");
-					await storeValue(item.name, item.value);
-				}
-			}
+        Helper.testUnique();
 
-			showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
+        await this.startTimer();
+    },
 
-		} catch (error) {
-			showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
-		}
-	},
-	
-	updateProgress: async (current, total) => {
-    const progress = Math.round((current / total) * 100);
-		showAlert("Current progress "+JSON.stringify(progress), "info");
-    await storeValue("testProgress", progress);
-	},
+    loadAndSaveConfiguration: async () => {
+        try {
+            // 1. MongoDB-Query ausführen (ersetze 'findConfiguration' mit dem tatsächlichen Namen deiner Query)
+            const data = await loadConfiguration.run();
 
-	shuffleAnswers: async (answers) => {
-		const sortedAnswers = answers.sort(() => Math.random() - 0.5);
-		const chars = ['A', 'B', 'C', 'D'];
-		sortedAnswers.forEach(async(answer, idx) => {
-			const label = "answer"+chars[idx];
-			await storeValue(label, answer.text, false);
-			await storeValue(label+"_value", answer.type, false);
-		});
-	},
+            // Prüfen, ob Daten vorhanden sind
+            if (!data || !Array.isArray(data)) {
+                //showAlert("Keine Konfigurationsdaten gefunden.", "warning");
+                return;
+            }
 
-	nextQuestion: async () => {
+            // 2. Durch das Array iterieren und jeden Wert in den Store schreiben
+            // Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
+            for (const item of data) {
+                if (item.name) {
+                    //showAlert("Configuration - saving '" + item.name + "'", "success");
+                    await storeValue(item.name, item.value);
+                }
+            }
 
-		const currentIndex = appsmith.store.currentIndex;
-		const questions = [...appsmith.store.currentQuestions];
-		const progStep = currentIndex+1;
+            //showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
+        } catch (error) {
+            //showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
+        }
+    },
 
-		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
-		answerFields.forEach(field => {
-			removeValue(field);
-			removeValue(field+"_value");
-			resetWidget(field, false);
-		});
-		
-		this.updateProgress(progStep, questions.length);
+    updateProgress: async (current, total) => {
+        const progress = Math.round((current / total) * 100);
+        //showAlert("Current progress " + JSON.stringify(progress), "info");
+        await storeValue("testProgress", progress);
+    },
 
-		// 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
-		if (currentIndex < questions.length - 1) {
-			
-			const nextIndex = currentIndex + 1; // Der Index der NÄCHSTEN Frage
-			
-			//await this.findQuestionBookmark();
-			
-			const answers = questions[nextIndex].answers;
-			this.shuffleAnswers(answers);
-			
-			removeValue("goToNextQuestion");
-			
-			await storeValue("currentIndex", nextIndex);
+    shuffleAnswers: async (answers) => {
+        const sortedAnswers = answers.sort(() => Math.random() - 0.5);
+        const chars = ["A", "B", "C", "D"];
+        sortedAnswers.forEach(async (answer, idx) => {
+            const label = "answer" + chars[idx];
+            await storeValue(label, answer.text, false);
+            await storeValue(label + "_value", answer.type, false);
+        });
+    },
 
-		} else {
+    nextQuestion: async () => {
+        const currentIndex = appsmith.store.currentIndex;
+        const questions = [...appsmith.store.currentQuestions];
+        const progStep = currentIndex + 1;
 
-			const questionIds = questions.map(q => q._id);
-			await storeValue('questionIds', questionIds, false);
+        const answerFields = ["answerA", "answerB", "answerC", "answerD"];
+        answerFields.forEach((field) => {
+            removeValue(field);
+            removeValue(field + "_value");
+            resetWidget(field, false);
+        });
 
-			this.getResults();
-			navigateTo("Evaluation",{}, "SAME_WINDOW");
-		}
-	},
-	
-	saveUserAnswer: async (selected) => {
+        this.updateProgress(progStep, questions.length);
 
-		const answerFields = ['answerA', 'answerB', 'answerC', 'answerD'];
-		const userAnswer = appsmith.store[selected.widgetName+"_value"];
-		answerFields.forEach(field => {
-			if (field !== selected.widgetName.trim()) {
-				resetWidget(field, false);
-			}
-		});
+        // 2. Prüfen, ob noch weitere Fragen im Array vorhanden sind
+        if (currentIndex < questions.length - 1) {
+            const nextIndex = currentIndex + 1; // Der Index der NÄCHSTEN Frage
 
-		const currentIndex = appsmith.store.currentIndex;
-		const questions = [...appsmith.store.currentQuestions];
+            //await this.findQuestionBookmark();
 
-		const rightAnswer = questions[currentIndex].correct;
-		const isCorrect = (rightAnswer.trim() === userAnswer.trim());
+            const answers = questions[nextIndex].answers;
+            this.shuffleAnswers(answers);
 
-		console.log("Types:", typeof rightAnswer, typeof userAnswer);
-		console.log("JSON:", JSON.stringify(rightAnswer), JSON.stringify(userAnswer));
+            removeValue("goToNextQuestion");
 
-		questions[currentIndex].userAnswer = userAnswer;
-		questions[currentIndex].isCorrect = isCorrect;
-		
-		if (userAnswer && userAnswer.trim() !== "") {
-			await storeValue("goToNextQuestion", true, false);
-		}
+            await storeValue("currentIndex", nextIndex);
+        } else {
+            const questionIds = questions.map((q) => q._id);
+            await storeValue("questionIds", questionIds, false);
 
-		await storeValue("currentQuestions", questions);
-	},
-	
-	/* 
-	 * Saves the bookmark for the current qustion bevor moving to the next question
-	 */
-	saveOrDeleteQuestionBookmark: async () => {
-		const bookmark = Bookmark.isChecked;
-		const questions = appsmith.store.currentQuestions;
-		const idx = appsmith.store.currentIndex;
-		const currentQuestion = questions[idx];
-		
-		if (!currentQuestion.hasBookmark && bookmark) {
-				console.log("Adding bookmark for question: ", currentQuestion._id);
-				await InsertBookmark.run({
-					id: currentQuestion._id.toString()
-				})
-		} else if (currentQuestion.hasBookmark && !bookmark) {
-			console.log("Removing bookmark for question: ", currentQuestion._id);
-			await DeleteBookmark.run({
-				id: currentQuestion._id.toString()
-			});
-		} else {
-			return;
-		}
-		
-		// 2. Array kopieren und das betroffene Question-Objekt aktualisieren
-    const updatedQuestions = [...questions];
-    updatedQuestions[idx] = {
-        ...currentQuestion,
-        hasBookmark: bookmark // Setzt hasBookmark auf den neuen Zustand (true/false)
-    };
-		
-		console.log("Bookmark modified questions: ", updatedQuestions);
+            this.getResults();
+            navigateTo("Evaluation", {}, "SAME_WINDOW");
+        }
+    },
 
-    // 3. Im Appsmith-Store dauerhaft speichern (aktualisiert automatisch UI-Widgets)
-    await storeValue("currentQuestions", updatedQuestions, false);
-	},
+    saveUserAnswer: async (selected) => {
+        const answerFields = ["answerA", "answerB", "answerC", "answerD"];
+        const userAnswer = appsmith.store[selected.widgetName + "_value"];
+        answerFields.forEach((field) => {
+            if (field !== selected.widgetName.trim()) {
+                resetWidget(field, false);
+            }
+        });
 
-	
-	getResults: async () => {
-		const questions = appsmith.store.currentQuestions || [];
+        const currentIndex = appsmith.store.currentIndex;
+        const questions = [...appsmith.store.currentQuestions];
 
-		console.log(questions);
+        const rightAnswer = questions[currentIndex].correct;
+        const isCorrect = rightAnswer.trim() === userAnswer.trim();
 
-		// 1. Zähle die korrekten Antworten (Feld 'correct' ist true)
-		const correctCount = questions.filter(q => q.isCorrect === true).length;
+        console.log("Types:", typeof rightAnswer, typeof userAnswer);
+        console.log("JSON:", JSON.stringify(rightAnswer), JSON.stringify(userAnswer));
 
-		// 2. Zähle den Rest (Feld 'correct' ist false ODER existiert nicht)
-		const incorrectCount = questions.filter(q => q.isCorrect !== true).length;
+        questions[currentIndex].userAnswer = userAnswer;
+        questions[currentIndex].isCorrect = isCorrect;
 
-		const questioncount = appsmith.store.nrquestions;
-		const minutes = appsmith.store.mins;
+        if (userAnswer && userAnswer.trim() !== "") {
+            await storeValue("goToNextQuestion", true, false);
+        }
 
-		const report = {
-			"questions": questions,
-			"correct": correctCount,
-			"incorrect": incorrectCount,
-			"name": appsmith.store.title,
-			"test_executed_by": appsmith.store.user,
-			"finsihed": moment().format("DD.MM.YYYY HH:mm"),
-			"nature": appsmith.store.nature,
-			"questioncount": questioncount,
-			"minutes": minutes,
-			"domains": appsmith.store.domains
-		};
+        await storeValue("currentQuestions", questions);
+    },
 
-		storeValue('report', report, false);
-		console.log(report);
-	},
+    /*
+     * Saves the bookmark for the current qustion bevor moving to the next question
+     */
+    saveOrDeleteQuestionBookmark: async () => {
+        const bookmark = Bookmark.isChecked;
+        const questions = appsmith.store.currentQuestions;
+        const idx = appsmith.store.currentIndex;
+        const currentQuestion = questions[idx];
 
-	startTimer: async () => {
-		// Falls bereits ein Timer läuft, diesen stoppen
-		if (appsmith.store.timerInterval) {
-			clearInterval(appsmith.store.timerInterval);
-		}
+        if (!currentQuestion.hasBookmark && bookmark) {
+            console.log("Adding bookmark for question: ", currentQuestion._id);
+            await InsertBookmark.run({
+                id: currentQuestion._id.toString(),
+            });
+        } else if (currentQuestion.hasBookmark && !bookmark) {
+            console.log("Removing bookmark for question: ", currentQuestion._id);
+            await DeleteBookmark.run({
+                id: currentQuestion._id.toString(),
+            });
+        } else {
+            return;
+        }
 
-		// Minuten aus dem Store holen (Standardwert 5, falls leer oder ungültig)
-		const totalMinutes = Number(appsmith.store.mins) || 5;
-		const totalSeconds = totalMinutes * 60;
+        // 2. Array kopieren und das betroffene Question-Objekt aktualisieren
+        const updatedQuestions = [...questions];
+        updatedQuestions[idx] = {
+            ...currentQuestion,
+            hasBookmark: bookmark, // Setzt hasBookmark auf den neuen Zustand (true/false)
+        };
 
-		// Initialisiere die Restzeit in Sekunden
-		await storeValue("timeLeft", totalSeconds);
+        console.log("Bookmark modified questions: ", updatedQuestions);
 
-		const intervalId = setInterval(async () => {
-			const currentTime = appsmith.store.timeLeft;
+        // 3. Im Appsmith-Store dauerhaft speichern (aktualisiert automatisch UI-Widgets)
+        await storeValue("currentQuestions", updatedQuestions, false);
+    },
 
-			if (currentTime > 0) {
-				await storeValue("timeLeft", currentTime - 1);
-			} else {
-				// Zeit abgelaufen!
-				clearInterval(appsmith.store.timerInterval);
-				await storeValue("timerInterval", null);
+    getResults: async () => {
+        Helper.testUnique();
 
-				this.getResults();
+        const questions = appsmith.store.currentQuestions || [];
 
-				// Optional: Automatisch zur Auswertung navigieren
-				navigateTo('Evaluation', {}, 'SAME_WINDOW');
-			}
-		}, 1000); // Jede Sekunde (-1 Sekunde)
+        console.log(questions);
 
-		// Interval-ID im Store speichern
-		await storeValue("timerInterval", intervalId);
-	},
+        // 1. Zähle die korrekten Antworten (Feld 'correct' ist true)
+        const correctCount = questions.filter((q) => q.isCorrect === true).length;
 
-	// Timer anhalten und Restzeit im Store behalten
-	pauseTimer: async () => {
-		if (appsmith.store.timerInterval) {
-			clearInterval(appsmith.store.timerInterval);
-			await storeValue("timerInterval", null);
-		}
-	},
+        // 2. Zähle den Rest (Feld 'correct' ist false ODER existiert nicht)
+        const incorrectCount = questions.filter((q) => q.isCorrect !== true).length;
 
-	// Timer an exakt derselben Stelle fortsetzen
-	resumeTimer: async () => {
-		// Verhindern, dass mehrere Intervalle gleichzeitig laufen
-		if (appsmith.store.timerInterval) return;
+        const questioncount = appsmith.store.nrquestions;
+        const minutes = appsmith.store.mins;
 
-		const currentTime = appsmith.store.timeLeft;
+        const report = {
+            questions: questions,
+            correct: correctCount,
+            incorrect: incorrectCount,
+            name: appsmith.store.title,
+            test_executed_by: appsmith.store.user,
+            finsihed: moment().format("DD.MM.YYYY HH:mm"),
+            nature: appsmith.store.nature,
+            questioncount: questioncount,
+            minutes: minutes,
+            domains: appsmith.store.domains,
+        };
 
-		// Wenn keine Zeit mehr da ist, nicht starten
-		if (currentTime === undefined || currentTime <= 0) return;
+        storeValue("report", report, false);
+        console.log(report);
+    },
 
-		const intervalId = setInterval(async () => {
-			const current = appsmith.store.timeLeft;
+    startTimer: async () => {
+        // Falls bereits ein Timer läuft, diesen stoppen
+        if (appsmith.store.timerInterval) {
+            clearInterval(appsmith.store.timerInterval);
+        }
 
-			if (current > 0) {
-				await storeValue("timeLeft", current - 1);
-			} else {
-				// Zeit abgelaufen!
-				clearInterval(appsmith.store.timerInterval);
-				await storeValue("timerInterval", null);
+        // Minuten aus dem Store holen (Standardwert 5, falls leer oder ungültig)
+        const totalMinutes = Number(appsmith.store.mins) || 5;
+        const totalSeconds = totalMinutes * 60;
 
-				this.getResults();
-				navigateTo('Evaluation', {}, 'SAME_WINDOW');
-			}
-		}, 1000);
+        // Initialisiere die Restzeit in Sekunden
+        await storeValue("timeLeft", totalSeconds);
 
-		await storeValue("timerInterval", intervalId);
-	},
+        const intervalId = setInterval(async () => {
+            const currentTime = appsmith.store.timeLeft;
 
-	// Schalter-Logik: Entscheidet ob Pause oder Weiterlaufen
-	toggleTimer: async (isSwitchedOn) => {
-		if (isSwitchedOn) {
-			await this.resumeTimer();
-		} else {
-			await this.pauseTimer();
-		}
-	},
+            if (currentTime > 0) {
+                await storeValue("timeLeft", currentTime - 1);
+            } else {
+                // Zeit abgelaufen!
+                clearInterval(appsmith.store.timerInterval);
+                await storeValue("timerInterval", null);
 
-	formatTime: (seconds) => {
-		if (seconds === undefined || seconds === null) return "00:00";
-		const mins = Math.floor(seconds / 60);
-		const secs = seconds % 60;
-		return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-	},
+                this.getResults();
 
-}
+                // Optional: Automatisch zur Auswertung navigieren
+                navigateTo("Evaluation", {}, "SAME_WINDOW");
+            }
+        }, 1000); // Jede Sekunde (-1 Sekunde)
+
+        // Interval-ID im Store speichern
+        await storeValue("timerInterval", intervalId);
+    },
+
+    // Timer anhalten und Restzeit im Store behalten
+    pauseTimer: async () => {
+        if (appsmith.store.timerInterval) {
+            clearInterval(appsmith.store.timerInterval);
+            await storeValue("timerInterval", null);
+        }
+    },
+
+    // Timer an exakt derselben Stelle fortsetzen
+    resumeTimer: async () => {
+        // Verhindern, dass mehrere Intervalle gleichzeitig laufen
+        if (appsmith.store.timerInterval) return;
+
+        const currentTime = appsmith.store.timeLeft;
+
+        // Wenn keine Zeit mehr da ist, nicht starten
+        if (currentTime === undefined || currentTime <= 0) return;
+
+        const intervalId = setInterval(async () => {
+            const current = appsmith.store.timeLeft;
+
+            if (current > 0) {
+                await storeValue("timeLeft", current - 1);
+            } else {
+                // Zeit abgelaufen!
+                clearInterval(appsmith.store.timerInterval);
+                await storeValue("timerInterval", null);
+
+                this.getResults();
+                navigateTo("Evaluation", {}, "SAME_WINDOW");
+            }
+        }, 1000);
+
+        await storeValue("timerInterval", intervalId);
+    },
+
+    // Schalter-Logik: Entscheidet ob Pause oder Weiterlaufen
+    toggleTimer: async (isSwitchedOn) => {
+        if (isSwitchedOn) {
+            await this.resumeTimer();
+        } else {
+            await this.pauseTimer();
+        }
+    },
+
+    formatTime: (seconds) => {
+        if (seconds === undefined || seconds === null) return "00:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    },
+};
