@@ -815,10 +815,6 @@ export default {
 		const onlyCountWrong = QuestionsWithError.isSwitchedOn;
 		let rawDomains = selectedDomainsWithalue.map((domain) => domain.label);
 		const exampleSet = this.getSet();
-		//showAlert("Gewähltes Set " + JSON.stringify(exampleSet), "info");
-		//showAlert("TopCountWrong is: " + JSON.stringify(TopCountWrong.isSwitchedOn), "info");
-		//showAlert("Auswertung " + JSON.stringify(typeof exampleSet), "info");
-		//console.log(typeof exampleSet);
 		console.log(typeof TopCountWrong.isSwitchedOn);
 
 		let testQuestions =
@@ -889,40 +885,53 @@ export default {
 			await storeValue("nature", "ET");
 		}
 		
-		const testBackup = appsmith.store.testBackup;
-		if (typeof testBackup !== "undefined") {
-			showModal(BackupDialog.name);
-		}
-
 		console.log("Nauture: ", appsmith.store.nature);
-
-		await navigateTo("Execution", {}, "SAME_WINDOW");
+		
+		try {
+				const testBackup = appsmith.store.testBackup;
+				if (typeof testBackup !== "undefined") {
+						showAlert("Test backup Triggert");
+						await showModal("BackupDialog");
+				} else {
+					await navigateTo("Execution", {}, "SAME_WINDOW");
+				}
+		} catch (err) {
+				showAlert("Modal-Fehler: " + err.message, "error");
+		}
 	},
 
 	// 2. Wird aufgerufen, wenn der Nutzer auf "OK" klickt
 	onOkKlick: async () => {
 		// Schließe das Modal zuerst
-		closeModal(BackupDialog.name);
+		await closeModal(BackupDialog.name);
 
 		const currentQuestions = appsmith.store.testBackup.currentQuestions;
+		await removeValue("currentQuestions");
 		await storeValue("currentQuestions", currentQuestions, false);
+		
+		await removeValue("nrquestions");
 		await storeValue("nrquestions", currentQuestions.length, false);
-		console.log(currentQuestions);
+		
 		const currentIndex = appsmith.store.testBackup.currentIndex;
+		await removeValue("currentIndex");
 		await storeValue("currentIndex", currentIndex, false);
-		console.log(currentIndex);
+		
 		const nature = appsmith.store.testBackup.nature;
-		await storeValue("nature", nature);
-		console.log(nature);
+		await removeValue("nature");
+		await storeValue("nature", nature, false);
+		
 		const time = Math.ceil(Number(currentQuestions.length * 1.6));
-		console.log(time);
+		await removeValue("mins");
 		await storeValue("mins", parseInt(time), false);
+		
+		await navigateTo("Execution", {}, "SAME_WINDOW");
 	},
 	
 	  // 3. Wird aufgerufen, wenn der Nutzer auf "Cancel" klickt
   onCancelKlick: async () => {
     // Schließe das Modal
-    closeModal(BackupDialog.name);
+    await closeModal(BackupDialog.name);
+		await navigateTo("Execution", {}, "SAME_WINDOW");
   },
 
 	loadDomainQuestions: async (domains, excludeIds = []) => {

@@ -4,8 +4,8 @@ export default {
 
 	init: async() => {
 		await this.loadAndSaveConfiguration();
-
 		const currentIndex = appsmith.store.currentIndex;
+
 		const questions = appsmith.store.currentQuestions;
 		const question = questions[currentIndex];
 		
@@ -26,7 +26,20 @@ export default {
 			await storeValue("testProgress", testProgress, false);
 			console.log(testProgress);
 			showAlert("Test backup set!!!");
+	
+			const cuIndex = appsmith.store.testBackup.currentIndex;
+			await storeValue("currentIndex", cuIndex, false);
+			showAlert("Curent index: "+JSON.stringify(appsmith.store.currentIndex));
 		}
+		
+		const testQuestions = appsmith.store.currentQuestions;
+		const uniqueIds = new Set(testQuestions.map(q => q._id));
+		if (uniqueIds.size == testQuestions.length) {
+			console.log(uniqueIds);
+			await showAlert("Unique "+ uniqueIds.size, "info");
+		} else {
+			await showAlert("Not unique " + uniqueIds.size, "info");
+		} 
 
 		await this.startTimer();
 	}, 
