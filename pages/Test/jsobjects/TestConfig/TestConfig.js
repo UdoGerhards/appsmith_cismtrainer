@@ -969,13 +969,18 @@ export default {
         console.log("Final testQuestions length:", testQuestions.length);
         return testQuestions;
     },
-
+    /*
     calculateTestContent: async () => {
         const countQuestions = this.getCountQuestions();
         if (countQuestions <= 0) {
             //showAlert("Bitte wähle eine gewünschte Anzahl von Fragen!!", "error");
             return;
         }
+
+        const report = this.loadPausedTest();
+			  if (report) {
+           await showModal("BackupDialog");				
+				}
 
         const title = this.getTitle();
         const time = this.getTimeTotal();
@@ -1053,19 +1058,104 @@ export default {
         }
 
         console.log("Nauture: ", appsmith.store.nature);
+			  await navigateTo("Execution", {}, "SAME_WINDOW");
+    },
+*/
 
-        try {
-            const testBackup = appsmith.store.testBackup;
-            if (typeof testBackup !== "undefined") {
-                //showAlert("Test backup Triggert");
-                await showModal("BackupDialog");
-            } else {
-                Helper.testUnique();
-                //await navigateTo("Execution", {}, "SAME_WINDOW");
-            }
-        } catch (err) {
-            //showAlert("Modal-Fehler: " + err.message, "error");
+    calculateTestContent: async (target) => {
+        const countQuestions = this.getCountQuestions();
+        if (countQuestions <= 0) {
+            return;
         }
+			
+				await storeValue("target", target, false);
+
+        // Holt den Zwischenstand aus der DB
+        const report = await this.loadPausedTest();
+
+        if (report) {
+            // Wenn ein Report existiert: NUR das Modal öffnen und stoppen!
+            await showModal("BackupDialog");
+        } else {
+            // Wenn kein Report existiert: Direkt den neuen Report generieren
+            await this.generateNewReport(countQuestions);
+        }
+    },
+
+    // Diese neue Funktion enthält exakt deinen originalen Code für die Erstellung eines neuen Reports
+    generateNewReport: async (countQuestions) => {
+        const title = this.getTitle();
+        const time = this.getTimeTotal();
+        const selectedDomainsWithalue = this.getSelectedDomains();
+        const onlyCountWrong = QuestionsWithError.isSwitchedOn;
+        let rawDomains = selectedDomainsWithalue.map((domain) => domain.label);
+        const exampleSet = this.getSet();
+        console.log(typeof TopCountWrong.isSwitchedOn);
+
+        let testQuestions =
+            Number(exampleSet) === 3 && TopCountWrong.isSwitchedOn
+                ? await this.getErrorGroupedTestContent()
+                : await this.getRegurlarTestContent();
+
+        const shuffleQuestions = (array) => {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        };
+
+        testQuestions = shuffleQuestions(testQuestions);
+        console.log("Test questions: ", testQuestions);
+
+        const totalQuestions = testQuestions.length;
+        let allDomains = {};
+
+        testQuestions.forEach((question) => {
+            const domain = question.domain;
+            allDomains[domain] = (allDomains[domain] || 0) + 1;
+        });
+
+        Object.keys(allDomains).forEach((domain) => {
+            const count = allDomains[domain];
+            allDomains[domain] = {
+                count: count,
+                percentage: Number(((count / totalQuestions) * 100).toFixed(2)),
+            };
+        });
+
+        console.log("Enthaltene Domains:", allDomains);
+
+        const allErrorGroups = testQuestions.map((question) => question.countWrong);
+        const uniqueErrorGroups = [...new Set(allErrorGroups)];
+        console.log("Enthaltene Fehlergruppen: ", uniqueErrorGroups);
+
+        const uniqueIds = new Set(testQuestions.map((q) => String(q._id)));
+        if (uniqueIds.size == testQuestions.length) {
+            await showAlert("Unique " + uniqueIds.size, "info");
+        } else {
+            await showAlert("Not unique " + uniqueIds.size, "info");
+        }
+
+        // Prepare test data
+        await storeValue("title", title, false);
+        await storeValue("nrquestions", parseInt(countQuestions), false);
+        await storeValue("mins", parseInt(time), false);
+        await storeValue("domains", rawDomains, false);
+
+        await storeValue("currentQuestions", testQuestions, false);
+        await storeValue("currentIndex", 0, false);
+
+        if (!onlyCountWrong) {
+            await storeValue("nature", "user");
+        } else {
+            await storeValue("nature", "ET");
+        }
+
+        console.log("Nauture: ", appsmith.store.nature);
+			  await this.navigateToTargetPage();
+        //await navigateTo("Execution", {}, "SAME_WINDOW");
     },
 
     // 2. Wird aufgerufen, wenn der Nutzer auf "OK" klickt
@@ -1073,36 +1163,47 @@ export default {
         // Schließe das Modal zuerst
         await closeModal(BackupDialog.name);
 
-        const currentQuestions = appsmith.store.testBackup.currentQuestions;
-        await removeValue("currentQuestions");
-        await storeValue("currentQuestions", currentQuestions, false);
+        showAlert("Gespeicherter Test wird geladen", "info");
 
-        await removeValue("nrquestions");
-        await storeValue("nrquestions", currentQuestions.length, false);
+
+        const currentQuestions = appsmith.store.testBackup.currentQuestions;
+        await storeValue("currentQuestions", currentQuestions, false);
+        console.log(currentQuestions);
+
+        const nrquestions = currentQuestions.length;
+        await storeValue("nrquestions", nrquestions, false);
+        console.log(nrquestions)
 
         const currentIndex = appsmith.store.testBackup.currentIndex;
-        await removeValue("currentIndex");
         await storeValue("currentIndex", currentIndex, false);
+        console.log(currentIndex);
 
         const nature = appsmith.store.testBackup.nature;
-        await removeValue("nature");
         await storeValue("nature", nature, false);
+        console.log(nature);
 
-        const time = Math.ceil(Number(currentQuestions.length * 1.6));
-        await removeValue("mins");
-        await storeValue("mins", parseInt(time), false);
+        const mins = Math.ceil(Number(currentQuestions.length*1.6));
+        await storeValue("mins",mins, false);
+			
+			  const title = appsmith.store.testBackup.title;
+			  await storeValue("title", title, false);
 
         Helper.testUnique();
 
-        await navigateTo("Execution", {}, "SAME_WINDOW");
+			  await this.navigateToTargetPage();
+        //await navigateTo("Execution", {}, "SAME_WINDOW");
     },
 
     // 3. Wird aufgerufen, wenn der Nutzer auf "Cancel" klickt
     onCancelKlick: async () => {
         // Schließe das Modal
         await closeModal(BackupDialog.name);
+        showAlert("Ein neuer Test wird geladen", "info");
+
+        await this.generateNewReport();
         Helper.testUnique();
-        await navigateTo("Execution", {}, "SAME_WINDOW");
+				await this.navigateToTargetPage();
+        //await navigateTo("Execution", {}, "SAME_WINDOW");
     },
 
     loadDomainQuestions: async (domains, excludeIds = []) => {
@@ -1179,59 +1280,65 @@ export default {
         }
     },
 
-    importUpload: async () => {
-        if (!Upload.files || Upload.files.length === 0) {
-            //showAlert("Bitte wähle zuerst eine Datei aus!", "warning");
-            return;
+    loadPausedTest: async () => {
+        // 1. Query ausführen
+        const result = await LoadPausedTest.run();
+        console.log("Result: ", result);
+
+        // 2. Prüfen, ob das response-Array existiert und nicht leer ist
+        if (!result || result.length === 0) {
+            showAlert("Kein pausierter Test gefunden.", "warning");
+            return null;
         }
 
-        try {
-            let fileData = Upload.files[0].data;
-            let jsonObject = {};
-
-            console.log("Original fileData: ", fileData);
-
-            // 1. Schritt: Wenn es ein String ist, das erste Mal parsen
-            if (typeof fileData === "string") {
-                jsonObject = JSON.parse(fileData);
-            } else {
-                jsonObject = fileData;
-            }
-
-            // 2. Schritt: Falls das Ergebnis IMMER NOCH ein String ist (doppelte Maskierung), nochmals parsen
-            if (typeof jsonObject === "string") {
-                jsonObject = JSON.parse(jsonObject);
-                await storeValue("testBackup", jsonObject, false);
-                console.log("Test backup saved for use!!", jsonObject);
-
-                const testQuestions = appsmith.store.testBackup.currentQuestions;
-                console.log(testQuestions);
-                //const uniqueIds = new Set(testQuestions.map(q => q._id));
-
-                const uniqueIds = {};
-
-                testQuestions.forEach((q) => {
-                    if (uniqueIds[q._id]) {
-                        ++uniqueIds[q._id]; // Erhöhen bei jedem weiteren Fund
-                    } else {
-                        uniqueIds[q._id] = 1; // Wichtig: Beim ersten Mal auf 1 setzen!
-                    }
-                });
-
-                console.log(uniqueIds);
-                // Gibt dir ein Objekt wie { "id123": 1, "id456": 3 } (id456 ist ein Duplikat)
-
-                // Anzahl aller EINZIGARTIGEN IDs:
-                console.log(Object.keys(uniqueIds).length);
-
-                // IDs herausfiltern, die MEHR ALS 1-MAL vorkommen (also Duplikate sind)
-                const duplikate = Object.keys(uniqueIds).filter((id) => uniqueIds[id] > 1);
-
-                console.log("Diese IDs sind doppelt:", duplikate);
-                console.log("Anzahl doppelter IDs:", duplikate.length);
-            }
-        } catch (error) {
-            //showAlert("Fehler beim Parsen der JSON-Datei: " + error.message, "error");
-        }
+        // 3. Direkt auf das erste Dokument im response-Array zugreifen
+        const backup = result[0];
+        console.log("Ausgelesenes Backup-Objekt:", backup);
+			
+				const  backupQuestons= backup.currentQuestions;
+			  const ids = backupQuestons.map(q => q._id.toString());
+			
+			  const collection = this.getCollection();
+			
+				const questionResult = await FindQuestionsForPausedTest.run({
+					collection: collection, 
+					includeIds: ids
+				});
+			
+				const currentQuestions = this.mergeQuestions(backupQuestons, questionResult);
+			  console.log(currentQuestions);
+				backup.currentQuestions = currentQuestions;
+        await storeValue("testBackup", backup);
+        showAlert("Zwischenstand erfolgreich geladen!", "success");
+        return backup;
     },
+	mergeQuestions: (savedStateArray, fullQuestionsArray) => {
+    // 1. Erstelle eine Map aus dem vollen Fragen-Array für O(1) Lookup-Geschwindigkeit
+    const questionMap = new Map(
+        fullQuestionsArray.map(q => [String(q._id), q])
+    );
+
+    // 2. Iteriere über den gespeicherten Zustand (dein reduziertes Backup-Array)
+    const mergedResults = savedStateArray.map(savedQ => {
+        // Finde die originale Frage mit Texten und Antworten in der Map
+        const originalQuestion = questionMap.get(String(savedQ._id));
+
+        // Wenn die Originalfrage gefunden wurde, mergen wir beide Objekte
+        if (originalQuestion) {
+            return {
+                ...originalQuestion, // Alle vollen Daten (Text, Antworten, Domain, etc.)
+                ...savedQ            // Überschreibt/ergänzt mit dem Zustand (userAnswer, hasBookmark, etc.)
+            };
+        }
+        
+        // Fallback: Falls eine ID nicht in den geladenen Fragen existiert
+        return savedQ; 
+    });
+
+    return mergedResults;
+}, 
+	navigateToTargetPage: async() => {
+		const target = appsmith.store.target;
+		await navigateTo(target, {}, "SAME_WINDOW");
+	}
 };

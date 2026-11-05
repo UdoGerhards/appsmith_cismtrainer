@@ -1,0 +1,16 @@
+{
+  "gitSyncId": "6a784e96054143865d8dd557_3dac011c-6f9a-4197-9444-aff6cd05a89f",
+  "id": "_Test Execution_TestSource",
+  "unpublishedCollection": {
+    "name": "TestSource",
+    "pageId": "_Test Execution",
+    "pluginId": "js-plugin",
+    "pluginType": "JS",
+    "variables": [
+      {
+        "name": "selectedOptions",
+        "value": "[]"
+      }
+    ]
+  }
+}

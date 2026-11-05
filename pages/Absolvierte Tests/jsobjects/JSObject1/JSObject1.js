@@ -85,72 +85,12 @@ getAllTests: () => {
 		return tableData;
 	},
 
-	/*
 	async handleSelection() {
-		// 1. Führe den Query GetTest aus und warte auf das Ergebnis
-		const result = await GetTest.run();
 
-		// 2. Überprüfe, ob ein Dokument gefunden wurde (result ist bei Find meist ein Array)
-		if (result && result.length > 0) {
-			const document = result[0];
-			
-			const selectedIds = document.questions.map(question => question._id);
-			
-			//console.log("IDS Array: ", selectedIds);
-			
-			await GetQuestions.run({ids: selectedIds});
-			
-			const questions = GetQuestions.data?.cursor?.firstBatch 
-												|| GetQuestions.data 
-												|| [];
-			
-			console.log("Fragen: ", questions);
-			
-			if (questions.length > 0 ){
-				
-				const questionsMap = new Map();
-				questions.forEach(item => {
-					questionsMap.set(item._id.toString(), item);
-				});
-				
-				const allQuestionIds = questionsMap.keys();
-				const result = await GetQuestions.run(allQuestionIds);
-				
-				const updatedQuestions = document.questions.map(q => {
-					const detail = questionsMap.get(q._id.toString()) || {};
+        const result = await this.loadReport();
 
-					return {
-						...q, // Behält userAnswer und isCorrect bei
-						question: detail.question || "", // Text der Frage aus der DB
-						correct: detail.correct || "",   // Die korrekte Antwort aus der DB
-						domain: detail.domain || "",     // Domain der Frage
-						answers: detail.answers || []    // Die Antwortmöglichkeiten aus der 'answer'-Collection (vom Lookup)
-					};
-				});
-				
-				document.questions = updatedQuestions;
-				//console.log("Aktualsierte Fragen: ", updatedQuestions);
-			}
+        /*
 
-			console.log('Report: ', document);
-			
-			// 3. Speichere das Dokument plus das neue Feld im Store
-			await storeValue("report", {
-				...document,
-				synthetic: true
-			});
-			
-			console.log(appsmith.store.report);
-			
-			await navigateTo('Evaluation', {}, 'SAME_WINDOW');
-
-			showAlert("Report wurde geladen und gespeichert!", "success");
-		} else {
-			showAlert("Dokument konnte nicht gefunden werden", "error");
-		}
-	},
-	*/
-	async handleSelection() {
 		// 1. Führe den Query GetTest aus und warte auf das Ergebnis
 		const result = await GetTest.run();
 
@@ -206,15 +146,26 @@ getAllTests: () => {
 				...document,
 				synthetic: true
 			});
+
 			
-			console.log(appsmith.store.report);
-			
-			await navigateTo('Evaluation', {}, 'SAME_WINDOW');
+
 
 			showAlert("Report wurde geladen und gespeichert!", "success");
 		} else {
 			showAlert("Dokument konnte nicht gefunden werden", "error");
 		}
+
+
+        */
+
+        if (result) {
+            console.log(appsmith.store.report);
+		    await navigateTo('Evaluation', {}, 'SAME_WINDOW');
+        } else  {
+            showAlert("Report konnnt nicht geladen werden!!!", "warning");
+        }
+
+
 	},
 
   // 1. Wird beim Klick auf den Icon-Button in der Tabelle ausgeführt
@@ -278,5 +229,122 @@ getAllTests: () => {
 		} else if (item === "synthetic"){
 			return "🔄 Wiederholung"
 		}
-	}
+	},
+
+ loadReport: async(id) => {
+		// 1. Führe den Query GetTest aus und warte auf das Ergebnis
+	 let result = {};
+	 if (id) {
+		 result = await GetTest.run({
+			 id: id
+		 });
+	 } else {
+		 result = await GetTest.run();
+	 }
+
+		// 2. Überprüfe, ob ein Dokument gefunden wurde (result ist bei Find meist ein Array)
+		if (result && result.length > 0) {
+			const document = result[0];
+			
+			const selectedIds = document.questions.map(question => question._id);
+			
+			// 3. Frage-Details UND Bookmarks parallel/nacheinander laden
+			await GetQuestions.run({ ids: selectedIds });
+			
+			// Holt alle Bookmarks für diese Frage-IDs (Passe 'ids' an, falls dein Parameter in GetBookmarks anders heißt, z.B. 'questionIds')
+			const bookmarkResult = await GetBookmarks.run({ ids: selectedIds }); 
+			
+			const questions = GetQuestions.data?.cursor?.firstBatch 
+												|| GetQuestions.data 
+												|| [];
+			
+			if (questions.length > 0 ) {
+				
+				// Ein Set aus allen gebookmarkten questionIds für extrem schnellen Lookup erstellen
+				const bookmarkedIdsSet = new Set((bookmarkResult || []).map(b => b.questionId));
+				
+				const questionsMap = new Map();
+				questions.forEach(item => {
+					questionsMap.set(item._id.toString(), item);
+				});
+				
+				const updatedQuestions = document.questions.map(q => {
+					const detail = questionsMap.get(q._id.toString()) || {};
+					const qIdStr = q._id.toString();
+
+					return {
+						...q, // Behält userAnswer und isCorrect bei
+						question: detail.question || "", // Text der Frage aus der DB
+						correct: detail.correct || "",   // Die korrekte Antwort aus der DB
+						domain: detail.domain || "",     // Domain der Frage
+						answers: detail.answers || [],   // Die Antwortmöglichkeiten
+						hasBookmark: bookmarkedIdsSet.has(qIdStr) // ✨ Hier wird hasBookmark gesetzt (true/false)
+					};
+				});
+				
+				document.questions = updatedQuestions;
+			}
+			
+			// 4. Speichere das Dokument plus das neue Feld im Store
+			await storeValue("report", {
+				...document,
+				synthetic: true
+			});
+
+            return true;
+
+		} else {
+			showAlert("Dokument konnte nicht gefunden werden", "error");
+            return false;
+		}
+	},
+
+    perform: async(row, target) =>{
+			const result = await this.loadReport(row.id);
+
+			if (result) {
+				const report = appsmith.store.report;
+				console.log(report);
+
+				const questions = report.questions;
+				let allDomains = [];
+				const newQuestions = questions.map(q => {
+					allDomains.push(q.domain);
+					delete q.isCorrect;
+					delete q.userAnswer;
+					return q;
+				})
+
+				const domains = _.uniq(allDomains);
+
+				console.log(domains);
+				
+        await storeValue("currentQuestions", newQuestions, false);
+				console.log(newQuestions);
+
+        const nrquestions = newQuestions.length;
+        await storeValue("nrquestions", nrquestions, false);
+        console.log(nrquestions)
+
+        const currentIndex = 0;
+        await storeValue("currentIndex", currentIndex, false);
+        console.log(currentIndex);
+
+        const nature = "ET";
+        await storeValue("nature", nature, false);
+        console.log(nature);
+
+        const mins = Math.ceil(Number(nrquestions*1.6));
+        await storeValue("mins",mins, false);
+			
+			  const title = appsmith.store.report.name;
+			  await storeValue("title", title, false);
+				
+				await removeValue("timeLeft");
+				await removeValue("timerInterval");
+				await removeValue("testProgress");
+				
+				await navigateTo(target, {}, 'SAME_WINDOW');
+        }
+    }
 }

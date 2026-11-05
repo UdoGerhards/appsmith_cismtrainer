@@ -1,7 +1,7 @@
 {
   "accentColor": "{{appsmith.theme.colors.primaryColor}}",
   "animateLoading": true,
-  "bottomRow": 16,
+  "bottomRow": 22,
   "bottomRowBeforeCollapse": 22,
   "defaultOptionValue": "{{\n    Math.max(     ...appsmith.store.groupedErrorFrequency.map(item => item.errorCount)\n    )\n}}",
   "dynamicBindingPathList": [
@@ -54,7 +54,7 @@
   "needsErrorInfo": false,
   "onChange": "",
   "options": "{{\n  [...appsmith.store.groupedErrorFrequency]\n    .map(item => ({\n      label: String(item.errorCount)+ \" (\"+item.questionCount+\" Fragen )\",\n      value: item.errorCount\n    }))\n}}",
-  "originalBottomRow": 22,
+  "originalBottomRow": 16,
   "originalTopRow": 16,
   "parentColumnSpace": 30.551116943359375,
   "parentId": "qc5dctkkas",

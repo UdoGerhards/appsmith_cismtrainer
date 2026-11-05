@@ -50,7 +50,7 @@
   "mobileRightColumn": 22,
   "mobileTopRow": 15,
   "needsErrorInfo": false,
-  "onTextChanged": "{{TestConfig.proceedStep1()}}}",
+  "onTextChanged": "",
   "parentColumnSpace": 44,
   "parentId": "pp4v9nu5np",
   "parentRowSpace": 10,
