@@ -49,7 +49,7 @@ export default {
 
 			// Prüfen, ob Daten vorhanden sind
 			if (!data || !Array.isArray(data)) {
-				showAlert("Keine Konfigurationsdaten gefunden.", "warning");
+				//showAlert("Keine Konfigurationsdaten gefunden.", "warning");
 				return;
 			}
 
@@ -57,15 +57,15 @@ export default {
 			// Dabei nutzen wir den Wert aus 'name' als Store-Key und 'value' als Inhalt
 			for (const item of data) {
 				if (item.name) {
-					showAlert("Configuration - saving '"+item.name+"'", "success");
+					//showAlert("Configuration - saving '"+item.name+"'", "success");
 					await storeValue(item.name, item.value);
 				}
 			}
 
-			showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
+			//showAlert("Konfiguration erfolgreich in den Store geladen!", "success");
 
 		} catch (error) {
-			showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
+			//showAlert("Fehler beim Laden der Konfiguration: " + error.message, "error");
 		}
 	},
 
@@ -106,7 +106,7 @@ export default {
 	
 	getAnswerSet: async() => {
 		const set = AnswerSet.selectedOptionValue
-		showAlert("Choosen set: "+set, "info");
+		//showAlert("Choosen set: "+set, "info");
 		await EvaluationSource.getWrongAnswers();
 	},
 
@@ -210,11 +210,11 @@ export default {
 			// 1. Datenbank-Operationen ausführen
 			if (isChecked && !currentQuestion.hasBookmark) {
 				const result = await InsertBookmark.run({ qId: qId });
-				showAlert("Saving bookmark!"+qId, "info");
+				//showAlert("Saving bookmark!"+qId, "info");
 				console.log("Result from setting bookmark ", result);
 			} else if (!isChecked && currentQuestion.hasBookmark) {
 				const result = await DeleteBookmark.run({ qId: qId });
-				showAlert("Deleting bookmark: "+qId, "info");
+				//showAlert("Deleting bookmark: "+qId, "info");
 				console.log("Result from setting bookmark ", result);
 			} else {
 				return;
@@ -415,7 +415,7 @@ export default {
 
 	processGeminiExplain: async(index) => {
 
-		showAlert("Evaluierung mit Gemini!!");
+		//showAlert("Evaluierung mit Gemini!!");
 
 		const questions = appsmith.store.report.questions;
 		const currentData = this.getWrongAnswers()[index];
@@ -438,7 +438,7 @@ export default {
 		// 2. Auswerten
 		if (existingResult && existingResult.length > 0) {
 
-			showAlert("Bereits gespeicherte Evaluierung in Datenbank gefunden ... ");
+			//showAlert("Bereits gespeicherte Evaluierung in Datenbank gefunden ... ");
 
 			// Es gibt bereits einen Eintrag -> Text direkt aus der DB nehmen
 			evaluationText = existingResult[0].text;
@@ -446,7 +446,7 @@ export default {
 			console.log("Bereits gespeicherte Erklärung geladen.");
 		} else {
 
-			showAlert("Evaluaiere mit Gemini ...");
+			//showAlert("Evaluaiere mit Gemini ...");
 
 			// 1. Extrahiere und sortiere die Antworten alphabetisch nach 'type' (A, B, C, D)
 			const sortedAnswers = [...question.answers].sort((a, b) => a.type.localeCompare(b.type));
@@ -492,14 +492,14 @@ export default {
 				bodyPayload: promptMessage
 			});
 
-			showAlert("Evaluierung mit Gemini abgeschlossen ...");
+			//showAlert("Evaluierung mit Gemini abgeschlossen ...");
 
 			const parts = response.candidates?.[0]?.content?.parts;
 			evaluationText = parts
 				? parts.map(p => p.text).join('')
 			: response.output;
 
-			showAlert("Speicher Evaluierung in Datenbank ...");
+			//showAlert("Speicher Evaluierung in Datenbank ...");
 			await InsertExplanation.run({
 				qId: String(question._id),
 				explText: evaluationText
@@ -522,14 +522,14 @@ export default {
 			await EvaluationSource.saveReportToMongo();
 			navigateTo('Home');
 		} catch (error) {
-			showAlert("Fehler beim Speichern: " + error.message, "error");
+			//showAlert("Fehler beim Speichern: " + error.message, "error");
 		}
 	},
 
 	saveReportToMongo: async() => {
 		// 1. Prüfen, ob das Objekt überhaupt im Store existiert
 		if (!appsmith.store.report) {
-			showAlert("Kein Report-Objekt im Store gefunden!", "warning");
+			//showAlert("Kein Report-Objekt im Store gefunden!", "warning");
 			return;
 		}
 
@@ -601,14 +601,14 @@ export default {
 			await InsertTestResults.run({ reportData: reportToSave });
 
 			// 3. Erfolgsmeldung für den Nutzer
-			showAlert("Report erfolgreich in MongoDB gespeichert!", "success");
+			//showAlert("Report erfolgreich in MongoDB gespeichert!", "success");
 
 			// 4. (Optional) Den Store nach dem Speichern leeren
 			// await removeValue("report");
 
 		} catch (error) {
 			// Fehler abfangen, falls die DB-Verbindung hakt
-			showAlert("Fehler beim Speichern in MongoDB: " + error.message, "error");
+			//showAlert("Fehler beim Speichern in MongoDB: " + error.message, "error");
 		}
 	},
 
@@ -706,7 +706,7 @@ export default {
 			await storeValue("currentIndex", 0);
 		}
 
-		await navigateTo("Execution", {}, "SAME_WINDOW");
+		await navigateTo("_Test Execution", {}, "SAME_WINDOW");
 	},
 
 	shuffleArray: (array) => {
@@ -784,7 +784,7 @@ export default {
 		const explanationQuestionID = appsmith.store.explanationQuestionID
 	  	const KIChatQuestionId = appsmith.store.KIChatQuestionId;
 		if (!KIChatQuestionId || explanationQuestionID !== KIChatQuestionId) {
-			showAlert("Chat will be initilized!"+JSON.stringify(explanationQuestionID)+JSON.stringify(KIChatQuestionId))
+			//showAlert("Chat will be initilized!"+JSON.stringify(explanationQuestionID)+JSON.stringify(KIChatQuestionId))
 			await this.initChat();
 			storeValue("KIChatQuestionId", explanationQuestionID, false);
 		}
@@ -819,7 +819,7 @@ export default {
 			});
 
 		} catch (error) {
-			showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
+			//showAlert("Fehler bei der Kommunikation mit Gemini: " + error.message, "error");
 		}
 	},
 
@@ -836,7 +836,7 @@ export default {
 			const isUsingFreeKey = (appsmith.store.gemini_chat_key === appsmith.store.gemini_key_free);
 
 			if (isQuotaError && isUsingFreeKey) {
-				showAlert("Kostenloses Kontingent erschöpft. Schalte auf den kostenpflichtigen Key um...", "warning");
+				//showAlert("Kostenloses Kontingent erschöpft. Schalte auf den kostenpflichtigen Key um...", "warning");
 
 				// Den funktionierenden Key im Store auf den kostenpflichtigen Key umschalten
 				await storeValue("gemini_chat_key", appsmith.store.gemini_key);
@@ -844,7 +844,7 @@ export default {
 				try {
 					// Zweiter Versuch mit dem neuen (kostenpflichtigen) Key
 					await this.runApiCall(history);
-					showAlert("Erfolgreich auf den kostenpflichtigen Key gewechselt.", "success");
+					//showAlert("Erfolgreich auf den kostenpflichtigen Key gewechselt.", "success");
 				} catch (paidError) {
 					throw new Error("Auch der kostenpflichtige Key ist fehlgeschlagen: " + paidError.message);
 				}
@@ -931,12 +931,12 @@ export default {
 	},
 
 	handleTabChange: async () => {
-		showAlert("Auswertung gestartet");
+		//showAlert("Auswertung gestartet");
 
 		// Gibt den Namen/Label des aktivierten Tabs als String zurück (z. B. "Tab 1" oder "Settings")
 		const currentTab = Tabs1.selectedTab;
 
-		showAlert(currentTab);
+		//showAlert(currentTab);
 		if (currentTab === "Gemini Auswertung") {
 			await this.evaluateTest();
 		}
@@ -1050,7 +1050,7 @@ export default {
 	},
 
 	evaluateTest: async function() {
-		showAlert("Evaluation Test with Gemini!", "info");
+		//showAlert("Evaluation Test with Gemini!", "info");
 
 		const geminiOpinion = appsmith.store.report.geminiEvaluation;
     let finalHtml = "";
@@ -1167,9 +1167,9 @@ export default {
               evaluationData: parsedJson
             });
 
-            showAlert("Gemini-Auswertung gespeichert!", "info");
+            //showAlert("Gemini-Auswertung gespeichert!", "info");
           } catch(e) {
-            showAlert("Fehler beim Speichern der Gemini-Auswertung", "warning");
+            //showAlert("Fehler beim Speichern der Gemini-Auswertung", "warning");
             console.error("Fehler beim Speichern der Test-Ausweitung!!!!", e);
           }
 
@@ -1355,6 +1355,6 @@ Struktur des geforderten JSON-Objekts:
 			//old_DeleteManyBookmarks.run({ questionIds: ids });
 		}
 		
-		showAlert("Alle Bookmarks in diesem Report wurden zurückgesetzt!!!", "info");
+		//showAlert("Alle Bookmarks in diesem Report wurden zurückgesetzt!!!", "info");
 	}
 }
